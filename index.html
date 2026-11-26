@@ -435,22 +435,51 @@
           <button type="button" onclick="switchMainTab('chat')" class="px-3.5 py-2 rounded-xl bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition">← Quay lại hỏi đáp AI</button>
         </div>
 
-        <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs space-y-4">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700">Phần I · Trắc nghiệm 4 lựa chọn</span>
-            <span class="text-xs text-slate-400">Câu mẫu kiểm tra nhanh</span>
+        <div id="practice-list-wrapper" class="space-y-4">
+          <!-- Danh sách Đề HTML do Cô Lê Mộng Hòa tải lên -->
+          <div id="uploaded-practices-section" class="hidden bg-white rounded-2xl border border-blue-100 p-5 shadow-xs space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">Đề tự luyện do Cô Lê Mộng Hòa giao</h3>
+                <p class="text-xs text-slate-500">Chọn bài bên dưới để làm bài trực tiếp</p>
+              </div>
+              <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700">Mục 3 · Tự luyện</span>
+            </div>
+            <div id="uploaded-practices-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
           </div>
-          <p class="text-sm font-medium text-slate-800">Điều kiện xác định của biểu thức $\sqrt{2x - 6}$ là:</p>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            <button type="button" onclick="checkQuizAnswer(this, false)" class="p-3 rounded-xl border border-slate-200 hover:border-blue-400 text-xs font-medium text-left transition">A. $x > 3$</button>
-            <button type="button" onclick="checkQuizAnswer(this, true)" class="p-3 rounded-xl border border-slate-200 hover:border-blue-400 text-xs font-medium text-left transition">B. $x \ge 3$</button>
-            <button type="button" onclick="checkQuizAnswer(this, false)" class="p-3 rounded-xl border border-slate-200 hover:border-blue-400 text-xs font-medium text-left transition">C. $x \le 3$</button>
-            <button type="button" onclick="checkQuizAnswer(this, false)" class="p-3 rounded-xl border border-slate-200 hover:border-blue-400 text-xs font-medium text-left transition">D. $x \neq 3$</button>
+
+          <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700">Phần I · Trắc nghiệm 4 lựa chọn</span>
+              <span class="text-xs text-slate-400">Câu mẫu kiểm tra nhanh</span>
+            </div>
+            <p class="text-sm font-medium text-slate-800">Điều kiện xác định của biểu thức $\sqrt{2x - 6}$ là:</p>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <button type="button" onclick="checkQuizAnswer(this, false)" class="p-3 rounded-xl border border-slate-200 hover:border-blue-400 text-xs font-medium text-left transition">A. $x > 3$</button>
+              <button type="button" onclick="checkQuizAnswer(this, true)" class="p-3 rounded-xl border border-slate-200 hover:border-blue-400 text-xs font-medium text-left transition">B. $x \ge 3$</button>
+              <button type="button" onclick="checkQuizAnswer(this, false)" class="p-3 rounded-xl border border-slate-200 hover:border-blue-400 text-xs font-medium text-left transition">C. $x \le 3$</button>
+              <button type="button" onclick="checkQuizAnswer(this, false)" class="p-3 rounded-xl border border-slate-200 hover:border-blue-400 text-xs font-medium text-left transition">D. $x \neq 3$</button>
+            </div>
+            <div id="quiz-feedback" class="hidden text-xs p-3 rounded-xl"></div>
+            <div class="pt-2 border-t border-slate-100 flex justify-end">
+              <button type="button" onclick="askTeacherFromTab('Cô ơi, ra thêm cho em 1 đề tự luyện Toán 9 ngắn theo cấu trúc Công văn 7991 gồm trắc nghiệm, đúng/sai và tự luận với ạ!')" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition">Nhờ Cô AI tạo thêm đề Công văn 7991 →</button>
+            </div>
           </div>
-          <div id="quiz-feedback" class="hidden text-xs p-3 rounded-xl"></div>
-          <div class="pt-2 border-t border-slate-100 flex justify-end">
-            <button type="button" onclick="askTeacherFromTab('Cô ơi, ra thêm cho em 1 đề tự luyện Toán 9 ngắn theo cấu trúc Công văn 7991 gồm trắc nghiệm, đúng/sai và tự luận với ạ!')" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition">Nhờ Cô AI tạo thêm đề Công văn 7991 →</button>
+        </div>
+
+        <!-- Khung làm bài HTML trực tiếp cho học sinh -->
+        <div id="html-practice-runner" class="hidden bg-white rounded-2xl border border-blue-200 shadow-sm overflow-hidden">
+          <div class="px-5 py-3.5 bg-blue-50/70 border-b border-blue-100 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 id="runner-practice-title" class="text-sm font-bold text-blue-950">Đang làm bài</h3>
+              <p class="text-[11px] text-blue-700">Bài làm được ghi nhận vào hồ sơ học tập của em</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="markHtmlPracticeCompleted()" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition">✓ Hoàn thành bài</button>
+              <button type="button" onclick="closeHtmlPracticeRunner()" class="px-3.5 py-1.5 rounded-xl bg-white border border-blue-200 hover:bg-blue-50 text-blue-800 text-xs font-semibold transition">← Danh sách đề</button>
+            </div>
           </div>
+          <iframe id="html-practice-iframe" sandbox="allow-scripts allow-forms allow-same-origin" class="w-full h-[650px] border-0 bg-white"></iframe>
         </div>
       </section>
 
@@ -609,6 +638,25 @@
               <div class="flex items-center gap-2">
                 <button type="button" onclick="openKnowledgeModal()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition">Cấu hình Tri thức & API Key</button>
                 <button type="button" onclick="handleAdminLogout()" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">Đăng xuất</button>
+              </div>
+            </div>
+
+            <!-- Quản lý Đề Tự Luyện HTML cho Mục 3 -->
+            <div class="p-4 rounded-xl bg-blue-50/50 border border-blue-200 space-y-3">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <h4 class="text-xs font-bold uppercase tracking-wider text-blue-900">Mục 3 · Tải lên file HTML bài tập cho học sinh</h4>
+                  <p class="text-[11px] text-slate-600 mt-0.5">Hệ thống tự động nhận diện tên bài và nội dung từ file `.html` để hiển thị ở mục 3.</p>
+                </div>
+                <div>
+                  <input type="file" id="admin-html-upload" accept=".html,.htm" class="hidden" onchange="handleAdminHtmlUpload(event)" />
+                  <button type="button" onclick="document.getElementById('admin-html-upload').click()" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-xs transition flex items-center gap-1.5">
+                    <span>+ Tải file đề (.html)</span>
+                  </button>
+                </div>
+              </div>
+              <div id="admin-practices-list" class="space-y-2 text-xs">
+                <p class="text-slate-400 italic">Chưa có file đề HTML nào được tải lên.</p>
               </div>
             </div>
 
@@ -1572,9 +1620,186 @@
       }).join('');
     }
 
+    // 8. QUẢN LÝ & HIỂN THỊ ĐỀ TỰ LUYỆN HTML (MỤC 3)
+    const LOCAL_KEY_PRACTICES = 'trogiang_html_practices_v1';
+    let cachedPractices = [];
+    let activePracticeItem = null;
+
+    function getLocalPractices() {
+      try {
+        return JSON.parse(localStorage.getItem(LOCAL_KEY_PRACTICES) || '[]');
+      } catch { return []; }
+    }
+
+    function saveLocalPractices(list) {
+      localStorage.setItem(LOCAL_KEY_PRACTICES, JSON.stringify(list));
+    }
+
+    function extractHtmlMetadata(htmlText, fileName) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlText, 'text/html');
+      const h1 = doc.querySelector('h1')?.textContent?.trim();
+      const h2 = doc.querySelector('h2')?.textContent?.trim();
+      const docTitle = doc.querySelector('title')?.textContent?.trim();
+      const fallbackName = fileName.replace(/\.(html|htm)$/i, '').replace(/[-_]+/g, ' ').trim();
+      const title = h1 || docTitle || h2 || fallbackName || 'Bài tập tự luyện Toán 9';
+
+      // Lấy tóm tắt nội dung từ các đoạn văn/câu hỏi đầu tiên trong body
+      const cloneBody = doc.body ? doc.body.cloneNode(true) : null;
+      if (cloneBody) {
+        cloneBody.querySelectorAll('script, style').forEach(el => el.remove());
+      }
+      const rawBodyText = (cloneBody?.textContent || '').replace(/\s+/g, ' ').trim();
+      let summary = rawBodyText.replace(title, '').trim().slice(0, 140);
+      if (summary.length >= 140) summary += '...';
+      if (!summary) summary = `Đề tự luyện tương tác tải từ tệp ${fileName}`;
+
+      return { title, summary };
+    }
+
+    async function handleAdminHtmlUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const htmlContent = e.target.result;
+        const { title, summary } = extractHtmlMetadata(htmlContent, file.name);
+        let newItem = {
+          id: 'prac_' + Date.now(),
+          title,
+          summary,
+          fileName: file.name,
+          htmlContent,
+          createdAt: new Date().toISOString()
+        };
+
+        try {
+          const res = await fetch('/api/practices', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, summary, fileName: file.name, htmlContent })
+          });
+          const data = await res.json();
+          if (res.ok && data.practice) newItem = data.practice;
+        } catch {}
+
+        const local = getLocalPractices();
+        local.unshift(newItem);
+        saveLocalPractices(local);
+        event.target.value = '';
+        await loadPracticesList();
+        showToast(`Đã nhận diện & tải lên bài: "${title}"`);
+      };
+      reader.readAsText(file, 'utf-8');
+    }
+
+    async function deletePracticeItem(id) {
+      if (!confirm('Xóa bài tự luyện HTML này khỏi mục 3?')) return;
+      const local = getLocalPractices().filter(p => p.id !== id);
+      saveLocalPractices(local);
+      try {
+        await fetch('/api/practices/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+      } catch {}
+      await loadPracticesList();
+      showToast('Đã xóa đề tự luyện.');
+    }
+
+    async function loadPracticesList() {
+      let combined = [...getLocalPractices()];
+      try {
+        const res = await fetch('/api/practices');
+        const data = await res.json();
+        if (res.ok && Array.isArray(data.practices)) {
+          data.practices.forEach(srv => {
+            if (!combined.find(l => l.id === srv.id || (l.title === srv.title && l.fileName === srv.fileName))) {
+              combined.push(srv);
+            }
+          });
+        }
+      } catch {}
+      cachedPractices = combined;
+      renderPracticesUI();
+    }
+
+    function renderPracticesUI() {
+      // 1. Render bên ngoài Mục 3 cho học sinh làm bài
+      const section = document.getElementById('uploaded-practices-section');
+      const listEl = document.getElementById('uploaded-practices-list');
+      if (section && listEl) {
+        if (!cachedPractices.length) {
+          section.classList.add('hidden');
+        } else {
+          section.classList.remove('hidden');
+          listEl.innerHTML = cachedPractices.map(p => `
+            <div class="p-4 rounded-xl border border-blue-100 bg-blue-50/40 hover:bg-blue-50/80 transition flex flex-col justify-between gap-3">
+              <div>
+                <div class="flex items-center justify-between gap-2 mb-1">
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-600 text-white">Đề HTML</span>
+                  <span class="text-[11px] text-slate-400 truncate max-w-[140px]">${escapeHtml(p.fileName || '')}</span>
+                </div>
+                <h4 class="text-sm font-bold text-slate-900 leading-snug">${escapeHtml(p.title)}</h4>
+                <p class="text-xs text-slate-600 mt-1 line-clamp-2">${escapeHtml(p.summary || '')}</p>
+              </div>
+              <button type="button" onclick="openHtmlPracticeRunner('${p.id}')" class="w-full py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-2xs">Làm bài ngay →</button>
+            </div>
+          `).join('');
+        }
+      }
+
+      // 2. Render trong khu vực Quản trị (có nút Xóa)
+      const adminListEl = document.getElementById('admin-practices-list');
+      if (adminListEl) {
+        if (!cachedPractices.length) {
+          adminListEl.innerHTML = '<p class="text-slate-400 italic">Chưa có file đề HTML nào được tải lên.</p>';
+        } else {
+          adminListEl.innerHTML = cachedPractices.map(p => `
+            <div class="p-2.5 rounded-xl bg-white border border-blue-100 flex items-center justify-between gap-2">
+              <div class="min-w-0">
+                <div class="font-bold text-slate-800 truncate">${escapeHtml(p.title)}</div>
+                <div class="text-[11px] text-slate-500 truncate">${escapeHtml(p.fileName)} · ${escapeHtml(p.summary || '')}</div>
+              </div>
+              <button type="button" onclick="deletePracticeItem('${p.id}')" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-[11px] font-semibold shrink-0 transition">Xóa</button>
+            </div>
+          `).join('');
+        }
+      }
+    }
+
+    function openHtmlPracticeRunner(id) {
+      if (!requireStudentRegistered(() => openHtmlPracticeRunner(id))) return;
+      const item = cachedPractices.find(p => p.id === id);
+      if (!item) return;
+      activePracticeItem = item;
+      document.getElementById('practice-list-wrapper').classList.add('hidden');
+      document.getElementById('html-practice-runner').classList.remove('hidden');
+      document.getElementById('runner-practice-title').textContent = item.title;
+      document.getElementById('html-practice-iframe').srcdoc = item.htmlContent;
+      recordStudentActivity('quiz_attempt', `Bắt đầu làm đề: ${item.title}`);
+    }
+
+    function closeHtmlPracticeRunner() {
+      document.getElementById('html-practice-runner').classList.add('hidden');
+      document.getElementById('practice-list-wrapper').classList.remove('hidden');
+      document.getElementById('html-practice-iframe').srcdoc = '';
+      activePracticeItem = null;
+    }
+
+    function markHtmlPracticeCompleted() {
+      if (activePracticeItem) {
+        recordStudentActivity('quiz_attempt', `Hoàn thành đề: ${activePracticeItem.title}`, true);
+        showToast(`Đã ghi nhận hoàn thành bài "${activePracticeItem.title}"!`);
+      }
+      closeHtmlPracticeRunner();
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       updateAdminAuthUI();
       renderStudentStatsUI();
+      loadPracticesList();
       if (isAdminAuthenticated) loadAdminStudentsList();
       renderMathInContainer(document.body);
     });

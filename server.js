@@ -377,42 +377,58 @@ NGỮ CẢNH BÀI TOÁN VỪA CHẤM CỦA HỌC SINH:
   throw lastError || new Error('Không thể kết nối đến Gemini Chat API sau nhiều lần thử.');
 }
 
-// 6B. QUẢN LÝ HỒ SƠ & QUÁ TRÌNH HỌC TẬP CỦA HỌC SINH
+// 6B. QUẢN LÝ HỒ SƠ HỌC SINH & ĐỀ TỰ LUYỆN HTML (MỤC 3)
 let memoryStudentsStore = [];
+let memoryPracticesStore = [];
 
-function getStudentsFilePath() {
+function getDataFilePath(filename) {
   const localDir = path.join(__dirname, 'data');
   try {
     if (!fs.existsSync(localDir)) fs.mkdirSync(localDir, { recursive: true });
     const testPath = path.join(localDir, '.write_test');
     fs.writeFileSync(testPath, '1');
     fs.unlinkSync(testPath);
-    return path.join(localDir, 'students.json');
+    return path.join(localDir, filename);
   } catch {
-    return '/tmp/trogiang_students.json';
+    return `/tmp/trogiang_${filename}`;
   }
 }
 
-function readStudentsStore() {
+function readJsonStore(filename, fallbackMemory) {
   try {
-    const file = getStudentsFilePath();
+    const file = getDataFilePath(filename);
     if (fs.existsSync(file)) {
       const parsed = JSON.parse(fs.readFileSync(file, 'utf-8'));
-      if (Array.isArray(parsed)) {
-        memoryStudentsStore = parsed;
-        return parsed;
-      }
+      if (Array.isArray(parsed)) return parsed;
     }
   } catch {}
+  return fallbackMemory;
+}
+
+function writeJsonStore(filename, list) {
+  try {
+    fs.writeFileSync(getDataFilePath(filename), JSON.stringify(list, null, 2), 'utf-8');
+  } catch {}
+}
+
+function readStudentsStore() {
+  memoryStudentsStore = readJsonStore('students.json', memoryStudentsStore);
   return memoryStudentsStore;
 }
 
 function writeStudentsStore(list) {
   memoryStudentsStore = list;
-  try {
-    const file = getStudentsFilePath();
-    fs.writeFileSync(file, JSON.stringify(list, null, 2), 'utf-8');
-  } catch {}
+  writeJsonStore('students.json', list);
+}
+
+function readPracticesStore() {
+  memoryPracticesStore = readJsonStore('practices.json', memoryPracticesStore);
+  return memoryPracticesStore;
+}
+
+function writePracticesStore(list) {
+  memoryPracticesStore = list;
+  writeJsonStore('practices.json', list);
 }
 
 // 7. XỬ LÝ HTTP SERVER
@@ -601,6 +617,45 @@ export async function handleRequest(req, res) {
         writeStudentsStore(list);
       }
       return sendJson(res, 200, { ok: true, student });
+    }
+
+    // API: GET /api/practices (Danh sách đề tự luyện HTML mục 3)
+    if (req.method === 'GET' && pathname === '/api/practices') {
+      const list = readPracticesStore();
+      return sendJson(res, 200, { ok: true, practices: list });
+    }
+
+    // API: POST /api/practices (Quản trị viên tải lên đề HTML mới)
+    if (req.method === 'POST' && pathname === '/api/practices') {
+      const body = await readRequestBody(req);
+      const title = String(body.title || '').trim();
+      const summary = String(body.summary || '').trim();
+      const fileName = String(body.fileName || 'bai-tap.html').trim();
+      const htmlContent = String(body.htmlContent || '');
+      if (!title || !htmlContent) {
+        return sendJson(res, 400, { ok: false, message: 'Thiếu tiêu đề hoặc nội dung file HTML.' });
+      }
+      const list = readPracticesStore();
+      const item = {
+        id: 'prac_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+        title,
+        summary,
+        fileName,
+        htmlContent,
+        createdAt: new Date().toISOString(),
+      };
+      list.unshift(item);
+      writePracticesStore(list);
+      return sendJson(res, 200, { ok: true, practice: item });
+    }
+
+    // API: POST /api/practices/delete (Quản trị viên xóa đề HTML)
+    if (req.method === 'POST' && pathname === '/api/practices/delete') {
+      const body = await readRequestBody(req);
+      const id = String(body.id || '');
+      const list = readPracticesStore().filter((p) => p.id !== id);
+      writePracticesStore(list);
+      return sendJson(res, 200, { ok: true });
     }
 
     // API: POST /api/grade (Chấm bài qua ảnh)
