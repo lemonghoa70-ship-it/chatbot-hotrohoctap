@@ -378,6 +378,9 @@ NGỮ CẢNH BÀI TOÁN VỪA CHẤM CỦA HỌC SINH:
 
 // 7. XỬ LÝ HTTP SERVER
 function readRequestBody(req) {
+  if (req.body && typeof req.body === 'object') {
+    return Promise.resolve(req.body);
+  }
   return new Promise((resolve, reject) => {
     let body = '';
     req.on('data', (chunk) => {
@@ -421,7 +424,7 @@ const MIME_TYPES = {
   '.svg': 'image/svg+xml',
 };
 
-export const server = http.createServer(async (req, res) => {
+export async function handleRequest(req, res) {
   // CORS Preflight
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
@@ -561,7 +564,9 @@ export const server = http.createServer(async (req, res) => {
     console.error('[Server Error]', serverError);
     sendJson(res, 500, { error: 'Internal Server Error', message: serverError.message });
   }
-});
+}
+
+export const server = http.createServer(handleRequest);
 
 // Chỉ start server khi file được chạy trực tiếp
 if (process.argv[1] && process.argv[1].endsWith('server.js')) {
