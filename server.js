@@ -552,36 +552,69 @@ export async function handleRequest(req, res) {
       return sendJson(res, 200, { students: list, total: list.length });
     }
 
-    // API: POST /api/students/register (Đăng ký / đăng nhập tài khoản học sinh: Họ tên + Lớp)
+    // API: POST /api/students/register (Đăng ký tài khoản học sinh mới: Họ tên + Lớp + Mật khẩu)
     if (req.method === 'POST' && pathname === '/api/students/register') {
       const body = await readRequestBody(req);
       const fullName = String(body.fullName || '').trim();
       const className = String(body.className || '').trim();
-      if (!fullName || !className) {
-        return sendJson(res, 400, { ok: false, message: 'Vui lòng nhập đầy đủ Họ và tên và Lớp.' });
+      const password = String(body.password || '');
+      if (!fullName || !className || !password) {
+        return sendJson(res, 400, { ok: false, message: 'Vui lòng nhập đầy đủ Họ tên, Lớp và Mật khẩu.' });
       }
 
       const list = readStudentsStore();
-      let student = list.find(
+      const existing = list.find(
         (s) => s.fullName.toLowerCase() === fullName.toLowerCase() && s.className.toLowerCase() === className.toLowerCase()
       );
-      const now = new Date().toISOString();
-      if (!student) {
-        student = {
-          id: 'hs_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-          fullName,
-          className,
-          createdAt: now,
-          lastActiveAt: now,
-          stats: { questions: 0, gradedImages: 0, quizzesDone: 0, quizzesCorrect: 0 },
-          activities: [],
-        };
-        list.unshift(student);
-      } else {
-        student.lastActiveAt = now;
+      if (existing) {
+        return sendJson(res, 409, { ok: false, message: 'Tài khoản này đã được đăng ký. Em hãy chuyển sang Đăng nhập nhé!' });
       }
+
+      const now = new Date().toISOString();
+      const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
+      const student = {
+        id: 'hs_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+        fullName,
+        className,
+        passwordHash,
+        createdAt: now,
+        lastActiveAt: now,
+        stats: { questions: 0, gradedImages: 0, quizzesDone: 0, quizzesCorrect: 0 },
+        activities: [],
+      };
+      list.unshift(student);
       writeStudentsStore(list);
-      return sendJson(res, 200, { ok: true, student });
+      const { passwordHash: _, ...safeStudent } = student;
+      return sendJson(res, 200, { ok: true, student: safeStudent });
+    }
+
+    // API: POST /api/students/login (Đăng nhập tài khoản học sinh đã đăng ký)
+    if (req.method === 'POST' && pathname === '/api/students/login') {
+      const body = await readRequestBody(req);
+      const fullName = String(body.fullName || '').trim();
+      const className = String(body.className || '').trim();
+      const password = String(body.password || '');
+      if (!fullName || !className || !password) {
+        return sendJson(res, 400, { ok: false, message: 'Vui lòng nhập đầy đủ Họ tên, Lớp và Mật khẩu.' });
+      }
+
+      const list = readStudentsStore();
+      const student = list.find(
+        (s) => s.fullName.toLowerCase() === fullName.toLowerCase() && s.className.toLowerCase() === className.toLowerCase()
+      );
+      if (!student) {
+        return sendJson(res, 404, { ok: false, message: 'Tài khoản chưa được đăng ký. Em vui lòng Đăng ký trước khi đăng nhập!' });
+      }
+
+      const inputHash = crypto.createHash('sha256').update(password).digest('hex');
+      if (student.passwordHash && student.passwordHash !== inputHash) {
+        return sendJson(res, 401, { ok: false, message: 'Mật khẩu chưa đúng!' });
+      }
+
+      student.lastActiveAt = new Date().toISOString();
+      writeStudentsStore(list);
+      const { passwordHash: _, ...safeStudent } = student;
+      return sendJson(res, 200, { ok: true, student: safeStudent });
     }
 
     // API: POST /api/students/activity (Ghi nhận quá trình học tập & tương tác)
