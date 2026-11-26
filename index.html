@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Trợ Giảng AI — Hỏi Đáp & Chấm Bài Toán THCS</title>
+  <title>TRỢ LÝ HỌC TẬP AI – Cô Lê Mộng Hòa | Trường THCS Hiệp Phước</title>
 
   <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- KaTeX CSS & JS for Crisp Math Rendering -->
+  <!-- KaTeX CSS & JS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
@@ -21,7 +21,7 @@
   <style>
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: #ffffff;
+      background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 50%, #e0f2fe 100%);
       color: #0f172a;
     }
 
@@ -29,374 +29,462 @@
       font-family: 'JetBrains Mono', monospace;
     }
 
-    /* Tùy chỉnh thanh cuộn mảnh kiểu Antigravity */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #bfdbfe; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #60a5fa; }
 
-    /* Căn chỉnh KaTeX đẹp mắt */
     .katex-display {
-      margin: 0.75rem 0;
-      padding: 0.65rem 0.9rem;
+      margin: 0.6rem 0;
+      padding: 0.6rem 0.85rem;
       background: #f8fafc;
-      border: 1px solid #e2e8f0;
+      border: 1px solid #dbeafe;
       border-radius: 0.75rem;
       overflow-x: auto;
       overflow-y: hidden;
     }
-    .katex {
-      font-size: 1.04em;
-    }
+    .katex { font-size: 1.04em; }
 
     @keyframes fadeSlideUp {
       from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .animate-msg {
-      animation: fadeSlideUp 0.25s ease-out forwards;
-    }
+    .animate-msg { animation: fadeSlideUp 0.25s ease-out forwards; }
 
-    @keyframes pulseDot {
-      0%, 100% { opacity: 0.35; transform: scale(0.9); }
-      50% { opacity: 1; transform: scale(1.1); }
-    }
-    .thinking-dot {
-      animation: pulseDot 1.3s ease-in-out infinite;
-    }
-
-    /* Prose styling cho câu trả lời AI */
-    .ai-prose p {
-      margin-bottom: 0.55rem;
-      line-height: 1.65;
-    }
-    .ai-prose p:last-child {
-      margin-bottom: 0;
-    }
-    .ai-prose ul, .ai-prose ol {
-      margin: 0.45rem 0 0.65rem 1.25rem;
-    }
-    .ai-prose ul {
-      list-style-type: disc;
-    }
-    .ai-prose ol {
-      list-style-type: decimal;
-    }
-    .ai-prose li {
-      margin-bottom: 0.3rem;
-      line-height: 1.6;
-    }
-    .ai-prose strong {
-      font-weight: 600;
-      color: #0f172a;
-    }
+    .ai-prose p { margin-bottom: 0.45rem; line-height: 1.6; }
+    .ai-prose p:last-child { margin-bottom: 0; }
+    .ai-prose ul { list-style-type: disc; margin: 0.35rem 0 0.5rem 1.25rem; }
+    .ai-prose li { margin-bottom: 0.25rem; }
+    .ai-prose strong { font-weight: 600; color: #0f172a; }
   </style>
 </head>
-<body class="h-screen overflow-hidden flex bg-white text-slate-900">
+<body class="min-h-screen flex flex-col">
 
   <!-- MOBILE SIDEBAR BACKDROP -->
   <div id="sidebar-backdrop" onclick="toggleSidebar(false)" class="fixed inset-0 bg-slate-900/40 backdrop-blur-[1px] z-30 hidden lg:hidden"></div>
 
   <!-- ========================================== -->
-  <!-- SIDEBAR TRÁI (KIỂU ANTIGRAVITY IDE/CHAT)   -->
+  <!-- HEADER: LOGO MŨ TỐT NGHIỆP & TÊN HỆ THỐNG  -->
   <!-- ========================================== -->
-  <aside id="app-sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-72 bg-slate-50 border-r border-slate-200 flex flex-col transition-all duration-200 -translate-x-full lg:translate-x-0 shrink-0">
-    <!-- Brand & Collapse -->
-    <div class="h-14 px-4 flex items-center justify-between border-b border-slate-200/80 shrink-0">
-      <div class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center shadow-xs">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />
-          </svg>
-        </div>
-        <div>
-          <span class="text-sm font-bold text-slate-900 tracking-tight block leading-tight">Trợ Giảng AI</span>
-          <span class="text-[11px] text-slate-500 block leading-tight">Toán THCS · GDPT 2018</span>
-        </div>
-      </div>
-      <button type="button" onclick="toggleSidebar(false)" class="lg:hidden p-1.5 rounded-lg text-slate-500 hover:bg-slate-200/70">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-    </div>
-
-    <!-- Nút Cuộc trò chuyện mới -->
-    <div class="p-3 shrink-0">
-      <button type="button" onclick="startNewChat()" class="w-full py-2.5 px-3.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-200/90 shadow-2xs text-slate-800 text-xs font-semibold flex items-center justify-between transition group">
-        <span class="flex items-center gap-2">
-          <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          Cuộc trò chuyện mới
-        </span>
-        <span class="text-[10px] font-mono text-slate-400 group-hover:text-slate-600">New</span>
-      </button>
-    </div>
-
-    <!-- Nội dung cuộn Sidebar: Bài mẫu + Lịch sử -->
-    <div class="flex-1 overflow-y-auto px-3 space-y-5 pb-4">
-      <!-- Bài mẫu nhanh -->
-      <div>
-        <div class="px-2 mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Bài mẫu kiểm tra nhanh</div>
-        <div class="space-y-1">
-          <button type="button" onclick="loadSampleCase('sample1')" class="w-full text-left px-2.5 py-2 rounded-lg text-xs text-slate-700 hover:bg-slate-200/70 transition flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
-            <span class="truncate">Bài 1: Quên ĐKXĐ phân thức</span>
-          </button>
-          <button type="button" onclick="loadSampleCase('sample2')" class="w-full text-left px-2.5 py-2 rounded-lg text-xs text-slate-700 hover:bg-slate-200/70 transition flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
-            <span class="truncate">Bài 2: Nhầm dấu phá ngoặc căn</span>
-          </button>
-          <button type="button" onclick="loadSampleCase('sample3')" class="w-full text-left px-2.5 py-2 rounded-lg text-xs text-slate-700 hover:bg-slate-200/70 transition flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-            <span class="truncate">Bài 3: Giải hệ PT (Chuẩn 100%)</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Lịch sử hỏi bài -->
-      <div>
-        <div class="px-2 mb-1.5 flex items-center justify-between">
-          <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Lịch sử gần đây</span>
-          <button type="button" onclick="clearAllHistory()" class="text-[11px] text-slate-400 hover:text-rose-600 transition" title="Xóa lịch sử">Xóa</button>
-        </div>
-        <div id="history-list" class="space-y-1">
-          <p class="px-2 py-1.5 text-xs text-slate-400 italic">Chưa có cuộc trò chuyện nào</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Footer Sidebar: Cấu hình Agent & Trạng thái -->
-    <div class="p-3 border-t border-slate-200/80 space-y-2 shrink-0 bg-slate-50">
-      <button type="button" onclick="openKnowledgeModal()" class="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium flex items-center justify-between transition shadow-xs">
-        <span class="flex items-center gap-2">
-          <svg class="w-3.5 h-3.5 text-indigo-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
-          </svg>
-          Kỹ năng & Tính cách Agent
-        </span>
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-      </button>
-
-      <div id="api-status-badge" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-[11px] font-medium text-slate-600 flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
-        <span class="truncate">Đang kiểm tra kết nối...</span>
-      </div>
-    </div>
-  </aside>
-
-  <!-- ========================================== -->
-  <!-- KHUNG CHAT CHÍNH (KIỂU ANTIGRAVITY)        -->
-  <!-- ========================================== -->
-  <div class="flex-1 flex flex-col min-w-0 h-screen bg-white relative">
-
-    <!-- Top Header tối giản -->
-    <header class="h-14 px-4 sm:px-6 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white/90 backdrop-blur-xs z-20">
-      <div class="flex items-center gap-2.5 min-w-0">
-        <button type="button" onclick="toggleSidebar(true)" class="lg:hidden p-2 -ml-2 rounded-lg text-slate-600 hover:bg-slate-100">
+  <header class="bg-white/95 backdrop-blur-sm border-b border-blue-100 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <!-- Trái: Menu mobile + Logo mũ tốt nghiệp + Tên trường -->
+      <div class="flex items-center gap-3 min-w-0">
+        <button type="button" onclick="toggleSidebar(true)" class="lg:hidden p-2 -ml-2 rounded-xl text-blue-700 hover:bg-blue-50">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
           </svg>
         </button>
-        <h1 id="chat-header-title" class="text-sm font-semibold text-slate-800 truncate">Hỏi đáp & Chấm bài Toán THCS</h1>
-        <span id="header-mode-pill" class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-200/70">
-          Gia sư · Toán 9
-        </span>
+
+        <!-- Logo Mũ tốt nghiệp -->
+        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 text-white flex items-center justify-center shadow-sm shadow-blue-600/25 shrink-0">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
+          </svg>
+        </div>
+
+        <div class="min-w-0">
+          <h1 class="text-sm sm:text-lg font-extrabold text-slate-900 tracking-tight truncate">TRỢ LÝ HỌC TẬP AI</h1>
+          <p class="text-[11px] sm:text-xs font-medium text-blue-700 truncate">Cô Lê Mộng Hòa – Trường THCS Hiệp Phước</p>
+        </div>
       </div>
 
-      <div class="flex items-center gap-2">
-        <button type="button" onclick="openKnowledgeModal()" class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100" title="Cấu hình Agent">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
-          </svg>
-        </button>
-        <button type="button" onclick="startNewChat()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-          </svg>
-          <span class="hidden sm:inline">Làm mới</span>
-        </button>
-      </div>
-    </header>
+      <!-- Phải: Trạng thái AI + Nút Quản trị (khiên bảo mật) -->
+      <div class="flex items-center gap-2.5 shrink-0">
+        <div id="api-status-badge" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-800">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Đang kết nối...</span>
+        </div>
 
-    <!-- Kéo thả ảnh toàn màn hình -->
-    <div id="drag-overlay" class="hidden absolute inset-0 z-30 bg-indigo-50/90 backdrop-blur-[2px] border-2 border-dashed border-indigo-500 m-3 rounded-2xl flex flex-col items-center justify-center pointer-events-none">
-      <div class="w-14 h-14 rounded-2xl bg-indigo-600 text-white flex items-center justify-center mb-3 shadow-lg">
-        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-        </svg>
+        <button type="button" onclick="openKnowledgeModal()" class="px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-800 text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs" title="Quản trị & Cấu hình kỹ năng AI">
+          <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+          </svg>
+          <span>Quản trị</span>
+        </button>
       </div>
-      <p class="text-base font-bold text-indigo-950">Thả ảnh bài làm vào đây</p>
-      <p class="text-xs text-indigo-700 mt-1">Trợ Giảng AI sẽ đọc chữ viết tay và chấm từng bước</p>
     </div>
+  </header>
 
-    <!-- Vùng cuộn nội dung Chat -->
-    <main id="chat-scroll-area" class="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
-      <div class="max-w-3xl mx-auto">
+  <!-- ========================================== -->
+  <!-- BỐ CỤC CHÍNH: SIDEBAR TRÁI + DASHBOARD     -->
+  <!-- ========================================== -->
+  <div class="flex-1 max-w-[1440px] w-full mx-auto flex relative">
 
-        <!-- WELCOME / EMPTY STATE (ANTIGRAVITY HERO) -->
-        <div id="welcome-state" class="py-10 sm:py-16 flex flex-col items-center text-center">
-          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 via-violet-600 to-indigo-700 text-white flex items-center justify-center shadow-lg shadow-indigo-500/20 mb-5">
-            <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+    <!-- THANH MENU BÊN TRÁI (5 MỤC CHÍNH) -->
+    <aside id="app-sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-72 bg-white/95 lg:bg-white/80 backdrop-blur-sm border-r border-blue-100 flex flex-col justify-between transition-transform duration-200 -translate-x-full lg:translate-x-0 shrink-0">
+      <div class="p-4 space-y-5 overflow-y-auto">
+        <div class="flex items-center justify-between lg:hidden pb-2 border-b border-blue-100">
+          <span class="text-xs font-bold text-blue-800 uppercase">Menu học tập</span>
+          <button type="button" onclick="toggleSidebar(false)" class="p-1.5 rounded-lg text-slate-500 hover:bg-blue-50">✕</button>
+        </div>
+
+        <!-- 5 Mục Menu Chính -->
+        <nav class="space-y-1.5">
+          <button type="button" onclick="switchMainTab('chat')" id="nav-chat" class="nav-item w-full text-left px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] font-semibold flex items-center gap-2.5 transition bg-blue-600 text-white shadow-sm shadow-blue-600/20">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 44.8 44.8 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+            </svg>
+            <span>1. Hỏi đáp giáo viên AI</span>
+          </button>
+
+          <button type="button" onclick="switchMainTab('theory')" id="nav-theory" class="nav-item w-full text-left px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-800 flex items-center gap-2.5 transition">
+            <svg class="w-4 h-4 shrink-0 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+            </svg>
+            <span>2. Ôn tập lý thuyết Toán 9</span>
+          </button>
+
+          <button type="button" onclick="switchMainTab('practice')" id="nav-practice" class="nav-item w-full text-left px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-800 flex items-center gap-2.5 transition">
+            <svg class="w-4 h-4 shrink-0 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+            </svg>
+            <span>3. Tự luyện theo cấu trúc Công văn 7991</span>
+          </button>
+
+          <button type="button" onclick="switchMainTab('stats')" id="nav-stats" class="nav-item w-full text-left px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-800 flex items-center gap-2.5 transition">
+            <svg class="w-4 h-4 shrink-0 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+            </svg>
+            <span>4. Thống kê học tập</span>
+          </button>
+
+          <button type="button" onclick="openKnowledgeModal()" id="nav-admin" class="nav-item w-full text-left px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-800 flex items-center gap-2.5 transition">
+            <svg class="w-4 h-4 shrink-0 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>5. Quản trị hệ thống</span>
+          </button>
+        </nav>
+
+        <!-- Bài mẫu kiểm tra nhanh -->
+        <div class="pt-3 border-t border-blue-100">
+          <div class="px-2 mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Thử nhanh bài làm mẫu</div>
+          <div class="space-y-1">
+            <button type="button" onclick="loadSampleCase('sample1')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-700 hover:bg-blue-50 hover:text-blue-800 transition flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
+              <span class="truncate">Bài 1: Quên ĐKXĐ phân thức</span>
+            </button>
+            <button type="button" onclick="loadSampleCase('sample2')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-700 hover:bg-blue-50 hover:text-blue-800 transition flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+              <span class="truncate">Bài 2: Nhầm dấu căn thức</span>
+            </button>
+            <button type="button" onclick="loadSampleCase('sample3')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-700 hover:bg-blue-50 hover:text-blue-800 transition flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+              <span class="truncate">Bài 3: Giải hệ PT (Đạt 10đ)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Sidebar -->
+      <div class="p-4 border-t border-blue-100 bg-blue-50/40 text-[11px] text-slate-500">
+        <div class="font-semibold text-blue-900">Sách Kết nối tri thức Toán 9</div>
+        <div>Hỗ trợ chấm ảnh & giải từng bước</div>
+      </div>
+    </aside>
+
+    <!-- ========================================== -->
+    <!-- KHU VỰC DASHBOARD TRUNG TÂM                -->
+    <!-- ========================================== -->
+    <main class="flex-1 min-w-0 p-4 sm:p-6 space-y-5 overflow-y-auto">
+
+      <!-- 1. HÀNG THẺ THỐNG KÊ PHÍA TRÊN + BIỂU ĐỒ HIỆN ĐẠI -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <!-- Thẻ 1: Tổng thành viên -->
+        <div class="bg-white rounded-2xl border border-blue-100 p-4 shadow-xs flex items-center gap-3.5">
+          <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
             </svg>
           </div>
-          <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Hôm nay mình cùng giải bài gì nào?</h2>
-          <p class="text-sm text-slate-500 mt-2 max-w-lg leading-relaxed">
-            Gõ câu hỏi Toán THCS bất kỳ, dán ảnh trực tiếp (<kbd class="px-1.5 py-0.5 text-[11px] bg-slate-100 border border-slate-200 rounded">Ctrl+V</kbd>), hoặc tải ảnh vở viết tay để Thầy/Cô chấm từng bước.
-          </p>
-
-          <!-- Gợi ý bắt đầu nhanh (Antigravity Prompt Cards) -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-8 w-full text-left">
-            <button type="button" onclick="document.getElementById('file-input').click()" class="p-4 rounded-2xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/30 transition group bg-white shadow-2xs">
-              <div class="text-lg mb-1.5">📸</div>
-              <div class="text-xs font-semibold text-slate-800 group-hover:text-indigo-700">Chấm ảnh bài viết tay</div>
-              <div class="text-[11px] text-slate-500 mt-1 leading-relaxed">Tải ảnh chụp vở để soi lỗi sai đầu tiên & nhận gợi ý.</div>
-            </button>
-
-            <button type="button" onclick="askQuickPrompt('Giải thích cho em cách tìm ĐKXĐ của phương trình chứa ẩn ở mẫu và cho 1 ví dụ minh họa ạ!')" class="p-4 rounded-2xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/30 transition group bg-white shadow-2xs">
-              <div class="text-lg mb-1.5">💡</div>
-              <div class="text-xs font-semibold text-slate-800 group-hover:text-indigo-700">Hỏi kiến thức & công thức</div>
-              <div class="text-[11px] text-slate-500 mt-1 leading-relaxed">"Cách tìm ĐKXĐ của phương trình chứa ẩn ở mẫu..."</div>
-            </button>
-
-            <button type="button" onclick="loadSampleCase('sample1')" class="p-4 rounded-2xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/30 transition group bg-white shadow-2xs">
-              <div class="text-lg mb-1.5">⚡</div>
-              <div class="text-xs font-semibold text-slate-800 group-hover:text-indigo-700">Thử ngay bài mẫu Lớp 9</div>
-              <div class="text-[11px] text-slate-500 mt-1 leading-relaxed">Xem AI chấm bài giải phương trình quên điều kiện.</div>
-            </button>
+          <div>
+            <div class="text-xs font-medium text-slate-500">Tổng thành viên</div>
+            <div class="text-2xl font-extrabold text-slate-900 tracking-tight">486</div>
           </div>
         </div>
 
-        <!-- STREAM TIN NHẮN -->
-        <div id="messages-stream" class="space-y-6 pb-4"></div>
-
-        <!-- THINKING INDICATOR (KIỂU ANTIGRAVITY) -->
-        <div id="thinking-indicator" class="hidden py-3 animate-msg">
-          <div class="flex items-start gap-3">
-            <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
-              <svg class="w-3.5 h-3.5 thinking-dot" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-              </svg>
-            </div>
-            <div class="flex-1 pt-1">
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-semibold text-slate-800">Trợ Giảng AI</span>
-                <span id="thinking-status-text" class="text-xs text-indigo-600 font-medium">Đang phân tích và soạn câu trả lời...</span>
-              </div>
-              <div class="mt-2 space-y-1.5 max-w-md">
-                <div class="h-2.5 bg-slate-100 rounded-full w-3/4 animate-pulse"></div>
-                <div class="h-2.5 bg-slate-100 rounded-full w-1/2 animate-pulse"></div>
-              </div>
-            </div>
+        <!-- Thẻ 2: Tổng lượt làm bài -->
+        <div class="bg-white rounded-2xl border border-blue-100 p-4 shadow-xs flex items-center gap-3.5">
+          <div class="w-11 h-11 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
+            </svg>
+          </div>
+          <div>
+            <div class="text-xs font-medium text-slate-500">Tổng lượt làm bài</div>
+            <div id="stat-exercises" class="text-2xl font-extrabold text-slate-900 tracking-tight">3.240</div>
           </div>
         </div>
 
-      </div>
-    </main>
+        <!-- Thẻ 3: Tổng lượt truy cập -->
+        <div class="bg-white rounded-2xl border border-blue-100 p-4 shadow-xs flex items-center gap-3.5">
+          <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <div>
+            <div class="text-xs font-medium text-slate-500">Tổng lượt truy cập</div>
+            <div id="stat-visits" class="text-2xl font-extrabold text-slate-900 tracking-tight">12.850</div>
+          </div>
+        </div>
 
-    <!-- ========================================== -->
-    <!-- FLOATING COMPOSER BAR (KIỂU ANTIGRAVITY)   -->
-    <!-- ========================================== -->
-    <footer class="px-3 sm:px-6 pb-4 pt-1 bg-gradient-to-t from-white via-white to-white/80 shrink-0">
-      <div class="max-w-3xl mx-auto">
-        <div id="composer-box" class="rounded-2xl border border-slate-200 bg-white shadow-lg shadow-slate-200/50 focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-500/15 transition-all">
+        <!-- Thẻ 4: Biểu đồ thống kê học tập hiện đại -->
+        <div class="bg-white rounded-2xl border border-blue-100 p-4 shadow-xs flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs font-bold text-slate-700">Thống kê học tập</span>
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">Tuần này</span>
+          </div>
+          <div class="flex items-end justify-between gap-1.5 h-11 pt-1">
+            <div class="flex-1 bg-blue-100 rounded-t-md h-[45%]" title="T2"></div>
+            <div class="flex-1 bg-blue-500 rounded-t-md h-[85%]" title="T3"></div>
+            <div class="flex-1 bg-blue-200 rounded-t-md h-[55%]" title="T4"></div>
+            <div class="flex-1 bg-blue-400 rounded-t-md h-[70%]" title="T5"></div>
+            <div class="flex-1 bg-blue-600 rounded-t-md h-[95%]" title="T6"></div>
+            <div class="flex-1 bg-sky-300 rounded-t-md h-[65%]" title="T7"></div>
+            <div class="flex-1 bg-blue-500 rounded-t-md h-[80%]" title="CN"></div>
+          </div>
+        </div>
+      </section>
 
-          <!-- File inputs ẩn -->
-          <input type="file" id="file-input" accept="image/*" class="hidden" />
-          <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden" />
+      <!-- ========================================== -->
+      <!-- VIEW 1: HỎI ĐÁP GIÁO VIÊN AI (TRUNG TÂM)   -->
+      <!-- ========================================== -->
+      <div id="view-chat" class="space-y-5">
+        <section id="chatbot-drop-zone" class="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6 space-y-4 relative overflow-hidden">
+          <!-- Lời chào trung tâm -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-blue-50">
+            <div class="text-center sm:text-left">
+              <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">Chào mừng em đến với lớp học AI!</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Cô AI sẵn sàng giải đáp Toán 9 & chấm từng bước bài làm viết tay qua ảnh.</p>
+            </div>
+            <div class="flex items-center justify-center sm:justify-end gap-2">
+              <div class="inline-flex bg-blue-50 p-0.5 rounded-xl border border-blue-100">
+                <button type="button" id="mode-tutor" onclick="setFeedbackMode('tutor')" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition">Gia sư</button>
+                <button type="button" id="mode-quick" onclick="setFeedbackMode('quick')" class="px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Chấm nhanh</button>
+              </div>
+              <button type="button" onclick="resetChat()" class="px-2.5 py-1 text-xs font-medium text-slate-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition">Làm mới</button>
+            </div>
+          </div>
+
+          <!-- Khung hội thoại với Avatar Cô AI thân thiện -->
+          <div id="chat-scroll-area" class="max-h-[430px] overflow-y-auto pr-1 space-y-4">
+            <!-- Tin nhắn chào mẫu có Avatar Cô Lê Mộng Hòa AI & công thức Toán 9 -->
+            <div id="welcome-chat-card" class="flex items-start gap-3.5 bg-blue-50/50 border border-blue-100 rounded-2xl p-4">
+              <!-- Avatar Cô AI thân thiện -->
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-100 to-sky-100 border border-blue-200 flex items-center justify-center shrink-0 relative shadow-2xs">
+                <svg class="w-9 h-9 text-blue-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                </svg>
+                <span class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center shadow-xs">AI</span>
+              </div>
+              <div class="flex-1 text-xs sm:text-sm text-slate-800 space-y-1.5 leading-relaxed">
+                <p><strong>Học sinh:</strong> Cô ơi, làm sao rút gọn $\sqrt{a^2}$ và giải phương trình $ax^2 + bx + c = 0$ ạ?</p>
+                <p><strong>Cô AI:</strong> Rất đơn giản! Em áp dụng hằng đẳng thức $\sqrt{a^2} = |a|$. Với phương trình bậc hai $ax^2 + bx + c = 0 \ (a \neq 0)$, ta tính $\Delta = b^2 - 4ac$ rồi xét dấu của $\Delta$ nhé! Em có thể gõ câu hỏi hoặc tải ảnh bài làm lên để Cô kiểm tra cùng em.</p>
+              </div>
+            </div>
+
+            <!-- Luồng tin nhắn thật -->
+            <div id="messages-stream" class="space-y-4"></div>
+
+            <!-- Trạng thái đang suy nghĩ -->
+            <div id="thinking-indicator" class="hidden flex items-center gap-3 p-3 rounded-xl bg-blue-50/70 border border-blue-100 animate-msg">
+              <div class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold animate-pulse">AI</div>
+              <span id="thinking-status-text" class="text-xs font-medium text-blue-800">Cô AI đang đọc bài và soạn hướng dẫn...</span>
+            </div>
+          </div>
 
           <!-- Khung xem trước ảnh đính kèm (nếu có) -->
-          <div id="composer-attachment" class="hidden px-3.5 pt-3 pb-1 border-b border-slate-100">
-            <div class="inline-flex items-center gap-3 p-2 rounded-xl bg-slate-50 border border-slate-200/90">
-              <div class="w-14 h-14 rounded-lg bg-white border border-slate-200 overflow-hidden flex items-center justify-center shrink-0">
-                <img id="composer-thumb" src="" alt="Ảnh đính kèm" class="max-w-full max-h-full object-contain transition-transform duration-200" style="transform: rotate(0deg);" />
+          <div id="composer-attachment" class="hidden pt-1">
+            <div class="inline-flex items-center gap-3 p-2 rounded-xl bg-blue-50/60 border border-blue-200">
+              <div class="w-14 h-14 rounded-lg bg-white border border-blue-100 overflow-hidden flex items-center justify-center shrink-0">
+                <img id="composer-thumb" src="" alt="Ảnh bài tập" class="max-w-full max-h-full object-contain transition-transform duration-200" style="transform: rotate(0deg);" />
               </div>
               <div class="flex flex-col gap-1 pr-1">
-                <span class="text-[11px] font-semibold text-slate-700">Ảnh bài làm đính kèm</span>
+                <span class="text-[11px] font-semibold text-blue-900">Ảnh bài tập đã chọn</span>
                 <div class="flex items-center gap-1">
-                  <button type="button" onclick="rotateImage(-90)" class="px-2 py-0.5 text-[11px] font-medium bg-white border border-slate-200 hover:bg-slate-100 text-slate-600 rounded-md transition" title="Xoay trái 90°">↺ Trái</button>
-                  <button type="button" onclick="rotateImage(90)" class="px-2 py-0.5 text-[11px] font-medium bg-white border border-slate-200 hover:bg-slate-100 text-slate-600 rounded-md transition" title="Xoay phải 90°">↻ Phải</button>
-                  <button type="button" onclick="clearImage()" class="px-2 py-0.5 text-[11px] font-medium bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-700 rounded-md transition" title="Gỡ ảnh">✕ Xóa</button>
+                  <button type="button" onclick="rotateImage(-90)" class="px-2 py-0.5 text-[11px] font-medium bg-white border border-blue-200 hover:bg-blue-50 text-slate-700 rounded-md transition">↺ Xoay trái</button>
+                  <button type="button" onclick="rotateImage(90)" class="px-2 py-0.5 text-[11px] font-medium bg-white border border-blue-200 hover:bg-blue-50 text-slate-700 rounded-md transition">↻ Xoay phải</button>
+                  <button type="button" onclick="clearImage()" class="px-2 py-0.5 text-[11px] font-medium bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-700 rounded-md transition">✕ Xóa</button>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Ô nhập văn bản tự động giãn -->
-          <div class="px-3.5 pt-3 pb-1.5">
-            <textarea
-              id="composer-input"
-              rows="1"
-              placeholder="Hỏi bất kỳ bài toán nào, hoặc tải/dán ảnh bài làm để Thầy/Cô chấm..."
-              class="w-full resize-none bg-transparent text-sm text-slate-800 placeholder-slate-400 focus:outline-none max-h-40 leading-relaxed"
-            ></textarea>
-          </div>
+          <!-- Thanh nhập câu hỏi + Tải ảnh bài tập + Gửi câu hỏi -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 pt-1">
+            <input type="file" id="file-input" accept="image/*" class="hidden" />
+            <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden" />
 
-          <!-- Thanh công cụ dưới cùng trong Composer -->
-          <div class="px-3 pb-2.5 pt-1 flex flex-wrap items-center justify-between gap-2">
-            <div class="flex flex-wrap items-center gap-1.5">
-              <!-- Đính kèm ảnh -->
-              <button type="button" onclick="document.getElementById('file-input').click()" class="px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center gap-1.5" title="Tải ảnh bài làm">
-                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                </svg>
-                <span class="hidden sm:inline">Ảnh bài làm</span>
-              </button>
-
-              <!-- Chụp ảnh -->
-              <button type="button" onclick="document.getElementById('camera-input').click()" class="px-2 py-1.5 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center gap-1" title="Chụp ảnh vở">
-                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
-                </svg>
-              </button>
-
-              <span class="h-4 w-[1px] bg-slate-200 mx-0.5"></span>
-
-              <!-- Chọn lớp -->
-              <select id="grade-select" onchange="updateHeaderPill()" class="rounded-lg bg-slate-100 hover:bg-slate-200/70 px-2 py-1 text-xs font-medium text-slate-700 focus:outline-none cursor-pointer transition">
-                <option value="Toán 6">Toán 6</option>
-                <option value="Toán 7">Toán 7</option>
-                <option value="Toán 8">Toán 8</option>
-                <option value="Toán 9" selected>Toán 9</option>
-              </select>
-
-              <!-- Chọn chế độ -->
-              <div class="inline-flex bg-slate-100 p-0.5 rounded-lg">
-                <button type="button" id="mode-tutor" onclick="setFeedbackMode('tutor')" class="px-2 py-0.5 text-[11px] font-semibold rounded-md bg-white text-indigo-700 shadow-2xs transition">Gia sư</button>
-                <button type="button" id="mode-quick" onclick="setFeedbackMode('quick')" class="px-2 py-0.5 text-[11px] font-medium rounded-md text-slate-600 hover:text-slate-900 transition">Chấm nhanh</button>
-              </div>
+            <div class="flex-1 flex items-center bg-slate-50 border border-blue-200 rounded-xl px-3.5 py-2 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-500/25 focus-within:border-blue-500 transition">
+              <textarea id="composer-input" rows="1" placeholder="Nhập câu hỏi Toán 9 (hoặc dán ảnh bằng Ctrl+V)..." class="w-full resize-none bg-transparent text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none max-h-32"></textarea>
             </div>
 
-            <!-- Nút Gửi (↑) -->
-            <button type="button" id="send-btn" onclick="handleComposerSubmit()" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-indigo-600 disabled:bg-slate-200 disabled:text-slate-400 text-white flex items-center justify-center transition shadow-xs shrink-0" title="Gửi (Enter)">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18" />
+            <div class="flex items-center gap-2 shrink-0">
+              <button type="button" onclick="document.getElementById('file-input').click()" class="flex-1 sm:flex-none px-3.5 py-2.5 rounded-xl bg-white hover:bg-blue-50 border border-blue-200 text-slate-700 hover:text-blue-800 text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                </svg>
+                <span>Tải ảnh bài tập</span>
+              </button>
+
+              <button type="button" id="send-btn" onclick="handleComposerSubmit()" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white text-xs font-semibold shadow-sm shadow-blue-600/20 flex items-center justify-center gap-1.5 transition">
+                <span>Gửi câu hỏi</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3 THẺ CHỨC NĂNG LỚN PHÍA DƯỚI -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button type="button" onclick="document.getElementById('composer-input').focus()" class="text-left bg-white hover:bg-blue-50/40 rounded-2xl border border-blue-100 hover:border-blue-300 p-5 shadow-xs transition group">
+            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3 group-hover:scale-105 transition">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
               </svg>
-            </button>
+            </div>
+            <h3 class="text-sm sm:text-base font-bold text-slate-900 group-hover:text-blue-700">Hỏi đáp cùng giáo viên AI</h3>
+            <p class="text-xs text-slate-500 mt-1">Hướng dẫn giải toán từng bước</p>
+          </button>
+
+          <button type="button" onclick="switchMainTab('theory')" class="text-left bg-white hover:bg-blue-50/40 rounded-2xl border border-blue-100 hover:border-blue-300 p-5 shadow-xs transition group">
+            <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center mb-3 group-hover:scale-105 transition">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+              </svg>
+            </div>
+            <h3 class="text-sm sm:text-base font-bold text-slate-900 group-hover:text-blue-700">Ôn tập Toán 9</h3>
+            <p class="text-xs text-slate-500 mt-1">Theo bộ sách Kết nối tri thức với cuộc sống</p>
+          </button>
+
+          <button type="button" onclick="switchMainTab('practice')" class="text-left bg-white hover:bg-blue-50/40 rounded-2xl border border-blue-100 hover:border-blue-300 p-5 shadow-xs transition group">
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3 group-hover:scale-105 transition">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 class="text-sm sm:text-base font-bold text-slate-900 group-hover:text-blue-700">Tự luyện Toán 9</h3>
+            <p class="text-xs text-slate-500 mt-1">Luyện đề theo cấu trúc Công văn 7991</p>
+          </button>
+        </section>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 2: ÔN TẬP LÝ THUYẾT TOÁN 9 (KNTT)     -->
+      <!-- ========================================== -->
+      <section id="view-theory" class="hidden space-y-4">
+        <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-extrabold text-slate-900">Ôn tập lý thuyết Toán 9</h2>
+            <p class="text-xs text-slate-500">Tổng hợp trọng tâm theo bộ sách <strong>Kết nối tri thức với cuộc sống</strong></p>
+          </div>
+          <button type="button" onclick="switchMainTab('chat')" class="px-3.5 py-2 rounded-xl bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition">← Quay lại hỏi đáp AI</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs space-y-2.5">
+            <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700">Chương 1 · Đại số</span>
+            <h3 class="text-base font-bold text-slate-900">Hệ phương trình bậc nhất hai ẩn</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">Phương pháp thế, phương pháp cộng đại số, và giải bài toán bằng cách lập hệ phương trình: $\begin{cases} ax + by = c \\ a'x + b'y = c' \end{cases}$.</p>
+            <button type="button" onclick="askTeacherFromTab('Cô ơi, giảng lại giúp em cách giải hệ phương trình bằng phương pháp cộng đại số và 1 ví dụ ạ!')" class="text-xs font-semibold text-blue-600 hover:underline">Hỏi Cô AI về chuyên đề này →</button>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs space-y-2.5">
+            <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-700">Chương 3 · Đại số</span>
+            <h3 class="text-base font-bold text-slate-900">Căn bậc hai và Căn bậc ba</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">Điều kiện xác định $\sqrt{A}$ khi $A \ge 0$; hằng đẳng thức $\sqrt{A^2} = |A|$; trục căn thức ở mẫu và rút gọn biểu thức.</p>
+            <button type="button" onclick="askTeacherFromTab('Cô ơi, chỉ em mẹo không bị sai dấu khi phá trị tuyệt đối |A| trong bài rút gọn căn thức với ạ!')" class="text-xs font-semibold text-blue-600 hover:underline">Hỏi Cô AI về chuyên đề này →</button>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs space-y-2.5">
+            <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700">Chương 4 · Hình học</span>
+            <h3 class="text-base font-bold text-slate-900">Hệ thức lượng trong tam giác vuông</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">Tỉ số lượng giác của góc nhọn: $\sin\alpha, \cos\alpha, \tan\alpha, \cot\alpha$ và hệ thức giữa cạnh và góc trong tam giác vuông.</p>
+            <button type="button" onclick="askTeacherFromTab('Cô ơi, làm sao nhớ nhanh công thức sin, cos, tan, cot và ứng dụng giải tam giác vuông ạ?')" class="text-xs font-semibold text-blue-600 hover:underline">Hỏi Cô AI về chuyên đề này →</button>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs space-y-2.5">
+            <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700">Chương 5 · Hình học</span>
+            <h3 class="text-base font-bold text-slate-900">Đường tròn & Góc nội tiếp</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">Tiếp tuyến của đường tròn, hai tiếp tuyến cắt nhau, góc ở tâm, góc nội tiếp và tứ giác nội tiếp đường tròn.</p>
+            <button type="button" onclick="askTeacherFromTab('Cô ơi, nêu giúp em 3 dấu hiệu nhận biết tứ giác nội tiếp hay gặp nhất trong đề thi vào 10 ạ!')" class="text-xs font-semibold text-blue-600 hover:underline">Hỏi Cô AI về chuyên đề này →</button>
           </div>
         </div>
-        <p class="text-[11px] text-center text-slate-400 mt-2">
-          Trợ Giảng AI tuân theo chương trình GDPT 2018 · Nhấn <span class="font-medium text-slate-500">Enter</span> để gửi, <span class="font-medium text-slate-500">Shift + Enter</span> để xuống dòng.
-        </p>
-      </div>
-    </footer>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- VIEW 3: TỰ LUYỆN THEO CÔNG VĂN 7991        -->
+      <!-- ========================================== -->
+      <section id="view-practice" class="hidden space-y-4">
+        <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-extrabold text-slate-900">Tự luyện Toán 9 theo cấu trúc Công văn 7991</h2>
+            <p class="text-xs text-slate-500">Gồm 3 dạng chuẩn: Trắc nghiệm nhiều lựa chọn · Đúng/Sai · Tự luận trả lời ngắn</p>
+          </div>
+          <button type="button" onclick="switchMainTab('chat')" class="px-3.5 py-2 rounded-xl bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition">← Quay lại hỏi đáp AI</button>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700">Phần I · Trắc nghiệm 4 lựa chọn</span>
+            <span class="text-xs text-slate-400">Câu mẫu kiểm tra nhanh</span>
+          </div>
+          <p class="text-sm font-medium text-slate-800">Điều kiện xác định của biểu thức $\sqrt{2x - 6}$ là:</p>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <button type="button" onclick="checkQuizAnswer(this, false)" class="p-3 rounded-xl border border-slate-200 hover:border-blue-400 text-xs font-medium text-left transition">A. $x > 3$</button>
+            <button type="button" onclick="checkQuizAnswer(this, true)" class="p-3 rounded-xl border border-slate-200 hover:border-blue-400 text-xs font-medium text-left transition">B. $x \ge 3$</button>
+            <button type="button" onclick="checkQuizAnswer(this, false)" class="p-3 rounded-xl border border-slate-200 hover:border-blue-400 text-xs font-medium text-left transition">C. $x \le 3$</button>
+            <button type="button" onclick="checkQuizAnswer(this, false)" class="p-3 rounded-xl border border-slate-200 hover:border-blue-400 text-xs font-medium text-left transition">D. $x \neq 3$</button>
+          </div>
+          <div id="quiz-feedback" class="hidden text-xs p-3 rounded-xl"></div>
+          <div class="pt-2 border-t border-slate-100 flex justify-end">
+            <button type="button" onclick="askTeacherFromTab('Cô ơi, ra thêm cho em 1 đề tự luyện Toán 9 ngắn theo cấu trúc Công văn 7991 gồm trắc nghiệm, đúng/sai và tự luận với ạ!')" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition">Nhờ Cô AI tạo thêm đề Công văn 7991 →</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- VIEW 4: THỐNG KÊ HỌC TẬP CHI TIẾT          -->
+      <!-- ========================================== -->
+      <section id="view-stats" class="hidden space-y-4">
+        <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-extrabold text-slate-900">Thống kê học tập Toán 9 — THCS Hiệp Phước</h2>
+            <p class="text-xs text-slate-500">Theo dõi tiến độ luyện tập và các chuyên đề cần cải thiện</p>
+          </div>
+          <button type="button" onclick="switchMainTab('chat')" class="px-3.5 py-2 rounded-xl bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition">← Quay lại hỏi đáp AI</button>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs space-y-4">
+          <h3 class="text-sm font-bold text-slate-800">Mức độ nắm vững kiến thức theo chuyên đề</h3>
+          <div class="space-y-3 text-xs">
+            <div>
+              <div class="flex justify-between mb-1"><span class="font-medium text-slate-700">Phương trình & Hệ phương trình</span><span class="font-bold text-blue-700">85%</span></div>
+              <div class="w-full h-2.5 bg-blue-50 rounded-full overflow-hidden"><div class="h-full bg-blue-600 rounded-full" style="width: 85%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1"><span class="font-medium text-slate-700">Căn bậc hai & Biểu thức chứa căn</span><span class="font-bold text-sky-600">72%</span></div>
+              <div class="w-full h-2.5 bg-blue-50 rounded-full overflow-hidden"><div class="h-full bg-sky-500 rounded-full" style="width: 72%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1"><span class="font-medium text-slate-700">Hình học Đường tròn & Tứ giác nội tiếp</span><span class="font-bold text-indigo-600">68%</span></div>
+              <div class="w-full h-2.5 bg-blue-50 rounded-full overflow-hidden"><div class="h-full bg-indigo-500 rounded-full" style="width: 68%"></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
   </div>
 
   <!-- TOAST THÔNG BÁO -->
-  <div id="toast-box" class="fixed top-4 right-4 z-50 hidden">
+  <div id="toast-box" class="fixed bottom-4 right-4 z-50 hidden">
     <div class="bg-slate-900 text-white text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2 max-w-sm">
       <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
       <span id="toast-message">Thông báo</span>
@@ -404,67 +492,63 @@
   </div>
 
   <!-- ========================================== -->
-  <!-- MODAL: XEM / CHỈNH SỬA KỸ NĂNG & TÍNH CÁCH AGENT -->
+  <!-- MODAL QUẢN TRỊ HỆ THỐNG (KHÔNG ĐĂNG NHẬP)  -->
   <!-- ========================================== -->
   <div id="knowledge-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4">
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
-      <div class="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 flex items-center justify-between bg-slate-900 text-white">
-        <div class="flex items-center gap-2.5 sm:gap-3">
-          <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-indigo-500/25 border border-indigo-400/30 flex items-center justify-center text-indigo-300 shrink-0">
-            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+    <div class="bg-white rounded-2xl border border-blue-200 shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+      <div class="px-5 py-4 border-b border-blue-100 flex items-center justify-between bg-blue-700 text-white">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
             </svg>
           </div>
           <div>
-            <h3 class="text-sm sm:text-base font-bold leading-tight">Cấu Hình Tri Thức & Agent Trợ Giảng</h3>
-            <p class="text-[11px] sm:text-xs text-slate-300">Xem và tinh chỉnh 4 tệp cấu hình Markdown & Gemini API Key</p>
+            <h3 class="text-sm sm:text-base font-bold leading-tight">Quản Trị Hệ Thống & Tri Thức AI</h3>
+            <p class="text-[11px] sm:text-xs text-blue-100">Tinh chỉnh 4 tệp kỹ năng sư phạm & cấu hình Gemini API Key</p>
           </div>
         </div>
-        <button type="button" onclick="closeKnowledgeModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        <button type="button" onclick="closeKnowledgeModal()" class="p-1.5 rounded-lg text-blue-100 hover:text-white hover:bg-white/15 transition">✕</button>
       </div>
 
-      <div class="flex overflow-x-auto border-b border-slate-200 bg-slate-100/80 px-3 sm:px-4 pt-2.5 gap-1">
+      <div class="flex overflow-x-auto border-b border-slate-200 bg-slate-100/80 px-4 pt-2.5 gap-1">
         <button type="button" onclick="switchKnowledgeTab('skillOcr')" id="tab-btn-skillOcr" class="knowledge-tab-btn py-2 px-3 text-xs sm:text-sm font-semibold rounded-t-xl transition whitespace-nowrap border-t border-x">Kỹ năng 1: OCR & Toán LaTeX</button>
         <button type="button" onclick="switchKnowledgeTab('skillPhanTich')" id="tab-btn-skillPhanTich" class="knowledge-tab-btn py-2 px-3 text-xs sm:text-sm font-semibold rounded-t-xl transition whitespace-nowrap border-t border-x">Kỹ năng 2: Chấm GDPT 2018</button>
-        <button type="button" onclick="switchKnowledgeTab('persona')" id="tab-btn-persona" class="knowledge-tab-btn py-2 px-3 text-xs sm:text-sm font-semibold rounded-t-xl transition whitespace-nowrap border-t border-x">Tính cách Persona</button>
+        <button type="button" onclick="switchKnowledgeTab('persona')" id="tab-btn-persona" class="knowledge-tab-btn py-2 px-3 text-xs sm:text-sm font-semibold rounded-t-xl transition whitespace-nowrap border-t border-x">Tính cách Cô AI</button>
         <button type="button" onclick="switchKnowledgeTab('agentConfig')" id="tab-btn-agentConfig" class="knowledge-tab-btn py-2 px-3 text-xs sm:text-sm font-semibold rounded-t-xl transition whitespace-nowrap border-t border-x">Cấu hình Agent</button>
         <button type="button" onclick="switchKnowledgeTab('apiKey')" id="tab-btn-apiKey" class="knowledge-tab-btn py-2 px-3 text-xs sm:text-sm font-semibold rounded-t-xl transition whitespace-nowrap border-t border-x">API Key (.env)</button>
       </div>
 
       <div class="flex-1 overflow-y-auto p-4 sm:p-5 bg-white flex flex-col gap-3">
         <div id="editor-container" class="flex flex-col gap-3 flex-1">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-blue-50/50 border border-blue-100 rounded-xl px-3.5 py-2.5">
             <div>
               <h4 id="tab-meta-title" class="text-xs sm:text-sm font-bold text-slate-800">Tên tệp</h4>
               <p id="tab-meta-desc" class="text-[11px] sm:text-xs text-slate-500">Mô tả</p>
             </div>
             <div class="flex items-center gap-2 shrink-0">
-              <span id="tab-meta-path" class="text-[10px] sm:text-xs font-mono text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">path</span>
+              <span id="tab-meta-path" class="text-[10px] sm:text-xs font-mono text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">path</span>
               <span id="tab-meta-chars" class="text-[11px] text-slate-400">0 ký tự</span>
             </div>
           </div>
-          <textarea id="knowledge-textarea" oninput="handleKnowledgeInput()" class="w-full h-[300px] sm:h-[340px] rounded-xl border border-slate-300 bg-slate-900 text-slate-100 font-mono text-xs leading-relaxed p-3.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"></textarea>
+          <textarea id="knowledge-textarea" oninput="handleKnowledgeInput()" class="w-full h-[290px] sm:h-[330px] rounded-xl border border-slate-300 bg-slate-900 text-slate-100 font-mono text-xs leading-relaxed p-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"></textarea>
         </div>
 
         <div id="apikey-container" class="hidden flex-col gap-3">
-          <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-xs sm:text-sm text-amber-950">
+          <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-xs sm:text-sm text-blue-950">
             <h4 class="font-bold mb-1">Cấu hình Gemini API Key</h4>
-            <p class="text-xs text-amber-800 leading-relaxed">
-              Nếu bạn chạy trên Server có tệp <code>.env</code> hoặc đã cấu hình trên Vercel Environment Variables, hệ thống sẽ tự động sử dụng khóa đó. Bạn cũng có thể nhập khóa cá nhân tại đây để thử nghiệm cục bộ.
+            <p class="text-xs text-blue-800 leading-relaxed">
+              Hệ thống trên Server / Vercel đã được cấu hình sẵn 5 API Keys xoay vòng tự động. Bạn chỉ cần nhập thêm tại đây nếu muốn dùng khóa cá nhân riêng.
             </p>
           </div>
           <div>
             <label for="gemini-api-key-input" class="block text-xs font-bold text-slate-700 mb-1.5">Google Gemini API Key (tùy chọn):</label>
-            <input type="password" id="gemini-api-key-input" placeholder="AIzaSy... hoặc AQ..." class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            <input type="password" id="gemini-api-key-input" placeholder="AIzaSy... hoặc AQ..." class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
         </div>
       </div>
 
-      <div class="px-4 sm:px-6 py-3 border-t border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-2.5">
+      <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-2.5">
         <div class="flex items-center gap-2">
           <button type="button" onclick="resetKnowledgeToDefault()" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg border border-slate-200 bg-white transition">Khôi phục gốc</button>
           <button type="button" onclick="copyCurrentTabContent()" class="px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200/70 rounded-lg border border-slate-200 bg-white transition"><span id="copy-btn-text">Sao chép</span></button>
@@ -472,19 +556,18 @@
         <div class="flex items-center gap-2">
           <span id="save-status-indicator" class="text-xs text-amber-700 font-medium hidden">● Có thay đổi chưa lưu</span>
           <button type="button" onclick="closeKnowledgeModal()" class="px-3.5 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-100 transition">Đóng</button>
-          <button type="button" onclick="saveKnowledgeChanges()" class="px-4 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition">Lưu thay đổi</button>
+          <button type="button" onclick="saveKnowledgeChanges()" class="px-4 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xs transition">Lưu thay đổi</button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- ========================================== -->
-  <!-- JAVASCRIPT XỬ LÝ ANTIGRAVITY CHATBOT       -->
+  <!-- JAVASCRIPT XỬ LÝ TƯƠNG TÁC                 -->
   <!-- ========================================== -->
   <script>
     const LOCAL_STORAGE_KEY_KNOWLEDGE = 'trogiang_ai_agent_knowledge_v1';
     const LOCAL_STORAGE_KEY_API_KEY = 'trogiang_ai_gemini_api_key';
-    const LOCAL_STORAGE_KEY_SESSIONS = 'trogiang_ai_chat_sessions_v1';
 
     let currentImageSrc = null;
     let currentMimeType = 'image/png';
@@ -492,12 +575,8 @@
     let currentSampleId = null;
     let feedbackMode = 'tutor';
     let isLoading = false;
-
-    let currentSessionId = null;
     let lastGradingResult = null;
     let chatConversationHistory = [];
-    let messagesData = [];
-
     let activeKnowledgeState = {};
     let currentKnowledgeTab = 'skillOcr';
 
@@ -513,8 +592,8 @@
         path: 'src/ai-config/skills/skill-phan-tich-loi-su-pham.md'
       },
       persona: {
-        title: 'Tính Cách & Giọng Điệu Sư Phạm (Persona)',
-        desc: 'Khen ngợi cụ thể điểm đúng trước, xưng hô Thầy/Cô - em, khích lệ học sinh THCS.',
+        title: 'Tính Cách & Giọng Điệu Sư Phạm (Cô AI)',
+        desc: 'Khen ngợi cụ thể điểm đúng trước, xưng hô Cô - em, khích lệ học sinh THCS Hiệp Phước.',
         path: 'src/ai-config/persona/tinh-cach-tro-giang.md'
       },
       agentConfig: {
@@ -524,25 +603,40 @@
       }
     };
 
-    // 1. KIỂM TRA HEALTH BACKEND
-    function checkBackendHealth() {
-      fetch('/api/health')
-        .then(r => r.json())
-        .then(data => {
-          const badge = document.getElementById('api-status-badge');
-          if (data.status === 'ok') {
-            const keyInfo = data.gemini_configured ? `${data.keys_count || 1} keys` : 'Demo mode';
-            badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span><span class="truncate">Online · ${data.model} (${keyInfo})</span>`;
-          }
-        })
-        .catch(() => {
-          const badge = document.getElementById('api-status-badge');
-          badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span><span class="truncate">Chế độ Offline</span>`;
-        });
-    }
-    checkBackendHealth();
+    // 1. KIỂM TRA BACKEND HEALTH
+    fetch('/api/health')
+      .then(r => r.json())
+      .then(data => {
+        const badge = document.getElementById('api-status-badge');
+        if (data.status === 'ok') {
+          const keyInfo = data.gemini_configured ? `${data.keys_count || 1} keys` : 'Demo';
+          badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span><span>Online · ${data.model} (${keyInfo})</span>`;
+        }
+      })
+      .catch(() => {
+        const badge = document.getElementById('api-status-badge');
+        badge.className = 'hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-xs font-semibold text-amber-800';
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span><span>Chế độ Offline</span>`;
+      });
 
-    // 2. SIDEBAR & LỊCH SỬ HỘI THOẠI
+    // 2. CHUYỂN TAB MENU BÊN TRÁI
+    function switchMainTab(tab) {
+      ['chat', 'theory', 'practice', 'stats'].forEach(t => {
+        document.getElementById(`view-${t}`).classList.add('hidden');
+        const navBtn = document.getElementById(`nav-${t}`);
+        if (navBtn) {
+          navBtn.className = 'nav-item w-full text-left px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-800 flex items-center gap-2.5 transition';
+        }
+      });
+      document.getElementById(`view-${tab}`).classList.remove('hidden');
+      const activeNav = document.getElementById(`nav-${tab}`);
+      if (activeNav) {
+        activeNav.className = 'nav-item w-full text-left px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] font-semibold flex items-center gap-2.5 transition bg-blue-600 text-white shadow-sm shadow-blue-600/20';
+      }
+      renderMathInContainer(document.getElementById(`view-${tab}`));
+      toggleSidebar(false);
+    }
+
     function toggleSidebar(open) {
       const sidebar = document.getElementById('app-sidebar');
       const backdrop = document.getElementById('sidebar-backdrop');
@@ -555,133 +649,36 @@
       }
     }
 
-    function getSessions() {
-      try {
-        return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_SESSIONS) || '[]');
-      } catch { return []; }
+    function askTeacherFromTab(promptText) {
+      switchMainTab('chat');
+      document.getElementById('composer-input').value = promptText;
+      handleComposerSubmit();
     }
 
-    function saveCurrentSession(titleText) {
-      if (!messagesData.length) return;
-      let sessions = getSessions();
-      if (!currentSessionId) {
-        currentSessionId = 'sess_' + Date.now();
-      }
-      const existingIdx = sessions.findIndex(s => s.id === currentSessionId);
-      const cleanTitle = (titleText || 'Bài toán THCS').replace(/\n/g, ' ').slice(0, 36);
-      const record = {
-        id: currentSessionId,
-        title: existingIdx >= 0 ? sessions[existingIdx].title : cleanTitle,
-        updatedAt: Date.now(),
-        messages: messagesData,
-        history: chatConversationHistory,
-        lastGrading: lastGradingResult
-      };
-      if (existingIdx >= 0) {
-        sessions[existingIdx] = record;
+    function checkQuizAnswer(btn, isCorrect) {
+      const fb = document.getElementById('quiz-feedback');
+      fb.classList.remove('hidden');
+      if (isCorrect) {
+        fb.className = 'text-xs p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 font-medium';
+        fb.innerHTML = '✅ <strong>Chính xác!</strong> Biểu thức dưới dấu căn xác định khi $2x - 6 \\ge 0 \\Leftrightarrow 2x \\ge 6 \\Leftrightarrow x \\ge 3$.';
       } else {
-        sessions.unshift(record);
+        fb.className = 'text-xs p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 font-medium';
+        fb.innerHTML = '❌ <strong>Chưa đúng rồi em ơi!</strong> Nhớ rằng căn thức bậc hai $\\sqrt{A}$ xác định khi $A \\ge 0$ (có cả dấu bằng 0). Em thử chọn lại nhé!';
       }
-      sessions = sessions.slice(0, 15);
-      localStorage.setItem(LOCAL_STORAGE_KEY_SESSIONS, JSON.stringify(sessions));
-      renderHistoryList();
+      renderMathInContainer(fb);
     }
 
-    function renderHistoryList() {
-      const container = document.getElementById('history-list');
-      const sessions = getSessions();
-      if (!sessions.length) {
-        container.innerHTML = `<p class="px-2 py-1.5 text-xs text-slate-400 italic">Chưa có cuộc trò chuyện nào</p>`;
-        return;
-      }
-      container.innerHTML = sessions.map(s => `
-        <button type="button" onclick="loadSession('${s.id}')" class="w-full text-left px-2.5 py-2 rounded-lg text-xs transition flex items-center justify-between group ${s.id === currentSessionId ? 'bg-indigo-50 text-indigo-900 font-semibold' : 'text-slate-600 hover:bg-slate-200/70'}">
-          <span class="truncate">${escapeHtml(s.title)}</span>
-          <span class="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100">Mở</span>
-        </button>
-      `).join('');
-    }
-
-    function loadSession(id) {
-      const sessions = getSessions();
-      const s = sessions.find(item => item.id === id);
-      if (!s) return;
-      currentSessionId = s.id;
-      messagesData = s.messages || [];
-      chatConversationHistory = s.history || [];
-      lastGradingResult = s.lastGrading || null;
-
-      document.getElementById('welcome-state').classList.add('hidden');
-      const stream = document.getElementById('messages-stream');
-      stream.innerHTML = '';
-      messagesData.forEach(m => {
-        if (m.type === 'user') {
-          renderUserMessageDOM(m.text, m.imageSrc, false);
-        } else if (m.type === 'grading') {
-          renderGradingResponseDOM(m.data, m.source, false);
-        } else if (m.type === 'ai') {
-          renderAiTextMessageDOM(m.text, m.source, false);
-        }
-      });
-      document.getElementById('chat-header-title').textContent = s.title;
-      renderHistoryList();
-      toggleSidebar(false);
-      scrollToBottom();
-    }
-
-    function clearAllHistory() {
-      if (confirm('Xóa toàn bộ lịch sử hỏi bài gần đây?')) {
-        localStorage.removeItem(LOCAL_STORAGE_KEY_SESSIONS);
-        renderHistoryList();
-        showToast('Đã xóa lịch sử trò chuyện.');
-      }
-    }
-
-    function startNewChat() {
-      currentSessionId = null;
-      lastGradingResult = null;
-      chatConversationHistory = [];
-      messagesData = [];
-      clearImage();
-      document.getElementById('messages-stream').innerHTML = '';
-      document.getElementById('welcome-state').classList.remove('hidden');
-      document.getElementById('chat-header-title').textContent = 'Hỏi đáp & Chấm bài Toán THCS';
-      renderHistoryList();
-      toggleSidebar(false);
-    }
-
-    // 3. XỬ LÝ ẢNH ĐÍNH KÈM (KÉO THẢ, DÁN CTRL+V, CHỌN FILE, XOAY ẢNH)
+    // 3. XỬ LÝ ẢNH BÀI TẬP (TẢI LÊN, DÁN CTRL+V, XOAY ẢNH)
     const fileInput = document.getElementById('file-input');
     const cameraInput = document.getElementById('camera-input');
-
     fileInput.addEventListener('change', (e) => { if (e.target.files[0]) handleImageFile(e.target.files[0]); });
     cameraInput.addEventListener('change', (e) => { if (e.target.files[0]) handleImageFile(e.target.files[0]); });
 
-    // Kéo thả toàn vùng
-    document.body.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      document.getElementById('drag-overlay').classList.remove('hidden');
-    });
-    document.body.addEventListener('dragleave', (e) => {
-      if (!e.relatedTarget || e.relatedTarget === document.documentElement) {
-        document.getElementById('drag-overlay').classList.add('hidden');
-      }
-    });
-    document.body.addEventListener('drop', (e) => {
-      e.preventDefault();
-      document.getElementById('drag-overlay').classList.add('hidden');
-      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-        handleImageFile(e.dataTransfer.files[0]);
-      }
-    });
-
-    // Dán ảnh trực tiếp bằng Ctrl+V
     document.addEventListener('paste', (e) => {
       const items = (e.clipboardData || e.originalEvent.clipboardData).items;
       for (const item of items) {
         if (item.type.indexOf('image') !== -1) {
-          const blob = item.getAsFile();
-          handleImageFile(blob);
+          handleImageFile(item.getAsFile());
           showToast('Đã dán ảnh bài làm từ Clipboard!');
           break;
         }
@@ -697,19 +694,14 @@
       currentMimeType = file.type || 'image/png';
       const reader = new FileReader();
       reader.onload = (e) => {
-        setAttachedImage(e.target.result);
+        currentImageSrc = e.target.result;
+        currentRotation = 0;
+        const thumb = document.getElementById('composer-thumb');
+        thumb.src = currentImageSrc;
+        thumb.style.transform = 'rotate(0deg)';
+        document.getElementById('composer-attachment').classList.remove('hidden');
       };
       reader.readAsDataURL(file);
-    }
-
-    function setAttachedImage(src) {
-      currentImageSrc = src;
-      currentRotation = 0;
-      const thumb = document.getElementById('composer-thumb');
-      thumb.src = src;
-      thumb.style.transform = 'rotate(0deg)';
-      document.getElementById('composer-attachment').classList.remove('hidden');
-      document.getElementById('composer-input').focus();
     }
 
     function rotateImage(deg) {
@@ -728,32 +720,24 @@
       document.getElementById('composer-thumb').src = '';
     }
 
-    // 4. CHẾ ĐỘ & LỚP HỌC
     function setFeedbackMode(mode) {
       feedbackMode = mode;
-      const btnTutor = document.getElementById('mode-tutor');
-      const btnQuick = document.getElementById('mode-quick');
+      const t = document.getElementById('mode-tutor');
+      const q = document.getElementById('mode-quick');
       if (mode === 'tutor') {
-        btnTutor.className = 'px-2 py-0.5 text-[11px] font-semibold rounded-md bg-white text-indigo-700 shadow-2xs transition';
-        btnQuick.className = 'px-2 py-0.5 text-[11px] font-medium rounded-md text-slate-600 hover:text-slate-900 transition';
+        t.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition';
+        q.className = 'px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition';
       } else {
-        btnQuick.className = 'px-2 py-0.5 text-[11px] font-semibold rounded-md bg-white text-indigo-700 shadow-2xs transition';
-        btnTutor.className = 'px-2 py-0.5 text-[11px] font-medium rounded-md text-slate-600 hover:text-slate-900 transition';
+        q.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition';
+        t.className = 'px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition';
       }
-      updateHeaderPill();
     }
 
-    function updateHeaderPill() {
-      const grade = document.getElementById('grade-select').value;
-      const modeText = feedbackMode === 'tutor' ? 'Gia sư' : 'Chấm nhanh';
-      document.getElementById('header-mode-pill').textContent = `${modeText} · ${grade}`;
-    }
-
-    // 5. XỬ LÝ COMPOSER INPUT (AUTO-RESIZE & ENTER)
+    // 4. BÀI MẪU & GỬI CÂU HỎI / CHẤM ẢNH
     const composerInput = document.getElementById('composer-input');
     composerInput.addEventListener('input', function () {
       this.style.height = 'auto';
-      this.style.height = Math.min(this.scrollHeight, 160) + 'px';
+      this.style.height = Math.min(this.scrollHeight, 128) + 'px';
     });
     composerInput.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && !e.shiftKey) {
@@ -762,32 +746,17 @@
       }
     });
 
-    function askQuickPrompt(text) {
-      composerInput.value = text;
-      handleComposerSubmit();
-    }
-
-    // 6. TẠO ẢNH BÀI MẪU & CHẠY CHẤM BÀI MẪU
     function createSampleCanvasImage(title, lines) {
       const canvas = document.createElement('canvas');
-      canvas.width = 720;
-      canvas.height = 420;
+      canvas.width = 720; canvas.height = 420;
       const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#fffdf7';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = '#dbeafe';
-      ctx.lineWidth = 1;
-      for (let y = 60; y < canvas.height; y += 38) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-      }
-      ctx.strokeStyle = '#fca5a5';
-      ctx.lineWidth = 1.5;
+      ctx.fillStyle = '#fffdf7'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = '#dbeafe'; ctx.lineWidth = 1;
+      for (let y = 60; y < canvas.height; y += 38) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
+      ctx.strokeStyle = '#fca5a5'; ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.moveTo(55, 0); ctx.lineTo(55, canvas.height); ctx.stroke();
-      ctx.fillStyle = '#0f172a';
-      ctx.font = 'bold 20px Inter, sans-serif';
-      ctx.fillText(title, 75, 45);
-      ctx.fillStyle = '#1e3a8a';
-      ctx.font = '20px Georgia, serif';
+      ctx.fillStyle = '#0f172a'; ctx.font = 'bold 20px Inter, sans-serif'; ctx.fillText(title, 75, 45);
+      ctx.fillStyle = '#1e3a8a'; ctx.font = '20px Georgia, serif';
       lines.forEach((line, idx) => ctx.fillText(line, 75, 100 + idx * 45));
       return canvas.toDataURL('image/png');
     }
@@ -795,40 +764,25 @@
     const SAMPLE_CONFIGS = {
       sample1: {
         title: 'Đề bài: Giải PT  (x² - 4)/(x - 2) = 3x + 1',
-        lines: [
-          'Dòng 1:  (x - 2)(x + 2) / (x - 2) = 3x + 1',
-          'Dòng 2:  => x + 2 = 3x + 1',
-          'Dòng 3:  => 3x - x = 2 - 1  => 2x = 1  => x = 1/2',
-          'Dòng 4:  Cho x - 2 = 0 => x = 2.  KL: S = {1/2 ; 2}'
-        ],
-        note: 'Kiểm tra giúp em bài giải phương trình này với ạ!'
+        lines: ['Dòng 1:  (x - 2)(x + 2) / (x - 2) = 3x + 1', 'Dòng 2:  => x + 2 = 3x + 1', 'Dòng 3:  => 2x = 1 => x = 1/2', 'Dòng 4:  Cho x - 2 = 0 => x = 2. KL: S = {1/2 ; 2}'],
+        note: 'Cô ơi, kiểm tra giúp em bài giải phương trình này với ạ!'
       },
       sample2: {
         title: 'Đề bài: Rút gọn A = √(3 - √5)² - √(2 - √5)²',
-        lines: [
-          'Dòng 1:  A = |3 - √5| - |2 - √5|',
-          'Dòng 2:  A = (3 - √5) - (√5 - 2)',
-          'Dòng 3:  A = 3 - √5 - √5 - 2',
-          'Dòng 4:  A = 1 - 2√5'
-        ],
+        lines: ['Dòng 1:  A = |3 - √5| - |2 - √5|', 'Dòng 2:  A = (3 - √5) - (√5 - 2)', 'Dòng 3:  A = 3 - √5 - √5 - 2', 'Dòng 4:  A = 1 - 2√5'],
         note: 'Em ra 1 - 2√5 nhưng đáp án của bạn lại ra 5 - 2√5 ạ.'
       },
       sample3: {
         title: 'Đề bài: Giải hệ PT  { 2x + y = 5 ; 3x - y = 5 }',
-        lines: [
-          'Dòng 1:  Cộng từng vế: (2x + 3x) + (y - y) = 5 + 5',
-          'Dòng 2:  <=> 5x = 10  <=> x = 2',
-          'Dòng 3:  Thay vào PT đầu: 2.2 + y = 5  <=> y = 1',
-          'Dòng 4:  Vậy nghiệm của hệ là (x; y) = (2; 1)'
-        ],
-        note: 'Thầy cô xem giúp em bài này trình bày chuẩn chưa ạ?'
+        lines: ['Dòng 1:  Cộng từng vế: 5x = 10 <=> x = 2', 'Dòng 2:  Thay vào PT đầu: 2.2 + y = 5 <=> y = 1', 'Dòng 3:  Vậy nghiệm của hệ là (x; y) = (2; 1)'],
+        note: 'Cô xem giúp em bài hệ phương trình này chuẩn chưa ạ?'
       }
     };
 
     function loadSampleCase(sampleId) {
+      switchMainTab('chat');
       const cfg = SAMPLE_CONFIGS[sampleId];
       if (!cfg) return;
-      startNewChat();
       currentSampleId = sampleId;
       currentImageSrc = createSampleCanvasImage(cfg.title, cfg.lines);
       currentMimeType = 'image/png';
@@ -836,40 +790,30 @@
       handleComposerSubmit();
     }
 
-    // 7. GỬI CÂU HỎI HOẶC CHẤM ẢNH (LÕI ANTIGRAVITY Q&A)
     async function handleComposerSubmit() {
       if (isLoading) return;
       const text = composerInput.value.trim();
       const hasImage = !!currentImageSrc;
       if (!text && !hasImage) return;
 
-      document.getElementById('welcome-state').classList.add('hidden');
       const sentImage = currentImageSrc;
       const sentMime = currentMimeType;
       const sentSampleId = currentSampleId;
-      const userDisplay = text || 'Hãy kiểm tra bài làm trong ảnh này giúp em.';
+      const userDisplay = text || 'Cô kiểm tra bài làm trong ảnh giúp em nhé!';
 
-      // Hiển thị tin nhắn User
-      renderUserMessageDOM(userDisplay, sentImage, true);
-      if (messagesData.length === 1) {
-        document.getElementById('chat-header-title').textContent = userDisplay.slice(0, 42);
-      }
-
-      // Reset composer ngay lập tức
+      renderUserMessageDOM(userDisplay, sentImage);
       composerInput.value = '';
       composerInput.style.height = 'auto';
       clearImage();
 
       isLoading = true;
       document.getElementById('send-btn').disabled = true;
-      setThinking(true, hasImage ? 'Đang đọc ảnh bài làm & chuẩn hóa LaTeX...' : 'Đang suy nghĩ câu trả lời...');
+      setThinking(true, hasImage ? 'Cô AI đang đọc ảnh bài làm & chuẩn hóa LaTeX...' : 'Cô AI đang suy nghĩ câu trả lời...');
 
       const apiKeyOverride = localStorage.getItem(LOCAL_STORAGE_KEY_API_KEY) || '';
-      const grade = document.getElementById('grade-select').value;
 
       try {
         if (hasImage) {
-          // LUỒNG 1: CHẤM BÀI QUA ẢNH (/api/grade)
           const res = await fetch('/api/grade', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -879,20 +823,17 @@
               sample_id: sentSampleId,
               student_note: text,
               mode: feedbackMode,
-              grade,
+              grade: 'Toán 9',
               api_key: apiKeyOverride || undefined
             })
           });
           const data = await res.json();
           lastGradingResult = data;
-          chatConversationHistory.push({ role: 'user', content: `[Gửi ảnh bài làm] ${userDisplay}` });
-          chatConversationHistory.push({ role: 'model', content: `Đề & bài làm: ${data.ocr_summary}\nLỗi: ${data.first_error_step} - ${data.error_reason}` });
-
+          chatConversationHistory.push({ role: 'user', content: `[Gửi ảnh] ${userDisplay}` });
+          chatConversationHistory.push({ role: 'model', content: `Đề: ${data.ocr_summary}\nLỗi: ${data.first_error_step} - ${data.error_reason}` });
           setThinking(false);
-          renderGradingResponseDOM(data, data.source, true);
-          saveCurrentSession(userDisplay);
+          renderGradingResponseDOM(data, data.source);
         } else {
-          // LUỒNG 2: HỎI ĐÁP TRỰC TIẾP (/api/chat)
           const res = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -904,18 +845,16 @@
             })
           });
           const data = await res.json();
-          const reply = data.reply || 'Thầy/Cô chưa nghe rõ, em nhắn lại giúp nhé!';
+          const reply = data.reply || 'Cô chưa nghe rõ, em nhắn lại giúp Cô nhé!';
           chatConversationHistory.push({ role: 'user', content: userDisplay });
           chatConversationHistory.push({ role: 'model', content: reply });
-
           setThinking(false);
-          renderAiTextMessageDOM(reply, data.source, true);
-          saveCurrentSession(userDisplay);
+          renderAiTextMessageDOM(reply, data.source);
         }
       } catch (err) {
         console.error(err);
         setThinking(false);
-        renderAiTextMessageDOM('Kết nối đến máy chủ tạm thời bị gián đoạn, em hãy thử gửi lại nhé!', 'error', true);
+        renderAiTextMessageDOM('Kết nối tạm thời bị gián đoạn, em hãy thử gửi lại nhé!', 'error');
       } finally {
         isLoading = false;
         document.getElementById('send-btn').disabled = false;
@@ -925,7 +864,7 @@
     function setThinking(active, statusText) {
       const box = document.getElementById('thinking-indicator');
       if (active) {
-        document.getElementById('thinking-status-text').textContent = statusText || 'Đang xử lý...';
+        document.getElementById('thinking-status-text').textContent = statusText;
         box.classList.remove('hidden');
         scrollToBottom();
       } else {
@@ -933,49 +872,33 @@
       }
     }
 
-    // 8. RENDER TIN NHẮN THEO PHONG CÁCH ANTIGRAVITY
-    function renderUserMessageDOM(text, imageSrc, save = true) {
-      if (save) messagesData.push({ type: 'user', text, imageSrc });
+    function renderUserMessageDOM(text, imageSrc) {
       const stream = document.getElementById('messages-stream');
       const div = document.createElement('div');
       div.className = 'flex justify-end animate-msg';
-      const imgHtml = imageSrc
-        ? `<div class="mb-2 rounded-xl overflow-hidden border border-slate-200 bg-white p-1 max-w-[240px]"><img src="${imageSrc}" class="max-h-44 w-auto object-contain rounded-lg mx-auto" /></div>`
-        : '';
+      const imgHtml = imageSrc ? `<div class="mb-2 rounded-xl overflow-hidden border border-blue-200 bg-white p-1 max-w-[220px]"><img src="${imageSrc}" class="max-h-40 w-auto object-contain rounded-lg mx-auto" /></div>` : '';
       div.innerHTML = `
-        <div class="bg-slate-100 text-slate-900 px-4 py-3 rounded-2xl rounded-tr-sm max-w-[85%] sm:max-w-[75%] shadow-2xs">
+        <div class="bg-blue-600 text-white px-4 py-2.5 rounded-2xl rounded-tr-sm max-w-[85%] shadow-xs text-xs sm:text-sm leading-relaxed">
           ${imgHtml}
-          <div class="text-sm leading-relaxed whitespace-pre-wrap">${escapeHtml(text)}</div>
+          <div class="whitespace-pre-wrap">${escapeHtml(text)}</div>
         </div>
       `;
       stream.appendChild(div);
       scrollToBottom();
     }
 
-    function renderAiTextMessageDOM(replyText, source, save = true) {
-      if (save) messagesData.push({ type: 'ai', text: replyText, source });
+    function renderAiTextMessageDOM(replyText, source) {
       const stream = document.getElementById('messages-stream');
       const div = document.createElement('div');
       div.className = 'flex items-start gap-3 animate-msg';
-      const msgUid = 'msg_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
-
       div.innerHTML = `
-        <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-          </svg>
-        </div>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2 mb-1.5">
-            <span class="text-xs font-semibold text-slate-900">Trợ Giảng AI</span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium">${source === 'gemini_api' ? 'Gemini 3.5 Flash' : 'Trợ lý GDPT 2018'}</span>
+        <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-blue-200">Cô</div>
+        <div class="flex-1 bg-blue-50/40 border border-blue-100 rounded-2xl rounded-tl-sm p-3.5 text-xs sm:text-sm text-slate-800">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="font-bold text-blue-900">Cô Lê Mộng Hòa (AI)</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-white border border-blue-100 text-blue-600">${source === 'gemini_api' ? 'Gemini AI' : 'Trợ lý Toán 9'}</span>
           </div>
-          <div id="${msgUid}" class="ai-prose text-sm text-slate-800">${formatMathAndMarkdown(replyText)}</div>
-          <div class="mt-2.5 flex items-center gap-2">
-            <button type="button" onclick="copyTextValue(this, decodeURIComponent('${encodeURIComponent(replyText)}'))" class="text-[11px] font-medium text-slate-400 hover:text-slate-700 px-2 py-1 rounded-md hover:bg-slate-100 transition flex items-center gap-1">
-              📋 Sao chép
-            </button>
-          </div>
+          <div class="ai-prose">${formatMathAndMarkdown(replyText)}</div>
         </div>
       `;
       stream.appendChild(div);
@@ -983,80 +906,41 @@
       scrollToBottom();
     }
 
-    function renderGradingResponseDOM(data, source, save = true) {
-      if (save) messagesData.push({ type: 'grading', data, source });
+    function renderGradingResponseDOM(data, source) {
       const stream = document.getElementById('messages-stream');
       const div = document.createElement('div');
       div.className = 'flex items-start gap-3 animate-msg';
-      const uid = 'grade_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+      const uid = 'grade_' + Date.now();
       const isClean = (data.first_error_step || '').toLowerCase().includes('không có lỗi');
-
       const goodHtml = (data.good_points || []).map(pt => `<li>${formatMathAndMarkdown(pt)}</li>`).join('');
 
       div.innerHTML = `
-        <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-          </svg>
-        </div>
-        <div class="flex-1 min-w-0 space-y-3">
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-semibold text-slate-900">Trợ Giảng AI</span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 font-medium">${source === 'gemini_api' ? 'Gemini Multimodal' : 'Chấm mẫu GDPT 2018'}</span>
+        <div class="w-8 h-8 rounded-xl bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">Cô</div>
+        <div class="flex-1 space-y-2.5 min-w-0">
+          <div class="rounded-xl border border-blue-100 bg-slate-50/80 p-3.5">
+            <div class="text-[11px] font-bold uppercase text-blue-700 mb-1">Bài làm đã đọc (OCR)</div>
+            <div class="ai-prose text-xs sm:text-sm text-slate-800">${formatMathAndMarkdown(data.ocr_summary || '')}</div>
           </div>
 
-          <!-- Collapsible Antigravity Thought / Analysis Steps -->
-          <details class="group rounded-xl border border-slate-200 bg-slate-50/70 overflow-hidden">
-            <summary class="px-3.5 py-2 text-xs font-medium text-slate-600 cursor-pointer flex items-center justify-between hover:bg-slate-100/70 transition select-none">
-              <span class="flex items-center gap-2">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                Quá trình phân tích sư phạm (4 bước hoàn tất)
-              </span>
-              <span class="text-[11px] text-slate-400 group-open:rotate-180 transition-transform">▼</span>
-            </summary>
-            <div class="px-3.5 pb-3 pt-1 text-xs text-slate-600 space-y-1 border-t border-slate-200/70">
-              <div>✓ Đọc chữ viết tay & chuẩn hóa ký hiệu LaTeX</div>
-              <div>✓ Kiểm tra điều kiện xác định (ĐKXĐ) & giả thiết</div>
-              <div>✓ Đối chiếu từng dòng biến đổi tương đương</div>
-              <div>✓ Soạn phản hồi phù hợp chế độ ${feedbackMode === 'tutor' ? 'Gia sư gợi mở' : 'Chấm nhanh'}</div>
-            </div>
-          </details>
-
-          <!-- Đề bài & Tóm tắt OCR -->
-          <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3.5">
-            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Nội dung bài làm đã đọc</div>
-            <div class="ai-prose text-sm text-slate-800">${formatMathAndMarkdown(data.ocr_summary || '')}</div>
-          </div>
-
-          <!-- Điểm làm tốt -->
-          <div class="rounded-xl border-l-4 border-emerald-500 bg-emerald-50/50 border border-emerald-200/60 p-3.5">
+          <div class="rounded-xl border-l-4 border-emerald-500 bg-emerald-50/60 border border-emerald-200/60 p-3.5">
             <div class="text-xs font-bold text-emerald-900 mb-1">✓ Điểm em làm tốt</div>
-            <ul class="ai-prose text-sm text-emerald-950 list-disc ml-4">${goodHtml}</ul>
+            <ul class="ai-prose text-xs sm:text-sm text-emerald-950 list-disc ml-4">${goodHtml}</ul>
           </div>
 
-          <!-- Bắt lỗi & Gợi ý -->
-          <div class="rounded-xl border-l-4 ${isClean ? 'border-indigo-500 bg-indigo-50/40 border-indigo-200/60' : 'border-rose-500 bg-rose-50/40 border-rose-200/60'} border p-3.5 space-y-2">
-            <div class="text-xs font-bold ${isClean ? 'text-indigo-900' : 'text-rose-900'}">
+          <div class="rounded-xl border-l-4 ${isClean ? 'border-blue-500 bg-blue-50/60 border-blue-200' : 'border-rose-500 bg-rose-50/50 border-rose-200'} border p-3.5 space-y-1.5">
+            <div class="text-xs font-bold ${isClean ? 'text-blue-900' : 'text-rose-900'}">
               ${isClean ? '★ Nhận xét tổng quát' : '⚠ Bước cần xem lại: ' + escapeHtml(data.first_error_step || '')}
             </div>
-            <div class="ai-prose text-sm text-slate-800">${formatMathAndMarkdown(data.error_reason || '')}</div>
-            ${data.hint_level_1 ? `<div class="pt-2 border-t border-slate-200/70 text-sm text-indigo-950"><strong>💡 Gợi ý cho em:</strong> ${formatMathAndMarkdown(data.hint_level_1)}</div>` : ''}
+            <div class="ai-prose text-xs sm:text-sm text-slate-800">${formatMathAndMarkdown(data.error_reason || '')}</div>
+            ${data.hint_level_1 ? `<div class="pt-1.5 border-t border-slate-200/70 text-xs sm:text-sm text-blue-950"><strong>💡 Gợi ý cho em:</strong> ${formatMathAndMarkdown(data.hint_level_1)}</div>` : ''}
           </div>
 
-          <!-- Vùng mở rộng (Gợi ý thêm / Lời giải chuẩn / Bài tương tự) -->
-          <div id="${uid}-extra" class="space-y-2.5"></div>
+          <div id="${uid}-extra" class="space-y-2"></div>
 
-          <!-- Thanh nút tương tác kiểu Antigravity -->
-          <div class="flex flex-wrap items-center gap-2 pt-1">
-            <button type="button" onclick="expandGradingSection('${uid}', 'hint2', decodeURIComponent('${encodeURIComponent(data.hint_level_2 || '')}'))" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/80 transition">
-              💡 Gợi ý thêm
-            </button>
-            <button type="button" onclick="expandGradingSection('${uid}', 'solution', decodeURIComponent('${encodeURIComponent(data.full_solution || '')}'))" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200/80 transition">
-              📖 Xem lời giải chuẩn
-            </button>
-            <button type="button" onclick="expandGradingSection('${uid}', 'similar', decodeURIComponent('${encodeURIComponent(data.similar_exercise || '')}'))" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200/80 transition">
-              📝 Thử bài tương tự
-            </button>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" onclick="expandGradingSection('${uid}', 'hint2', decodeURIComponent('${encodeURIComponent(data.hint_level_2 || '')}'))" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 transition">💡 Gợi ý thêm</button>
+            <button type="button" onclick="expandGradingSection('${uid}', 'solution', decodeURIComponent('${encodeURIComponent(data.full_solution || '')}'))" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 transition">📖 Xem lời giải chuẩn</button>
+            <button type="button" onclick="expandGradingSection('${uid}', 'similar', decodeURIComponent('${encodeURIComponent(data.similar_exercise || '')}'))" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 transition">📝 Thử bài tương tự</button>
           </div>
         </div>
       `;
@@ -1067,54 +951,47 @@
 
     function expandGradingSection(uid, type, rawText) {
       const container = document.getElementById(`${uid}-extra`);
-      if (!container) return;
-      const existingId = `${uid}-${type}`;
-      if (document.getElementById(existingId)) {
-        document.getElementById(existingId).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        return;
-      }
-
+      if (!container || document.getElementById(`${uid}-${type}`)) return;
       const titles = {
-        hint2: { label: '💡 Hướng dẫn chi tiết hơn (Gợi ý cấp 2)', cls: 'border-amber-300 bg-amber-50/70 text-amber-950' },
-        solution: { label: '📖 Lời giải chuẩn mực GDPT 2018', cls: 'border-indigo-300 bg-indigo-50/60 text-slate-900' },
-        similar: { label: '📝 Bài tập tương tự để luyện thêm', cls: 'border-emerald-300 bg-emerald-50/60 text-emerald-950' }
+        hint2: { label: '💡 Hướng dẫn chi tiết hơn', cls: 'border-amber-300 bg-amber-50/70 text-amber-950' },
+        solution: { label: '📖 Lời giải chuẩn mực GDPT 2018', cls: 'border-blue-300 bg-blue-50/60 text-slate-900' },
+        similar: { label: '📝 Bài tập tương tự luyện thêm', cls: 'border-emerald-300 bg-emerald-50/60 text-emerald-950' }
       };
       const meta = titles[type];
       const box = document.createElement('div');
-      box.id = existingId;
+      box.id = `${uid}-${type}`;
       box.className = `rounded-xl border p-3.5 animate-msg ${meta.cls}`;
-      box.innerHTML = `
-        <div class="text-xs font-bold mb-1.5">${meta.label}</div>
-        <div class="ai-prose text-sm">${formatMathAndMarkdown(rawText)}</div>
-      `;
+      box.innerHTML = `<div class="text-xs font-bold mb-1">${meta.label}</div><div class="ai-prose text-xs sm:text-sm">${formatMathAndMarkdown(rawText)}</div>`;
       container.appendChild(box);
       renderMathInContainer(box);
       scrollToBottom();
     }
 
-    // 9. ĐỊNH DẠNG MARKDOWN AN TOÀN + BẢO VỆ BIỂU THỨC LATEX
+    function resetChat() {
+      lastGradingResult = null;
+      chatConversationHistory = [];
+      clearImage();
+      document.getElementById('messages-stream').innerHTML = '';
+      showToast('Đã làm mới khung hỏi đáp.');
+    }
+
+    // 5. ĐỊNH DẠNG MARKDOWN + KATEX
     function formatMathAndMarkdown(text) {
       if (!text) return '';
       const mathBlocks = [];
-      // Tách và bảo vệ toàn bộ công thức toán trước khi parse Markdown
-      let protectedText = String(text).replace(/(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\$[^$\n]+?\$|\\\([\s\S]*?\\\))/g, (match) => {
-        const idx = mathBlocks.length;
-        mathBlocks.push(match);
-        return `@@MATH_${idx}@@`;
+      let protectedText = String(text).replace(/(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\$[^$\n]+?\$|\\\([\s\S]*?\\\))/g, (m) => {
+        mathBlocks.push(m);
+        return `@@MATH_${mathBlocks.length - 1}@@`;
       });
-
-      // Escape HTML & parse Markdown cơ bản
       protectedText = escapeHtml(protectedText)
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded bg-slate-100 text-indigo-700 text-xs font-mono">$1</code>')
+        .replace(/`([^`]+)`/g, '<code class="px-1 py-0.5 rounded bg-slate-100 text-blue-700 text-xs font-mono">$1</code>')
         .replace(/\n/g, '<br>');
-
-      // Khôi phục lại công thức toán
       return protectedText.replace(/@@MATH_(\d+)@@/g, (_, idx) => mathBlocks[Number(idx)]);
     }
 
-    function renderMathInContainer(element) {
-      if (!element) return;
+    function renderMathInContainer(el) {
+      if (!el) return;
       const opts = {
         delimiters: [
           { left: '$$', right: '$$', display: true },
@@ -1125,21 +1002,8 @@
         ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
         throwOnError: false
       };
-      if (typeof renderMathInElement === 'function') {
-        renderMathInElement(element, opts);
-      } else {
-        setTimeout(() => {
-          if (typeof renderMathInElement === 'function') renderMathInElement(element, opts);
-        }, 250);
-      }
-    }
-
-    function copyTextValue(btn, text) {
-      navigator.clipboard.writeText(text).then(() => {
-        const prev = btn.innerHTML;
-        btn.innerHTML = '✓ Đã chép';
-        setTimeout(() => { btn.innerHTML = prev; }, 1800);
-      });
+      if (typeof renderMathInElement === 'function') renderMathInElement(el, opts);
+      else setTimeout(() => { if (typeof renderMathInElement === 'function') renderMathInElement(el, opts); }, 250);
     }
 
     function scrollToBottom() {
@@ -1147,24 +1011,19 @@
       el.scrollTop = el.scrollHeight;
     }
 
-    // 10. MODAL KỸ NĂNG & TÍNH CÁCH AGENT
+    // 6. MODAL QUẢN TRỊ
     function openKnowledgeModal() {
-      fetch('/api/config')
-        .then(r => r.json())
-        .then(d => {
-          activeKnowledgeState = d.knowledge || {};
-          switchKnowledgeTab('skillOcr');
-        })
-        .catch(() => switchKnowledgeTab('skillOcr'));
-
+      fetch('/api/config').then(r => r.json()).then(d => {
+        activeKnowledgeState = d.knowledge || {};
+        switchKnowledgeTab('skillOcr');
+      }).catch(() => switchKnowledgeTab('skillOcr'));
       document.getElementById('knowledge-modal').classList.remove('hidden');
       document.getElementById('gemini-api-key-input').value = localStorage.getItem(LOCAL_STORAGE_KEY_API_KEY) || '';
       document.getElementById('save-status-indicator').classList.add('hidden');
+      toggleSidebar(false);
     }
 
-    function closeKnowledgeModal() {
-      document.getElementById('knowledge-modal').classList.add('hidden');
-    }
+    function closeKnowledgeModal() { document.getElementById('knowledge-modal').classList.add('hidden'); }
 
     function switchKnowledgeTab(tabKey) {
       currentKnowledgeTab = tabKey;
@@ -1172,38 +1031,31 @@
         btn.className = 'knowledge-tab-btn py-2 px-3 text-xs sm:text-sm font-semibold rounded-t-xl transition whitespace-nowrap border-t border-x bg-transparent text-slate-600 border-transparent hover:text-slate-900 hover:bg-slate-200/60';
       });
       const activeBtn = document.getElementById(`tab-btn-${tabKey}`);
-      if (activeBtn) {
-        activeBtn.className = 'knowledge-tab-btn py-2 px-3 text-xs sm:text-sm font-semibold rounded-t-xl transition whitespace-nowrap border-t border-x bg-white text-indigo-900 border-slate-200 shadow-xs -mb-[1px]';
-      }
+      if (activeBtn) activeBtn.className = 'knowledge-tab-btn py-2 px-3 text-xs sm:text-sm font-semibold rounded-t-xl transition whitespace-nowrap border-t border-x bg-white text-blue-800 border-slate-200 shadow-xs -mb-[1px]';
 
-      const editorContainer = document.getElementById('editor-container');
-      const apiKeyContainer = document.getElementById('apikey-container');
-
+      const ed = document.getElementById('editor-container');
+      const ak = document.getElementById('apikey-container');
       if (tabKey === 'apiKey') {
-        editorContainer.classList.add('hidden');
-        apiKeyContainer.classList.remove('hidden');
-        apiKeyContainer.classList.add('flex');
+        ed.classList.add('hidden'); ak.classList.remove('hidden'); ak.classList.add('flex');
       } else {
-        editorContainer.classList.remove('hidden');
-        apiKeyContainer.classList.add('hidden');
-        apiKeyContainer.classList.remove('flex');
+        ed.classList.remove('hidden'); ak.classList.add('hidden'); ak.classList.remove('flex');
         const meta = TAB_METADATA[tabKey];
         if (meta) {
           document.getElementById('tab-meta-title').textContent = meta.title;
           document.getElementById('tab-meta-desc').textContent = meta.desc;
           document.getElementById('tab-meta-path').textContent = meta.path;
-          const textarea = document.getElementById('knowledge-textarea');
-          textarea.value = activeKnowledgeState[tabKey] || '';
-          document.getElementById('tab-meta-chars').textContent = `${textarea.value.length} ký tự`;
+          const ta = document.getElementById('knowledge-textarea');
+          ta.value = activeKnowledgeState[tabKey] || '';
+          document.getElementById('tab-meta-chars').textContent = `${ta.value.length} ký tự`;
         }
       }
     }
 
     function handleKnowledgeInput() {
       if (currentKnowledgeTab !== 'apiKey') {
-        const textarea = document.getElementById('knowledge-textarea');
-        activeKnowledgeState[currentKnowledgeTab] = textarea.value;
-        document.getElementById('tab-meta-chars').textContent = `${textarea.value.length} ký tự`;
+        const ta = document.getElementById('knowledge-textarea');
+        activeKnowledgeState[currentKnowledgeTab] = ta.value;
+        document.getElementById('tab-meta-chars').textContent = `${ta.value.length} ký tự`;
         document.getElementById('save-status-indicator').classList.remove('hidden');
       }
     }
@@ -1212,7 +1064,7 @@
       localStorage.setItem(LOCAL_STORAGE_KEY_KNOWLEDGE, JSON.stringify(activeKnowledgeState));
       localStorage.setItem(LOCAL_STORAGE_KEY_API_KEY, document.getElementById('gemini-api-key-input').value.trim());
       document.getElementById('save-status-indicator').classList.add('hidden');
-      showToast('Đã lưu cấu hình Kỹ năng & API Key!');
+      showToast('Đã lưu cấu hình thành công!');
     }
 
     function resetKnowledgeToDefault() {
@@ -1228,9 +1080,7 @@
     }
 
     function copyCurrentTabContent() {
-      const content = currentKnowledgeTab === 'apiKey'
-        ? document.getElementById('gemini-api-key-input').value
-        : (activeKnowledgeState[currentKnowledgeTab] || '');
+      const content = currentKnowledgeTab === 'apiKey' ? document.getElementById('gemini-api-key-input').value : (activeKnowledgeState[currentKnowledgeTab] || '');
       navigator.clipboard.writeText(content).then(() => {
         const el = document.getElementById('copy-btn-text');
         el.textContent = 'Đã chép!';
@@ -1248,15 +1098,10 @@
     }
 
     function escapeHtml(str) {
-      return String(str).replace(/[&<>"']/g, (m) => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-      }[m]));
+      return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
     }
 
-    // Khởi tạo ban đầu
     window.addEventListener('DOMContentLoaded', () => {
-      renderHistoryList();
-      updateHeaderPill();
       renderMathInContainer(document.body);
     });
   </script>
