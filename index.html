@@ -536,6 +536,40 @@
             </div>
           </div>
         </div>
+
+        <!-- Khu vực Đăng nhập Quản trị viên (Chỉ giáo viên quản trị mới có tài khoản) -->
+        <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs">
+          <div id="admin-login-box" class="max-w-md space-y-3">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+              </svg>
+              <h3 class="text-sm font-bold text-slate-900">Đăng nhập Quản trị viên</h3>
+            </div>
+            <p class="text-xs text-slate-500">Khu vực dành riêng cho giáo viên quản lý hệ thống.</p>
+            <form onsubmit="handleAdminLogin(event)" class="space-y-2.5" autocomplete="off">
+              <div>
+                <input type="text" id="admin-username" placeholder="Tên đăng nhập" required autocomplete="off" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <input type="password" id="admin-password" placeholder="Mật khẩu" required autocomplete="new-password" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <p id="admin-login-error" class="hidden text-xs font-medium text-rose-600"></p>
+              <button type="submit" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-xs">Đăng nhập</button>
+            </form>
+          </div>
+
+          <div id="admin-authenticated-box" class="hidden flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div class="text-sm font-bold text-emerald-800">✓ Đã xác thực quyền Quản trị viên (Cô Lê Mộng Hòa)</div>
+              <p class="text-xs text-slate-500 mt-0.5">Bạn có thể mở bảng cấu hình tri thức AI và khóa API.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="openKnowledgeModal()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition">Mở cấu hình Tri thức & API Key</button>
+              <button type="button" onclick="handleAdminLogout()" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">Đăng xuất</button>
+            </div>
+          </div>
+        </div>
       </section>
 
     </main>
@@ -1069,8 +1103,69 @@
       el.scrollTop = el.scrollHeight;
     }
 
-    // 6. MODAL QUẢN TRỊ
+    // 6. XÁC THỰC & MODAL QUẢN TRỊ (CHỈ DÀNH CHO QUẢN TRỊ VIÊN)
+    let isAdminAuthenticated = sessionStorage.getItem('trogiang_admin_auth') === '1';
+
+    function updateAdminAuthUI() {
+      const loginBox = document.getElementById('admin-login-box');
+      const authBox = document.getElementById('admin-authenticated-box');
+      if (!loginBox || !authBox) return;
+      if (isAdminAuthenticated) {
+        loginBox.classList.add('hidden');
+        authBox.classList.remove('hidden');
+        authBox.classList.add('flex');
+      } else {
+        loginBox.classList.remove('hidden');
+        authBox.classList.add('hidden');
+        authBox.classList.remove('flex');
+      }
+    }
+
+    async function handleAdminLogin(e) {
+      e.preventDefault();
+      const username = document.getElementById('admin-username').value.trim();
+      const password = document.getElementById('admin-password').value;
+      const errEl = document.getElementById('admin-login-error');
+      errEl.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          isAdminAuthenticated = true;
+          sessionStorage.setItem('trogiang_admin_auth', '1');
+          document.getElementById('admin-username').value = '';
+          document.getElementById('admin-password').value = '';
+          updateAdminAuthUI();
+          showToast('Đăng nhập Quản trị viên thành công!');
+        } else {
+          errEl.textContent = data.message || 'Tên đăng nhập hoặc mật khẩu không đúng.';
+          errEl.classList.remove('hidden');
+        }
+      } catch (err) {
+        errEl.textContent = 'Không thể kết nối máy chủ xác thực.';
+        errEl.classList.remove('hidden');
+      }
+    }
+
+    function handleAdminLogout() {
+      isAdminAuthenticated = false;
+      sessionStorage.removeItem('trogiang_admin_auth');
+      closeKnowledgeModal();
+      updateAdminAuthUI();
+      showToast('Đã đăng xuất quyền Quản trị viên.');
+    }
+
     function openKnowledgeModal() {
+      if (!isAdminAuthenticated) {
+        switchMainTab('admin');
+        showToast('Vui lòng đăng nhập Quản trị viên trước.');
+        return;
+      }
       fetch('/api/config').then(r => r.json()).then(d => {
         activeKnowledgeState = d.knowledge || {};
         switchKnowledgeTab('skillOcr');
@@ -1160,6 +1255,7 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+      updateAdminAuthUI();
       renderMathInContainer(document.body);
     });
   </script>

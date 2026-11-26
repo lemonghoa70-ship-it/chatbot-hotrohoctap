@@ -8,6 +8,7 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import url, { fileURLToPath } from 'url';
+import crypto from 'crypto';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -462,6 +463,21 @@ export async function handleRequest(req, res) {
         keys_count: keys.length,
         gemini_configured: keys.length > 0,
       });
+    }
+
+    // API: POST /api/admin/login (Xác thực quản trị viên bảo mật)
+    if (req.method === 'POST' && pathname === '/api/admin/login') {
+      const body = await readRequestBody(req);
+      const inputUser = String(body.username || '').trim();
+      const inputPass = String(body.password || '');
+      const expectedUser = process.env.ADMIN_USER || 'admin';
+      const expectedHash = process.env.ADMIN_PASS_HASH || '83b9d1805dc2c2e57ac23906434636927feede7fb667dcb3831fa305618662c3';
+      const inputHash = crypto.createHash('sha256').update(inputPass).digest('hex');
+
+      if (inputUser === expectedUser && inputHash === expectedHash) {
+        return sendJson(res, 200, { ok: true, message: 'Đăng nhập thành công' });
+      }
+      return sendJson(res, 401, { ok: false, message: 'Sai tên đăng nhập hoặc mật khẩu' });
     }
 
     // API: POST /api/grade (Chấm bài qua ảnh)
