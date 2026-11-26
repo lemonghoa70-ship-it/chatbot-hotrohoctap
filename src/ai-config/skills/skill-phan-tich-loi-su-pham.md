@@ -65,4 +65,7 @@ Kỹ năng này đóng vai trò là "bộ não chấm bài sư phạm". Sau khi 
 - **Lớp 6:** Tập trung số học, số nguyên, phân số, hình học trực quan. Lời giải mộc mạc, giải thích kỹ dấu số âm.
 - **Lớp 7:** Số hữu tỉ, số thực, tỉ lệ thức, đa thức một biến, tam giác bằng nhau. Chú ý tính chặt chẽ của các bước suy luận hình học.
 - **Lớp 8:** Hằng đẳng thức đáng nhớ, phân thức đại số, tam giác đồng dạng, định lý Thalès. Chú ý ĐKXĐ và phân tích đa thức thành nhân tử.
-- **Lớp 9:** Căn thức bậc hai, hệ phương trình, phương trình bậc hai một ẩn, hệ thức Viète, góc với đường tròn, tứ giác nội tiếp. Bám sát yêu cầu phân hóa thi vào lớp 10 THPT.
+- **Lớp 9 (Trọng tâm – Kết nối tri thức với cuộc sống):**
+  + Đại số: Hệ phương trình bậc nhất hai ẩn; Phương trình quy về bậc nhất; Bất đẳng thức & Bất phương trình bậc nhất một ẩn; Căn bậc hai, căn bậc ba; Hàm số $y = ax^2 \ (a \neq 0)$, Phương trình bậc hai & Hệ thức Viète; Thống kê & Xác suất.
+  + Hình học: Tỉ số lượng giác góc nhọn ($\sin, \cos, \tan, \cot$), Hệ thức lượng trong tam giác vuông; Đường tròn, tiếp tuyến, góc ở tâm, góc nội tiếp, tứ giác nội tiếp; Hình trụ, hình nón, hình cầu.
+  + Phong cách giải: Trình bày ngắn gọn, chặt chẽ theo đúng barem thi vào lớp 10 THPT; **mỗi lần trả lời tối đa 2000 từ**.

@@ -96,6 +96,11 @@ ${kb.skillOcr}
 ${kb.skillPhanTich}
 
 ---
+QUY TẮC BẮT BUỘC VỀ NỘI DUNG & ĐỘ DÀI:
+- Trả lời ngắn gọn, súc tích, chính xác 100%, đúng trọng tâm kiến thức Toán lớp 9 (CT GDPT 2018 – sách Kết nối tri thức với cuộc sống).
+- Xưng hô nhất quán "Cô" và "em", không viết lan man hoặc lặp ý.
+- Mỗi lần trả lời **tối đa 2000 từ** (ưu tiên trình bày cô đọng, rõ từng bước bằng gạch đầu dòng và công thức LaTeX $...$ / $$...$$).
+
 BẮT BUỘC: Khi phân tích ảnh bài làm, trả về JSON chính xác theo 9 trường quy chuẩn:
 1. "status": "SUCCESS" | "IMAGE_UNCLEAR" | "ERROR"
 2. "ocr_summary": Tóm tắt đề bài và từng dòng bài làm của học sinh có công thức LaTeX ($...$ hoặc $$...$$)
@@ -267,6 +272,7 @@ status, ocr_summary, good_points, first_error_step, error_reason, hint_level_1, 
       ],
       generationConfig: {
         temperature: 0.2, // Chuẩn xác toán học
+        maxOutputTokens: 2800, // Giới hạn độ dài <= 2000 từ
         responseMimeType: 'application/json',
         responseSchema: GRADING_RESPONSE_SCHEMA,
       },
@@ -351,7 +357,8 @@ NGỮ CẢNH BÀI TOÁN VỪA CHẤM CỦA HỌC SINH:
           system_instruction: { parts: [{ text: `${sysInstruction}\n\n${contextText}` }] },
           contents,
           generationConfig: {
-            temperature: 0.5, // Tự nhiên, ấm áp, sư phạm
+            temperature: 0.35, // Ngắn gọn, chính xác, sư phạm
+            maxOutputTokens: 2800, // Giới hạn tối đa 2000 từ
           },
         }),
       });
@@ -367,7 +374,9 @@ NGỮ CẢNH BÀI TOÁN VỪA CHẤM CỦA HỌC SINH:
 
       const data = await resp.json();
       currentKeyIndex = keyIndex;
-      return data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Thầy/Cô chưa nghe rõ, em hãy nhắn lại nhé!';
+      const rawReply = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Cô chưa nghe rõ, em hãy nhắn lại giúp Cô nhé!';
+      const words = rawReply.trim().split(/\s+/);
+      return words.length > 2000 ? words.slice(0, 2000).join(' ') + '...' : rawReply;
     } catch (err) {
       lastError = err;
       currentKeyIndex = (keyIndex + 1) % keys.length;
