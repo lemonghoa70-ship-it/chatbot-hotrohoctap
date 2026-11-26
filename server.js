@@ -225,6 +225,63 @@ export const SAMPLE_MOCKS = {
   },
 };
 
+export const SAMPLE_MOCKS_EN = {
+  sample1: {
+    status: 'SUCCESS',
+    ocr_summary: 'Problem: Solve the rational equation $$\\frac{x^2 - 4}{x - 2} = 3x + 1$$\nStudent steps:\n• Line 1: $\\frac{(x - 2)(x + 2)}{x - 2} = 3x + 1$\n• Line 2: $\\Rightarrow x + 2 = 3x + 1$\n• Line 3: $\\Rightarrow 3x - x = 2 - 1 \\Rightarrow 2x = 1 \\Rightarrow x = \\frac{1}{2}$\n• Line 4: Set $x - 2 = 0 \\Rightarrow x = 2$, conclude $S = \\left\\{\\frac{1}{2};\\, 2\\right\\}$',
+    good_points: [
+      'Great job factoring the numerator using the difference of squares: $x^2 - 4 = (x - 2)(x + 2)$.',
+      'You simplified $(x - 2)$ and solved the linear equation to get $x = \\frac{1}{2}$ accurately.',
+    ],
+    first_error_step: 'Start of the problem & Line 4',
+    error_reason:
+      'The equation has $(x - 2)$ in the denominator, so you must state the domain condition $x - 2 \\neq 0 \\Leftrightarrow x \\neq 2$. In Line 4, $x = 2$ makes the denominator zero (undefined), so it cannot be a solution.',
+    hint_level_1:
+      'A fraction $\\frac{A}{B}$ is only defined when the denominator $B$ is not zero. What condition do we need for $x - 2$?',
+    hint_level_2:
+      'The domain condition is $x \\neq 2$. After simplifying to $x + 2 = 3x + 1$, we only get $x = \\frac{1}{2}$. We must reject $x = 2$.',
+    full_solution:
+      '**Standard Solution (Grade 9):**\n\n• **Domain condition:** $x - 2 \\neq 0 \\Leftrightarrow x \\neq 2$.\n\n• **Solve:**\n$$\\frac{(x - 2)(x + 2)}{x - 2} = 3x + 1 \\Leftrightarrow x + 2 = 3x + 1 \\quad (x \\neq 2)$$\n$$2x = 1 \\Leftrightarrow x = \\frac{1}{2} \\quad (\\text{valid})$$\n\n• **Answer:** The only solution is $x = \\frac{1}{2}$.',
+    similar_exercise:
+      '**Similar Exercise:** Solve $\\frac{x^2 - 9}{x + 3} = 2x - 5$.\n*(Hint: Remember to write the domain condition $x + 3 \\neq 0$ first!)*',
+  },
+  sample2: {
+    status: 'SUCCESS',
+    ocr_summary: 'Problem: Simplify $$A = \\sqrt{(3 - \\sqrt{5})^2} - \\sqrt{(2 - \\sqrt{5})^2}$$\nStudent steps:\n• Line 1: $A = |3 - \\sqrt{5}| - |2 - \\sqrt{5}|$\n• Line 2: $A = (3 - \\sqrt{5}) - (\\sqrt{5} - 2)$\n• Line 3: $A = 3 - \\sqrt{5} - \\sqrt{5} - 2$\n• Line 4: $A = 1 - 2\\sqrt{5}$',
+    good_points: [
+      'Great use of the identity $\\sqrt{A^2} = |A|$ in Line 1.',
+      'Correctly compared $3 > \\sqrt{5}$ and $2 < \\sqrt{5}$ to remove the absolute values in Line 2.',
+    ],
+    first_error_step: 'Line 3 (removing parentheses)',
+    error_reason:
+      'In Line 2 you wrote $-(\\sqrt{5} - 2)$. When removing parentheses with a minus sign in front, you forgot to change $-2$ to $+2$, writing $-2$ instead.',
+    hint_level_1:
+      'Remember the sign rule: $-(a - b) = -a + b$. Please check the sign of $2$ in Line 3!',
+    hint_level_2:
+      'Removing parentheses gives $-(\\sqrt{5} - 2) = -\\sqrt{5} + 2$. So the integer part becomes $3 + 2 = 5$, not $3 - 2 = 1$.',
+    full_solution:
+      '**Standard Solution (Grade 9):**\n$$A = |3 - \\sqrt{5}| - |2 - \\sqrt{5}| = (3 - \\sqrt{5}) - (\\sqrt{5} - 2)$$\n$$A = 3 - \\sqrt{5} - \\sqrt{5} + 2 = 5 - 2\\sqrt{5}$$\n**Answer:** $A = 5 - 2\\sqrt{5}$.',
+    similar_exercise:
+      '**Similar Exercise:** Simplify $B = \\sqrt{(4 - \\sqrt{7})^2} - \\sqrt{(2 - \\sqrt{7})^2}$.',
+  },
+  sample3: {
+    status: 'SUCCESS',
+    ocr_summary: 'Problem: Solve the system $$\\begin{cases} 2x + y = 5 \\\\ 3x - y = 5 \\end{cases}$$\nStudent steps:\n• Line 1: Add equations: $(2x + 3x) + (y - y) = 5 + 5$\n• Line 2: $\\Leftrightarrow 5x = 10 \\Leftrightarrow x = 2$\n• Line 3: Substitute $x = 2$: $2 \\cdot 2 + y = 5 \\Leftrightarrow y = 1$\n• Line 4: Answer $(x;\\, y) = (2;\\, 1)$',
+    good_points: [
+      '100% correct! Choosing the elimination method because $y$ has opposite coefficients ($+1$ and $-1$) is very smart.',
+      'All steps for finding $x = 2$, $y = 1$, and writing the ordered pair $(2; 1)$ are clear and accurate.',
+    ],
+    first_error_step: 'No errors (Full score!)',
+    error_reason: 'All algebraic steps and calculations are completely correct.',
+    hint_level_1: 'Excellent work! Try substituting $(x; y) = (2; 1)$ back into the second equation to double-check.',
+    hint_level_2: 'You can also try solving this system using the substitution method for extra practice.',
+    full_solution:
+      '**Standard Solution:**\nAdd the two equations:\n$$5x = 10 \\Leftrightarrow x = 2$$\nSubstitute $x = 2$ into the first equation:\n$$2 \\cdot 2 + y = 5 \\Leftrightarrow y = 1$$\nThe unique solution is $(x;\\, y) = (2;\\, 1)$.',
+    similar_exercise:
+      '**Similar Exercise:** Solve $\\begin{cases} 2x + 3y = 8 \\\\ 4x - y = 2 \\end{cases}$.',
+  },
+};
+
 // 5. HÀM GỌI GEMINI MULTIMODAL API (HỖ TRỢ KEY ROTATION VÀ FAILOVER)
 export async function callGeminiApi({ imageBase64, mimeType = 'image/png', studentNote, mode = 'tutor', grade = 'Toán 9', teacherGender = 'co', apiKey }) {
   const keys = apiKey ? [apiKey] : getApiKeys();
@@ -713,8 +770,12 @@ export async function handleRequest(req, res) {
 
       // Nhận diện bài mẫu nếu có
       if (body.sample_id && SAMPLE_MOCKS[body.sample_id]) {
+        const viMock = SAMPLE_MOCKS[body.sample_id];
+        const enMock = SAMPLE_MOCKS_EN[body.sample_id] || viMock;
+        const useEn = body.lang === 'en' || body.lang === 'bilingual';
         return sendJson(res, 200, {
-          ...SAMPLE_MOCKS[body.sample_id],
+          ...(useEn ? enMock : viMock),
+          vi: viMock,
           source: 'sample_mock',
         });
       }

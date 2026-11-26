@@ -2,61 +2,83 @@
   "grade": 9,
   "label": "Lớp 9",
   "title": "Toán 9 – Kết nối tri thức với cuộc sống",
+  "title_en": "Grade 9 Math – Connecting Knowledge",
   "statusMessage": "",
+  "statusMessage_en": "",
   "chapters": [
     {
       "id": "chuong-1",
       "name": "Chương I: Phương trình và hệ hai phương trình bậc nhất hai ẩn",
+      "name_en": "Chapter I: Linear Equations and Systems of Two Linear Equations",
       "lessons": [
         {
           "id": "he-phuong-trinh",
           "title": "Hệ phương trình bậc nhất hai ẩn",
+          "title_en": "System of Two Linear Equations",
           "badge": "Chương I · Đại số",
+          "badge_en": "Chapter I · Algebra",
           "badgeColor": "blue",
           "summary": "Phương pháp thế, phương pháp cộng đại số, và giải bài toán bằng cách lập hệ phương trình: $\\begin{cases} ax + by = c \\\\ a'x + b'y = c' \\end{cases}$.",
-          "prompt": "giảng lại giúp em cách giải hệ phương trình bằng phương pháp cộng đại số và 1 ví dụ ạ!"
+          "summary_en": "Substitution method, elimination method, and solving word problems using systems of linear equations: $\\begin{cases} ax + by = c \\\\ a'x + b'y = c' \\end{cases}$.",
+          "prompt": "giảng lại giúp em cách giải hệ phương trình bằng phương pháp cộng đại số và 1 ví dụ ạ!",
+          "prompt_en": "please explain how to solve a system of linear equations by the elimination method with 1 simple example!"
         }
       ]
     },
     {
       "id": "chuong-3",
       "name": "Chương III: Căn bậc hai và căn bậc ba",
+      "name_en": "Chapter III: Square Roots and Cube Roots",
       "lessons": [
         {
           "id": "can-bac-hai",
           "title": "Căn bậc hai và Căn bậc ba",
+          "title_en": "Square Roots and Cube Roots",
           "badge": "Chương III · Đại số",
+          "badge_en": "Chapter III · Algebra",
           "badgeColor": "sky",
           "summary": "Điều kiện xác định $\\sqrt{A}$ khi $A \\ge 0$; hằng đẳng thức $\\sqrt{A^2} = |A|$; trục căn thức ở mẫu và rút gọn biểu thức.",
-          "prompt": "chỉ em mẹo không bị sai dấu khi phá trị tuyệt đối |A| trong bài rút gọn căn thức với ạ!"
+          "summary_en": "Domain condition for $\\sqrt{A}$ is $A \\ge 0$; identity $\\sqrt{A^2} = |A|$; rationalizing the denominator and simplifying expressions.",
+          "prompt": "chỉ em mẹo không bị sai dấu khi phá trị tuyệt đối |A| trong bài rút gọn căn thức với ạ!",
+          "prompt_en": "how can I avoid sign mistakes when removing the absolute value $|A|$ in square root problems?"
         }
       ]
     },
     {
       "id": "chuong-4",
       "name": "Chương IV: Hệ thức lượng trong tam giác vuông",
+      "name_en": "Chapter IV: Trigonometric Ratios in Right Triangles",
       "lessons": [
         {
           "id": "he-thuc-luong",
           "title": "Hệ thức lượng trong tam giác vuông",
+          "title_en": "Trigonometry in Right Triangles",
           "badge": "Chương IV · Hình học",
+          "badge_en": "Chapter IV · Geometry",
           "badgeColor": "indigo",
           "summary": "Tỉ số lượng giác của góc nhọn: $\\sin\\alpha, \\cos\\alpha, \\tan\\alpha, \\cot\\alpha$ và hệ thức giữa cạnh và góc trong tam giác vuông.",
-          "prompt": "làm sao nhớ nhanh công thức sin, cos, tan, cot và ứng dụng giải tam giác vuông ạ?"
+          "summary_en": "Trigonometric ratios of acute angles: $\\sin\\alpha, \\cos\\alpha, \\tan\\alpha, \\cot\\alpha$ and side-angle relations in right triangles.",
+          "prompt": "làm sao nhớ nhanh công thức sin, cos, tan, cot và ứng dụng giải tam giác vuông ạ?",
+          "prompt_en": "how can I remember sin, cos, tan, cot formulas easily and use them to solve right triangles?"
         }
       ]
     },
     {
       "id": "chuong-5-9",
       "name": "Chương V & IX: Đường tròn và Tứ giác nội tiếp",
+      "name_en": "Chapters V & IX: Circles and Cyclic Quadrilaterals",
       "lessons": [
         {
           "id": "duong-tron",
           "title": "Đường tròn & Góc nội tiếp",
+          "title_en": "Circles & Inscribed Angles",
           "badge": "Chương V & IX · Hình học",
+          "badge_en": "Chapters V & IX · Geometry",
           "badgeColor": "emerald",
           "summary": "Tiếp tuyến của đường tròn, hai tiếp tuyến cắt nhau, góc ở tâm, góc nội tiếp và tứ giác nội tiếp đường tròn.",
-          "prompt": "nêu giúp em 3 dấu hiệu nhận biết tứ giác nội tiếp hay gặp nhất trong đề thi vào 10 ạ!"
+          "summary_en": "Tangent lines to a circle, intersecting tangents, central angles, inscribed angles, and cyclic quadrilaterals.",
+          "prompt": "nêu giúp em 3 dấu hiệu nhận biết tứ giác nội tiếp hay gặp nhất trong đề thi vào 10 ạ!",
+          "prompt_en": "what are the 3 most common ways to prove a quadrilateral is cyclic (inscribed in a circle)?"
         }
       ]
     }
@@ -65,16 +87,21 @@
     {
       "id": "quiz-can-bac-hai-1",
       "part": "Phần I · Trắc nghiệm 4 lựa chọn",
+      "part_en": "Part I · Multiple Choice",
       "subtitle": "Câu mẫu kiểm tra nhanh",
+      "subtitle_en": "Quick practice question",
       "question": "Điều kiện xác định của biểu thức $\\sqrt{2x - 6}$ là:",
+      "question_en": "The domain condition for the expression $\\sqrt{2x - 6}$ is:",
       "options": [
-        { "label": "A. $x > 3$", "correct": false },
-        { "label": "B. $x \\ge 3$", "correct": true },
-        { "label": "C. $x \\le 3$", "correct": false },
-        { "label": "D. $x \\neq 3$", "correct": false }
+        { "label": "A. $x > 3$", "label_en": "A. $x > 3$", "correct": false },
+        { "label": "B. $x \\ge 3$", "label_en": "B. $x \\ge 3$", "correct": true },
+        { "label": "C. $x \\le 3$", "label_en": "C. $x \\le 3$", "correct": false },
+        { "label": "D. $x \\neq 3$", "label_en": "D. $x \\neq 3$", "correct": false }
       ],
       "correctFeedback": "<strong>Chính xác!</strong> Biểu thức dưới dấu căn xác định khi $2x - 6 \\ge 0 \\Leftrightarrow 2x \\ge 6 \\Leftrightarrow x \\ge 3$.",
-      "wrongFeedback": "<strong>Chưa đúng rồi em ơi!</strong> Nhớ rằng căn thức bậc hai $\\sqrt{A}$ xác định khi $A \\ge 0$ (có cả dấu bằng 0). Em thử chọn lại nhé!"
+      "correctFeedback_en": "<strong>Correct!</strong> The expression under the square root is defined when $2x - 6 \\ge 0 \\Leftrightarrow 2x \\ge 6 \\Leftrightarrow x \\ge 3$.",
+      "wrongFeedback": "<strong>Chưa đúng rồi em ơi!</strong> Nhớ rằng căn thức bậc hai $\\sqrt{A}$ xác định khi $A \\ge 0$ (có cả dấu bằng 0). Em thử chọn lại nhé!",
+      "wrongFeedback_en": "<strong>Not quite!</strong> Remember that $\\sqrt{A}$ is defined when $A \\ge 0$ (including equal to 0). Try again!"
     }
   ]
 }
