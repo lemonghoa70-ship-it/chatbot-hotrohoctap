@@ -1,0 +1,80 @@
+{
+  "grade": 9,
+  "label": "Lớp 9",
+  "title": "Toán 9 – Kết nối tri thức với cuộc sống",
+  "statusMessage": "",
+  "chapters": [
+    {
+      "id": "chuong-1",
+      "name": "Chương I: Phương trình và hệ hai phương trình bậc nhất hai ẩn",
+      "lessons": [
+        {
+          "id": "he-phuong-trinh",
+          "title": "Hệ phương trình bậc nhất hai ẩn",
+          "badge": "Chương I · Đại số",
+          "badgeColor": "blue",
+          "summary": "Phương pháp thế, phương pháp cộng đại số, và giải bài toán bằng cách lập hệ phương trình: $\\begin{cases} ax + by = c \\\\ a'x + b'y = c' \\end{cases}$.",
+          "prompt": "giảng lại giúp em cách giải hệ phương trình bằng phương pháp cộng đại số và 1 ví dụ ạ!"
+        }
+      ]
+    },
+    {
+      "id": "chuong-3",
+      "name": "Chương III: Căn bậc hai và căn bậc ba",
+      "lessons": [
+        {
+          "id": "can-bac-hai",
+          "title": "Căn bậc hai và Căn bậc ba",
+          "badge": "Chương III · Đại số",
+          "badgeColor": "sky",
+          "summary": "Điều kiện xác định $\\sqrt{A}$ khi $A \\ge 0$; hằng đẳng thức $\\sqrt{A^2} = |A|$; trục căn thức ở mẫu và rút gọn biểu thức.",
+          "prompt": "chỉ em mẹo không bị sai dấu khi phá trị tuyệt đối |A| trong bài rút gọn căn thức với ạ!"
+        }
+      ]
+    },
+    {
+      "id": "chuong-4",
+      "name": "Chương IV: Hệ thức lượng trong tam giác vuông",
+      "lessons": [
+        {
+          "id": "he-thuc-luong",
+          "title": "Hệ thức lượng trong tam giác vuông",
+          "badge": "Chương IV · Hình học",
+          "badgeColor": "indigo",
+          "summary": "Tỉ số lượng giác của góc nhọn: $\\sin\\alpha, \\cos\\alpha, \\tan\\alpha, \\cot\\alpha$ và hệ thức giữa cạnh và góc trong tam giác vuông.",
+          "prompt": "làm sao nhớ nhanh công thức sin, cos, tan, cot và ứng dụng giải tam giác vuông ạ?"
+        }
+      ]
+    },
+    {
+      "id": "chuong-5-9",
+      "name": "Chương V & IX: Đường tròn và Tứ giác nội tiếp",
+      "lessons": [
+        {
+          "id": "duong-tron",
+          "title": "Đường tròn & Góc nội tiếp",
+          "badge": "Chương V & IX · Hình học",
+          "badgeColor": "emerald",
+          "summary": "Tiếp tuyến của đường tròn, hai tiếp tuyến cắt nhau, góc ở tâm, góc nội tiếp và tứ giác nội tiếp đường tròn.",
+          "prompt": "nêu giúp em 3 dấu hiệu nhận biết tứ giác nội tiếp hay gặp nhất trong đề thi vào 10 ạ!"
+        }
+      ]
+    }
+  ],
+  "quizzes": [
+    {
+      "id": "quiz-can-bac-hai-1",
+      "part": "Phần I · Trắc nghiệm 4 lựa chọn",
+      "subtitle": "Câu mẫu kiểm tra nhanh",
+      "question": "Điều kiện xác định của biểu thức $\\sqrt{2x - 6}$ là:",
+      "options": [
+        { "label": "A. $x > 3$", "correct": false },
+        { "label": "B. $x \\ge 3$", "correct": true },
+        { "label": "C. $x \\le 3$", "correct": false },
+        { "label": "D. $x \\neq 3$", "correct": false }
+      ],
+      "correctFeedback": "<strong>Chính xác!</strong> Biểu thức dưới dấu căn xác định khi $2x - 6 \\ge 0 \\Leftrightarrow 2x \\ge 6 \\Leftrightarrow x \\ge 3$.",
+      "wrongFeedback": "<strong>Chưa đúng rồi em ơi!</strong> Nhớ rằng căn thức bậc hai $\\sqrt{A}$ xác định khi $A \\ge 0$ (có cả dấu bằng 0). Em thử chọn lại nhé!"
+    }
+  ]
+}

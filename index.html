@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Giáo viên AI Toán 9 | Trường THCS Hiệp Phước</title>
+  <title>Giáo viên AI Toán THCS | AI Math Teacher – Lower Secondary</title>
+  <meta name="description" content="Giáo viên AI Toán THCS (AI Math Teacher – Lower Secondary) – Trường THCS Hiệp Phước. Hỗ trợ học sinh lớp 6, 7, 8, 9 theo SGK Kết nối tri thức." />
 
   <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -84,13 +85,21 @@
         </div>
 
         <div class="min-w-0">
-          <h1 class="text-sm sm:text-lg font-extrabold text-slate-900 tracking-tight truncate">Giáo viên AI Toán 9</h1>
-          <p class="text-[11px] sm:text-xs font-medium text-blue-700 truncate">Trường THCS Hiệp Phước</p>
+          <h1 class="text-sm sm:text-lg font-extrabold text-slate-900 tracking-tight truncate">Giáo viên AI Toán THCS</h1>
+          <p class="text-[11px] sm:text-xs font-medium text-blue-700 truncate">Trường THCS Hiệp Phước · Lớp 6–9 (Kết nối tri thức)</p>
         </div>
       </div>
 
-      <!-- Phải: Hồ sơ học sinh + Trạng thái AI + Huy hiệu bảo mật -->
+      <!-- Giữa/Phải: Bộ chọn Lớp 6|7|8|9 + Hồ sơ học sinh + Trạng thái AI + Hệ thống -->
       <div class="flex items-center gap-2 shrink-0">
+        <!-- Bộ chọn lớp THCS -->
+        <div class="hidden sm:inline-flex items-center bg-blue-50/80 p-0.5 rounded-xl border border-blue-200/80" role="group" aria-label="Chọn lớp">
+          <button type="button" onclick="setSelectedGrade(6)" id="grade-btn-6" class="grade-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Lớp 6</button>
+          <button type="button" onclick="setSelectedGrade(7)" id="grade-btn-7" class="grade-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Lớp 7</button>
+          <button type="button" onclick="setSelectedGrade(8)" id="grade-btn-8" class="grade-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Lớp 8</button>
+          <button type="button" onclick="setSelectedGrade(9)" id="grade-btn-9" class="grade-pill-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition">Lớp 9</button>
+        </div>
+
         <button type="button" id="student-header-btn" onclick="openStudentRegisterModal()" class="px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-900 text-xs font-semibold flex items-center gap-1.5 transition" title="Thông tin học sinh">
           <span>👤</span>
           <span id="student-header-label">Đăng ký học sinh</span>
@@ -107,6 +116,15 @@
           </svg>
           <span class="hidden sm:inline">Hệ thống</span>
         </button>
+      </div>
+    </div>
+    <!-- Bộ chọn lớp trên điện thoại (hiển thị < sm) -->
+    <div class="sm:hidden px-4 pb-2.5 flex items-center justify-center">
+      <div class="inline-flex items-center bg-blue-50/80 p-0.5 rounded-xl border border-blue-200/80 w-full justify-between">
+        <button type="button" onclick="setSelectedGrade(6)" id="grade-mob-6" class="grade-mob-btn flex-1 py-1 text-xs font-medium rounded-lg text-slate-600 transition">Lớp 6</button>
+        <button type="button" onclick="setSelectedGrade(7)" id="grade-mob-7" class="grade-mob-btn flex-1 py-1 text-xs font-medium rounded-lg text-slate-600 transition">Lớp 7</button>
+        <button type="button" onclick="setSelectedGrade(8)" id="grade-mob-8" class="grade-mob-btn flex-1 py-1 text-xs font-medium rounded-lg text-slate-600 transition">Lớp 8</button>
+        <button type="button" onclick="setSelectedGrade(9)" id="grade-mob-9" class="grade-mob-btn flex-1 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition">Lớp 9</button>
       </div>
     </div>
   </header>
@@ -137,7 +155,7 @@
             <svg class="w-4 h-4 shrink-0 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
             </svg>
-            <span>2. Ôn tập lý thuyết Toán 9</span>
+            <span>2. Ôn tập lý thuyết</span>
           </button>
 
           <button type="button" onclick="switchMainTab('practice')" id="nav-practice" class="nav-item w-full text-left px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-800 flex items-center gap-2.5 transition">
@@ -185,7 +203,7 @@
 
       <!-- Footer Sidebar -->
       <div class="p-4 border-t border-blue-100 bg-blue-50/40 text-[11px] text-slate-500">
-        <div class="font-semibold text-blue-900">Sách Kết nối tri thức Toán 9</div>
+        <div class="font-semibold text-blue-900">SGK Kết nối tri thức (Lớp 6–9)</div>
         <div>Hỗ trợ chấm ảnh & giải từng bước</div>
       </div>
     </aside>
@@ -338,7 +356,7 @@
             <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden" />
 
             <div class="flex-1 flex items-center bg-slate-50 border border-blue-200 rounded-xl px-3.5 py-2 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-500/25 focus-within:border-blue-500 transition">
-              <textarea id="composer-input" rows="1" placeholder="Nhập câu hỏi Toán 9 (hoặc dán ảnh bằng Ctrl+V)..." class="w-full resize-none bg-transparent text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none max-h-32"></textarea>
+              <textarea id="composer-input" rows="1" placeholder="Nhập câu hỏi Toán THCS (hoặc dán ảnh bằng Ctrl+V)..." class="w-full resize-none bg-transparent text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none max-h-32"></textarea>
             </div>
 
             <div class="flex items-center gap-2 shrink-0">
@@ -377,7 +395,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
               </svg>
             </div>
-            <h3 class="text-sm sm:text-base font-bold text-slate-900 group-hover:text-blue-700">Ôn tập Toán 9</h3>
+            <h3 class="text-sm sm:text-base font-bold text-slate-900 group-hover:text-blue-700">Ôn tập Toán THCS</h3>
             <p class="text-xs text-slate-500 mt-1">Theo bộ sách Kết nối tri thức với cuộc sống</p>
           </button>
 
@@ -387,52 +405,26 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 class="text-sm sm:text-base font-bold text-slate-900 group-hover:text-blue-700">Tự luyện Toán 9</h3>
+            <h3 class="text-sm sm:text-base font-bold text-slate-900 group-hover:text-blue-700">Tự luyện Toán THCS</h3>
             <p class="text-xs text-slate-500 mt-1">Luyện đề theo cấu trúc Công văn 7991</p>
           </button>
         </section>
       </div>
 
       <!-- ========================================== -->
-      <!-- VIEW 2: ÔN TẬP LÝ THUYẾT TOÁN 9 (KNTT)     -->
+      <!-- VIEW 2: ÔN TẬP LÝ THUYẾT THEO LỚP (KNTT)   -->
       <!-- ========================================== -->
       <section id="view-theory" class="hidden space-y-4">
         <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 class="text-lg font-extrabold text-slate-900">Ôn tập lý thuyết Toán 9</h2>
+            <h2 id="theory-view-title" class="text-lg font-extrabold text-slate-900">Ôn tập lý thuyết Toán 9</h2>
             <p class="text-xs text-slate-500">Tổng hợp trọng tâm theo bộ sách <strong>Kết nối tri thức với cuộc sống</strong></p>
           </div>
           <button type="button" onclick="switchMainTab('chat')" class="px-3.5 py-2 rounded-xl bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition">← Quay lại hỏi đáp AI</button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs space-y-2.5">
-            <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700">Chương 1 · Đại số</span>
-            <h3 class="text-base font-bold text-slate-900">Hệ phương trình bậc nhất hai ẩn</h3>
-            <p class="text-xs text-slate-600 leading-relaxed">Phương pháp thế, phương pháp cộng đại số, và giải bài toán bằng cách lập hệ phương trình: $\begin{cases} ax + by = c \\ a'x + b'y = c' \end{cases}$.</p>
-            <button type="button" onclick="askTeacherFromTab('Cô ơi, giảng lại giúp em cách giải hệ phương trình bằng phương pháp cộng đại số và 1 ví dụ ạ!')" class="text-xs font-semibold text-blue-600 hover:underline">Hỏi Cô AI về chuyên đề này →</button>
-          </div>
-
-          <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs space-y-2.5">
-            <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-700">Chương 3 · Đại số</span>
-            <h3 class="text-base font-bold text-slate-900">Căn bậc hai và Căn bậc ba</h3>
-            <p class="text-xs text-slate-600 leading-relaxed">Điều kiện xác định $\sqrt{A}$ khi $A \ge 0$; hằng đẳng thức $\sqrt{A^2} = |A|$; trục căn thức ở mẫu và rút gọn biểu thức.</p>
-            <button type="button" onclick="askTeacherFromTab('Cô ơi, chỉ em mẹo không bị sai dấu khi phá trị tuyệt đối |A| trong bài rút gọn căn thức với ạ!')" class="text-xs font-semibold text-blue-600 hover:underline">Hỏi Cô AI về chuyên đề này →</button>
-          </div>
-
-          <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs space-y-2.5">
-            <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700">Chương 4 · Hình học</span>
-            <h3 class="text-base font-bold text-slate-900">Hệ thức lượng trong tam giác vuông</h3>
-            <p class="text-xs text-slate-600 leading-relaxed">Tỉ số lượng giác của góc nhọn: $\sin\alpha, \cos\alpha, \tan\alpha, \cot\alpha$ và hệ thức giữa cạnh và góc trong tam giác vuông.</p>
-            <button type="button" onclick="askTeacherFromTab('Cô ơi, làm sao nhớ nhanh công thức sin, cos, tan, cot và ứng dụng giải tam giác vuông ạ?')" class="text-xs font-semibold text-blue-600 hover:underline">Hỏi Cô AI về chuyên đề này →</button>
-          </div>
-
-          <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs space-y-2.5">
-            <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700">Chương 5 · Hình học</span>
-            <h3 class="text-base font-bold text-slate-900">Đường tròn & Góc nội tiếp</h3>
-            <p class="text-xs text-slate-600 leading-relaxed">Tiếp tuyến của đường tròn, hai tiếp tuyến cắt nhau, góc ở tâm, góc nội tiếp và tứ giác nội tiếp đường tròn.</p>
-            <button type="button" onclick="askTeacherFromTab('Cô ơi, nêu giúp em 3 dấu hiệu nhận biết tứ giác nội tiếp hay gặp nhất trong đề thi vào 10 ạ!')" class="text-xs font-semibold text-blue-600 hover:underline">Hỏi Cô AI về chuyên đề này →</button>
-          </div>
+        <div id="theory-dynamic-container" class="space-y-4">
+          <div class="bg-white rounded-2xl border border-blue-100 p-8 text-center text-xs text-slate-500">Đang tải nội dung ôn tập...</div>
         </div>
       </section>
 
@@ -442,7 +434,7 @@
       <section id="view-practice" class="hidden space-y-4">
         <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 class="text-lg font-extrabold text-slate-900">Tự luyện Toán 9 theo cấu trúc Công văn 7991</h2>
+            <h2 id="practice-view-title" class="text-lg font-extrabold text-slate-900">Tự luyện Toán 9 theo cấu trúc Công văn 7991</h2>
             <p class="text-xs text-slate-500">Gồm 3 dạng chuẩn: Trắc nghiệm nhiều lựa chọn · Đúng/Sai · Tự luận trả lời ngắn</p>
           </div>
           <button type="button" onclick="switchMainTab('chat')" class="px-3.5 py-2 rounded-xl bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition">← Quay lại hỏi đáp AI</button>
@@ -461,23 +453,7 @@
             <div id="uploaded-practices-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
           </div>
 
-          <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs space-y-4">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700">Phần I · Trắc nghiệm 4 lựa chọn</span>
-              <span class="text-xs text-slate-400">Câu mẫu kiểm tra nhanh</span>
-            </div>
-            <p class="text-sm font-medium text-slate-800">Điều kiện xác định của biểu thức $\sqrt{2x - 6}$ là:</p>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              <button type="button" onclick="checkQuizAnswer(this, false)" class="p-3 rounded-xl border border-slate-200 hover:border-blue-400 text-xs font-medium text-left transition">A. $x > 3$</button>
-              <button type="button" onclick="checkQuizAnswer(this, true)" class="p-3 rounded-xl border border-slate-200 hover:border-blue-400 text-xs font-medium text-left transition">B. $x \ge 3$</button>
-              <button type="button" onclick="checkQuizAnswer(this, false)" class="p-3 rounded-xl border border-slate-200 hover:border-blue-400 text-xs font-medium text-left transition">C. $x \le 3$</button>
-              <button type="button" onclick="checkQuizAnswer(this, false)" class="p-3 rounded-xl border border-slate-200 hover:border-blue-400 text-xs font-medium text-left transition">D. $x \neq 3$</button>
-            </div>
-            <div id="quiz-feedback" class="hidden text-xs p-3 rounded-xl"></div>
-            <div class="pt-2 border-t border-slate-100 flex justify-end">
-              <button type="button" onclick="askTeacherFromTab('Cô ơi, ra thêm cho em 1 đề tự luyện Toán 9 ngắn theo cấu trúc Công văn 7991 gồm trắc nghiệm, đúng/sai và tự luận với ạ!')" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition">Nhờ Cô AI tạo thêm đề Công văn 7991 →</button>
-            </div>
-          </div>
+          <div id="practice-quiz-container" class="space-y-4"></div>
 
           <!-- Phần Tự luận: Chụp hình bài làm gửi Giáo viên AI chấm -->
           <div id="essay-upload-card" class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs space-y-4">
@@ -555,7 +531,7 @@
       <section id="view-stats" class="hidden space-y-4">
         <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 class="text-lg font-extrabold text-slate-900">Thống kê học tập Toán 9 — THCS Hiệp Phước</h2>
+            <h2 class="text-lg font-extrabold text-slate-900">Thống kê học tập Toán THCS — THCS Hiệp Phước</h2>
             <p class="text-xs text-slate-500">Theo dõi tiến độ luyện tập và các chuyên đề cần cải thiện</p>
           </div>
           <button type="button" onclick="switchMainTab('chat')" class="px-3.5 py-2 rounded-xl bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition">← Quay lại hỏi đáp AI</button>
@@ -623,7 +599,7 @@
         <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 class="text-lg font-extrabold text-slate-900">Thông tin & Bảo mật Hệ thống</h2>
-            <p class="text-xs text-slate-500">Giáo viên AI Toán 9 · Trường THCS Hiệp Phước</p>
+            <p class="text-xs text-slate-500">Giáo viên AI Toán THCS · Trường THCS Hiệp Phước</p>
           </div>
           <button type="button" onclick="switchMainTab('chat')" class="px-3.5 py-2 rounded-xl bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition">← Quay lại hỏi đáp AI</button>
         </div>
@@ -648,7 +624,7 @@
               </li>
               <li class="flex items-center justify-between py-1.5 border-b border-slate-100">
                 <span>Chương trình giảng dạy</span>
-                <span class="font-semibold text-blue-700">Toán 9 – Kết nối tri thức (GDPT 2018)</span>
+                <span class="font-semibold text-blue-700">Toán THCS (Lớp 6–9) – Kết nối tri thức</span>
               </li>
               <li class="flex items-center justify-between py-1.5">
                 <span>Đơn vị quản lý</span>
@@ -972,7 +948,143 @@
         badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span><span>Chế độ Offline</span>`;
       });
 
-    // 2. CHUYỂN TAB MENU BÊN TRÁI
+    // 2. BỘ CHỌN LỚP (LỚP 6 - 9) & CHUYỂN TAB MENU BÊN TRÁI
+    const LOCAL_KEY_SELECTED_GRADE = 'trogiang_selected_grade_v1';
+    let selectedGrade = 9;
+    try {
+      const savedGrade = parseInt(localStorage.getItem(LOCAL_KEY_SELECTED_GRADE) || '9', 10);
+      if ([6, 7, 8, 9].includes(savedGrade)) selectedGrade = savedGrade;
+    } catch {}
+    let currentCurriculum = { grade: selectedGrade, chapters: [], quizzes: [] };
+
+    async function setSelectedGrade(gradeNum) {
+      selectedGrade = [6, 7, 8, 9].includes(Number(gradeNum)) ? Number(gradeNum) : 9;
+      try {
+        localStorage.setItem(LOCAL_KEY_SELECTED_GRADE, String(selectedGrade));
+      } catch {}
+
+      [6, 7, 8, 9].forEach(g => {
+        const dBtn = document.getElementById(`grade-btn-${g}`);
+        const mBtn = document.getElementById(`grade-mob-${g}`);
+        const active = g === selectedGrade;
+        if (dBtn) {
+          dBtn.className = active
+            ? 'grade-pill-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition'
+            : 'grade-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition';
+        }
+        if (mBtn) {
+          mBtn.className = active
+            ? 'grade-mob-btn flex-1 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition'
+            : 'grade-mob-btn flex-1 py-1 text-xs font-medium rounded-lg text-slate-600 transition';
+        }
+      });
+
+      const theoryTitle = document.getElementById('theory-view-title');
+      if (theoryTitle) theoryTitle.textContent = `Ôn tập lý thuyết Toán ${selectedGrade}`;
+      const practiceTitle = document.getElementById('practice-view-title');
+      if (practiceTitle) practiceTitle.textContent = `Tự luyện Toán ${selectedGrade} theo cấu trúc Công văn 7991`;
+
+      const subtitle = document.getElementById('hero-teacher-subtitle');
+      if (subtitle) {
+        subtitle.textContent = `${getTeacherName()} sẵn sàng giải đáp Toán Lớp ${selectedGrade} & chấm từng bước bài làm viết tay qua ảnh.`;
+      }
+
+      await loadCurriculumForGrade(selectedGrade);
+    }
+
+    async function loadCurriculumForGrade(gradeNum) {
+      try {
+        const res = await fetch(`/curriculum/grade_${gradeNum}.json`);
+        if (res.ok) {
+          currentCurriculum = await res.json();
+        } else {
+          currentCurriculum = { grade: gradeNum, chapters: [], quizzes: [], statusMessage: 'Nội dung đang được thầy cô biên soạn, em quay lại sau nhé!' };
+        }
+      } catch {
+        currentCurriculum = { grade: gradeNum, chapters: [], quizzes: [], statusMessage: 'Nội dung đang được thầy cô biên soạn, em quay lại sau nhé!' };
+      }
+      renderTheoryByGrade(currentCurriculum);
+      renderPracticeQuizzesByGrade(currentCurriculum);
+    }
+
+    function renderTheoryByGrade(data) {
+      const container = document.getElementById('theory-dynamic-container');
+      if (!container) return;
+      const chapters = data.chapters || [];
+      if (!chapters.length) {
+        const msg = data.statusMessage || 'Nội dung đang được thầy cô biên soạn, em quay lại sau nhé!';
+        container.innerHTML = `
+          <div class="bg-white rounded-2xl border border-blue-100 p-8 text-center space-y-2 shadow-xs">
+            <div class="text-3xl">📚</div>
+            <h3 class="text-sm font-bold text-slate-800">Toán Lớp ${data.grade || selectedGrade}</h3>
+            <p class="text-xs sm:text-sm text-blue-700 font-medium">${escapeHtml(msg)}</p>
+            <p class="text-xs text-slate-500">Em vẫn có thể hỏi bài trực tiếp với ${getTeacherName()} hoặc chụp ảnh bài làm ngay tại mục 1 nhé!</p>
+          </div>
+        `;
+        return;
+      }
+
+      const colorMap = {
+        blue: 'bg-blue-50 text-blue-700',
+        sky: 'bg-sky-50 text-sky-700',
+        indigo: 'bg-indigo-50 text-indigo-700',
+        emerald: 'bg-emerald-50 text-emerald-700'
+      };
+      const cardsHtml = [];
+      chapters.forEach(ch => {
+        (ch.lessons || []).forEach(lesson => {
+          const badgeCls = colorMap[lesson.badgeColor] || colorMap.blue;
+          const promptArg = encodeURIComponent(`${getTeacherShort()} ơi, ${lesson.prompt || ''}`);
+          cardsHtml.push(`
+            <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs space-y-2.5">
+              <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full ${badgeCls}">${escapeHtml(lesson.badge || ch.name)}</span>
+              <h3 class="text-base font-bold text-slate-900">${escapeHtml(lesson.title)}</h3>
+              <p class="text-xs text-slate-600 leading-relaxed">${lesson.summary || ''}</p>
+              <button type="button" onclick="askTeacherFromTab(decodeURIComponent('${promptArg}'))" class="text-xs font-semibold text-blue-600 hover:underline">Hỏi ${getTeacherName()} về chuyên đề này →</button>
+            </div>
+          `);
+        });
+      });
+      container.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">${cardsHtml.join('')}</div>`;
+      renderMathInContainer(container);
+    }
+
+    function renderPracticeQuizzesByGrade(data) {
+      const container = document.getElementById('practice-quiz-container');
+      if (!container) return;
+      const quizzes = data.quizzes || [];
+      if (!quizzes.length) {
+        const msg = data.statusMessage || 'Nội dung đang được thầy cô biên soạn, em quay lại sau nhé!';
+        container.innerHTML = `
+          <div class="bg-white rounded-2xl border border-blue-100 p-6 text-center space-y-2 shadow-xs">
+            <div class="text-2xl">📝</div>
+            <p class="text-xs sm:text-sm text-blue-700 font-medium">${escapeHtml(msg)}</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = quizzes.map((q, idx) => `
+        <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700">${escapeHtml(q.part || 'Phần I')}</span>
+            <span class="text-xs text-slate-400">${escapeHtml(q.subtitle || '')}</span>
+          </div>
+          <p class="text-sm font-medium text-slate-800">${q.question}</p>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            ${(q.options || []).map(opt => `
+              <button type="button" onclick="checkQuizAnswer(this, ${!!opt.correct}, ${idx})" class="p-3 rounded-xl border border-slate-200 hover:border-blue-400 text-xs font-medium text-left transition">${opt.label}</button>
+            `).join('')}
+          </div>
+          <div id="quiz-feedback-${idx}" class="hidden text-xs p-3 rounded-xl"></div>
+          <div class="pt-2 border-t border-slate-100 flex justify-end">
+            <button type="button" onclick="askTeacherFromTab('${getTeacherShort()} ơi, ra thêm cho em 1 đề tự luyện Toán ${selectedGrade} ngắn theo cấu trúc Công văn 7991 gồm trắc nghiệm, đúng/sai và tự luận với ạ!')" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition">Nhờ ${getTeacherName()} tạo thêm đề Công văn 7991 →</button>
+          </div>
+        </div>
+      `).join('');
+      renderMathInContainer(container);
+    }
+
     function switchMainTab(tab) {
       ['chat', 'theory', 'practice', 'stats', 'admin'].forEach(t => {
         document.getElementById(`view-${t}`).classList.add('hidden');
@@ -1008,19 +1120,21 @@
       handleComposerSubmit();
     }
 
-    function checkQuizAnswer(btn, isCorrect) {
-      if (!requireStudentRegistered(() => checkQuizAnswer(btn, isCorrect))) return;
-      const fb = document.getElementById('quiz-feedback');
+    function checkQuizAnswer(btn, isCorrect, quizIdx = 0) {
+      if (!requireStudentRegistered(() => checkQuizAnswer(btn, isCorrect, quizIdx))) return;
+      const fb = document.getElementById(`quiz-feedback-${quizIdx}`);
+      if (!fb) return;
+      const quizObj = (currentCurriculum.quizzes || [])[quizIdx] || {};
       fb.classList.remove('hidden');
       if (isCorrect) {
         fb.className = 'text-xs p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 font-medium';
-        fb.innerHTML = '✅ <strong>Chính xác!</strong> Biểu thức dưới dấu căn xác định khi $2x - 6 \\ge 0 \\Leftrightarrow 2x \\ge 6 \\Leftrightarrow x \\ge 3$.';
+        fb.innerHTML = '✅ ' + (quizObj.correctFeedback || '<strong>Chính xác!</strong>');
       } else {
         fb.className = 'text-xs p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 font-medium';
-        fb.innerHTML = '❌ <strong>Chưa đúng rồi em ơi!</strong> Nhớ rằng căn thức bậc hai $\\sqrt{A}$ xác định khi $A \\ge 0$ (có cả dấu bằng 0). Em thử chọn lại nhé!';
+        fb.innerHTML = '❌ ' + (quizObj.wrongFeedback || '<strong>Chưa đúng rồi em ơi!</strong> Em thử chọn lại nhé!');
       }
       renderMathInContainer(fb);
-      recordStudentActivity('quiz_attempt', 'Câu trắc nghiệm ĐKXĐ căn bậc hai (Công văn 7991)', isCorrect);
+      recordStudentActivity('quiz_attempt', `Câu trắc nghiệm Toán ${selectedGrade} (Công văn 7991)`, isCorrect);
     }
 
     // 3. XỬ LÝ ẢNH BÀI TẬP (TẢI LÊN, DÁN CTRL+V, XOAY ẢNH)
@@ -1169,7 +1283,7 @@
 
       const subtitle = document.getElementById('hero-teacher-subtitle');
       if (subtitle) {
-        subtitle.textContent = `${getTeacherName()} sẵn sàng giải đáp Toán 9 & chấm từng bước bài làm viết tay qua ảnh.`;
+        subtitle.textContent = `${getTeacherName()} sẵn sàng giải đáp Toán Lớp ${selectedGrade} & chấm từng bước bài làm viết tay qua ảnh.`;
       }
 
       const avatarBox = document.getElementById('welcome-teacher-avatar');
@@ -1256,7 +1370,7 @@
               sample_id: sentSampleId,
               student_note: text,
               mode: feedbackMode,
-              grade: 'Toán 9',
+              grade: `Toán ${selectedGrade}`,
               teacher_gender: teacherGender,
               api_key: apiKeyOverride || undefined
             })
@@ -1276,6 +1390,7 @@
               message: userDisplay,
               history: chatConversationHistory,
               context: lastGradingResult || {},
+              grade: `Toán ${selectedGrade}`,
               teacher_gender: teacherGender,
               api_key: apiKeyOverride || undefined
             })
@@ -2163,7 +2278,7 @@
             mime_type: essayMimeType,
             student_note: note || 'Chấm bài tự luận Toán 9 mục 3',
             mode: feedbackMode,
-            grade: 'Toán 9',
+            grade: `Toán ${selectedGrade}`,
             teacher_gender: teacherGender,
             api_key: apiKeyOverride || undefined
           })
@@ -2210,6 +2325,7 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+      setSelectedGrade(selectedGrade);
       setTeacherGender(teacherGender);
       updateAdminAuthUI();
       renderStudentStatsUI();

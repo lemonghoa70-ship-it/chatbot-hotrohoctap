@@ -97,8 +97,9 @@ ${kb.skillPhanTich}
 
 ---
 QUY TẮC BẮT BUỘC VỀ NỘI DUNG & ĐỘ DÀI:
-- Trả lời ngắn gọn, súc tích, chính xác 100%, đúng trọng tâm kiến thức Toán lớp 9 (CT GDPT 2018 – sách Kết nối tri thức với cuộc sống).
-- Xưng hô nhất quán "Cô" và "em", không viết lan man hoặc lặp ý.
+- Trả lời ngắn gọn, súc tích, chính xác 100%, đúng trọng tâm kiến thức Toán THCS (Lớp 6, 7, 8, 9 – CT GDPT 2018, bộ sách Kết nối tri thức với cuộc sống).
+- Khi có thông tin lớp đang chọn, PHẢI giảng và giải bài đúng kiến thức, phương pháp và ký hiệu của lớp đó; TUYỆT ĐỐI KHÔNG dùng kiến thức của lớp trên.
+- Xưng hô nhất quán "Thầy" hoặc "Cô" (theo lựa chọn của học sinh) và "em", không viết lan man hoặc lặp ý.
 - Mỗi lần trả lời **tối đa 2000 từ** (ưu tiên trình bày cô đọng, rõ từng bước bằng gạch đầu dòng và công thức LaTeX $...$ / $$...$$).
 
 BẮT BUỘC: Khi phân tích ảnh bài làm, trả về JSON chính xác theo 9 trường quy chuẩn:
@@ -237,7 +238,8 @@ export async function callGeminiApi({ imageBase64, mimeType = 'image/png', stude
 
   const isTutor = mode === 'tutor' || mode === 'Gia sư';
   const userPrompt = `
-Hãy chấm bài làm viết tay trong ảnh đính kèm theo chương trình: ${grade}.
+Hãy chấm bài làm viết tay trong ảnh đính kèm theo chương trình: ${grade} (SGK Kết nối tri thức với cuộc sống, GDPT 2018).
+QUAN TRỌNG: Chỉ sử dụng kiến thức và phương pháp của ${grade}, tuyệt đối không dùng kiến thức lớp trên.
 Xưng hô bắt buộc: Giáo viên AI xưng "${pronoun}" và gọi học sinh là "em".
 Chế độ phản hồi: ${isTutor ? 'Gia sư (Ưu tiên câu hỏi gợi mở, không tiết lộ đáp số trong gợi ý)' : 'Chấm nhanh (Trình bày đầy đủ lỗi và đáp số)'}.
 Ghi chú thêm của học sinh: ${studentNote || 'Không có'}.
@@ -315,14 +317,16 @@ status, ocr_summary, good_points, first_error_step, error_reason, hint_level_1, 
 }
 
 // 6. HÀM GỌI GEMINI CHAT TIẾP THEO NGỮ CẢNH (HỖ TRỢ KEY ROTATION VÀ FAILOVER)
-export async function callGeminiChat({ message, history = [], context = {}, teacherGender = 'co', apiKey }) {
+export async function callGeminiChat({ message, history = [], context = {}, grade = 'Toán 9', teacherGender = 'co', apiKey }) {
   const keys = apiKey ? [apiKey] : getApiKeys();
   if (keys.length === 0) {
     throw new Error('MISSING_API_KEY');
   }
 
   const pronoun = teacherGender === 'thay' ? 'Thầy' : 'Cô';
-  const sysInstruction = buildSystemInstruction() + `\n\nXưng hô bắt buộc trong cuộc trò chuyện này: Giáo viên AI xưng "${pronoun}" và gọi học sinh là "em".`;
+  const sysInstruction =
+    buildSystemInstruction() +
+    `\n\nBỐI CẢNH LỚP HỌC HIỆN TẠI: Học sinh đang học chương trình ${grade} (SGK Kết nối tri thức với cuộc sống). Hãy giảng đúng kiến thức và mức độ của ${grade}, tuyệt đối không dùng kiến thức lớp trên.\nXưng hô bắt buộc trong cuộc trò chuyện này: Giáo viên AI xưng "${pronoun}" và gọi học sinh là "em".`;
   const contextText = `
 NGỮ CẢNH BÀI TOÁN VỪA CHẤM CỦA HỌC SINH:
 - Đề bài & Bài làm: ${context.ocr_summary || 'Chưa có'}
@@ -763,6 +767,7 @@ export async function handleRequest(req, res) {
             message: userMessage,
             history: body.history || [],
             context: body.context || {},
+            grade: body.grade || 'Toán 9',
             teacherGender: body.teacher_gender || 'co',
             apiKey: body.api_key,
           });
@@ -789,10 +794,15 @@ export async function handleRequest(req, res) {
       return sendJson(res, 200, { reply, source: 'simulation' });
     }
 
-    // PHỤC VỤ STATIC FILES CHO FRONTEND
+    // PHỤC VỤ STATIC FILES CHO FRONTEND (hỗ trợ cả thư mục gốc và public/)
     let filePath = path.join(__dirname, pathname === '/' ? 'index.html' : pathname);
     if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
-      filePath = path.join(__dirname, 'index.html');
+      const publicPath = path.join(__dirname, 'public', pathname);
+      if (fs.existsSync(publicPath) && !fs.statSync(publicPath).isDirectory()) {
+        filePath = publicPath;
+      } else {
+        filePath = path.join(__dirname, 'index.html');
+      }
     }
 
     const ext = path.extname(filePath).toLowerCase();

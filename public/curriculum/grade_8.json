@@ -1,0 +1,23 @@
+{
+  "grade": 8,
+  "label": "Lớp 8",
+  "title": "Toán 8 – Kết nối tri thức với cuộc sống",
+  "statusMessage": "Nội dung đang được thầy cô biên soạn, em quay lại sau nhé!",
+  "chapters": [],
+  "quizzes": [],
+  "_template": {
+    "chapterExample": {
+      "id": "chuong-1",
+      "name": "Tên chương (Giáo viên tự nhập)",
+      "lessons": [
+        {
+          "id": "bai-1",
+          "title": "Tên bài học",
+          "badge": "Chương 1 · Đại số",
+          "summary": "Tóm tắt kiến thức trọng tâm có công thức LaTeX.",
+          "prompt": "Câu hỏi mẫu gửi Giáo viên AI"
+        }
+      ]
+    }
+  }
+}
