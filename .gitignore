@@ -1,0 +1,15 @@
+# Environment variables (contains API keys - DO NOT COMMIT)
+.env
+.env.local
+.env.*.local
+
+# Portable tools & dependencies
+.tools/
+node_modules/
+dist/
+build/
+
+# Logs & OS files
+*.log
+.DS_Store
+Thumbs.db
