@@ -225,7 +225,7 @@ export const SAMPLE_MOCKS = {
 };
 
 // 5. HÀM GỌI GEMINI MULTIMODAL API (HỖ TRỢ KEY ROTATION VÀ FAILOVER)
-export async function callGeminiApi({ imageBase64, mimeType = 'image/png', studentNote, mode = 'tutor', grade = 'Toán 9', apiKey }) {
+export async function callGeminiApi({ imageBase64, mimeType = 'image/png', studentNote, mode = 'tutor', grade = 'Toán 9', teacherGender = 'co', apiKey }) {
   const keys = apiKey ? [apiKey] : getApiKeys();
   if (keys.length === 0) {
     throw new Error('MISSING_API_KEY');
@@ -233,10 +233,12 @@ export async function callGeminiApi({ imageBase64, mimeType = 'image/png', stude
 
   const cleanBase64 = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
   const sysInstruction = buildSystemInstruction();
+  const pronoun = teacherGender === 'thay' ? 'Thầy' : 'Cô';
 
   const isTutor = mode === 'tutor' || mode === 'Gia sư';
   const userPrompt = `
 Hãy chấm bài làm viết tay trong ảnh đính kèm theo chương trình: ${grade}.
+Xưng hô bắt buộc: Giáo viên AI xưng "${pronoun}" và gọi học sinh là "em".
 Chế độ phản hồi: ${isTutor ? 'Gia sư (Ưu tiên câu hỏi gợi mở, không tiết lộ đáp số trong gợi ý)' : 'Chấm nhanh (Trình bày đầy đủ lỗi và đáp số)'}.
 Ghi chú thêm của học sinh: ${studentNote || 'Không có'}.
 
@@ -313,13 +315,14 @@ status, ocr_summary, good_points, first_error_step, error_reason, hint_level_1, 
 }
 
 // 6. HÀM GỌI GEMINI CHAT TIẾP THEO NGỮ CẢNH (HỖ TRỢ KEY ROTATION VÀ FAILOVER)
-export async function callGeminiChat({ message, history = [], context = {}, apiKey }) {
+export async function callGeminiChat({ message, history = [], context = {}, teacherGender = 'co', apiKey }) {
   const keys = apiKey ? [apiKey] : getApiKeys();
   if (keys.length === 0) {
     throw new Error('MISSING_API_KEY');
   }
 
-  const sysInstruction = buildSystemInstruction();
+  const pronoun = teacherGender === 'thay' ? 'Thầy' : 'Cô';
+  const sysInstruction = buildSystemInstruction() + `\n\nXưng hô bắt buộc trong cuộc trò chuyện này: Giáo viên AI xưng "${pronoun}" và gọi học sinh là "em".`;
   const contextText = `
 NGỮ CẢNH BÀI TOÁN VỪA CHẤM CỦA HỌC SINH:
 - Đề bài & Bài làm: ${context.ocr_summary || 'Chưa có'}
@@ -689,6 +692,7 @@ export async function handleRequest(req, res) {
             studentNote: body.student_note || body.note,
             mode: body.mode || 'tutor',
             grade: body.grade || 'Toán 9',
+            teacherGender: body.teacher_gender || 'co',
             apiKey: body.api_key, // nếu body không có apiKey thì callGeminiApi tự xoay vòng keys
           });
           return sendJson(res, 200, { ...result, source: 'gemini_api' });
@@ -726,6 +730,7 @@ export async function handleRequest(req, res) {
             message: userMessage,
             history: body.history || [],
             context: body.context || {},
+            teacherGender: body.teacher_gender || 'co',
             apiKey: body.api_key,
           });
           return sendJson(res, 200, { reply, source: 'gemini_api' });

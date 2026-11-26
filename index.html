@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TRỢ LÝ HỌC TẬP AI – Cô Lê Mộng Hòa | Trường THCS Hiệp Phước</title>
+  <title>Giáo viên AI Toán 9 – Cô Lê Mộng Hòa | Trường THCS Hiệp Phước</title>
 
   <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -84,7 +84,7 @@
         </div>
 
         <div class="min-w-0">
-          <h1 class="text-sm sm:text-lg font-extrabold text-slate-900 tracking-tight truncate">TRỢ LÝ HỌC TẬP AI</h1>
+          <h1 class="text-sm sm:text-lg font-extrabold text-slate-900 tracking-tight truncate">Giáo viên AI Toán 9</h1>
           <p class="text-[11px] sm:text-xs font-medium text-blue-700 truncate">Cô Lê Mộng Hòa – Trường THCS Hiệp Phước</p>
         </div>
       </div>
@@ -260,13 +260,19 @@
       <!-- ========================================== -->
       <div id="view-chat" class="space-y-5">
         <section id="chatbot-drop-zone" class="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6 space-y-4 relative overflow-hidden">
-          <!-- Lời chào trung tâm -->
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-blue-50">
+          <!-- Lời chào trung tâm + Chọn Thầy AI / Cô AI -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-blue-50">
             <div class="text-center sm:text-left">
               <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">Chào mừng em đến với lớp học AI!</h2>
-              <p class="text-xs text-slate-500 mt-0.5">Cô AI sẵn sàng giải đáp Toán 9 & chấm từng bước bài làm viết tay qua ảnh.</p>
+              <p id="hero-teacher-subtitle" class="text-xs text-slate-500 mt-0.5">Cô AI sẵn sàng giải đáp Toán 9 & chấm từng bước bài làm viết tay qua ảnh.</p>
             </div>
-            <div class="flex items-center justify-center sm:justify-end gap-2">
+            <div class="flex flex-wrap items-center justify-center sm:justify-end gap-2">
+              <!-- Chọn Giáo viên AI (Cô / Thầy) -->
+              <div class="inline-flex bg-sky-50 p-0.5 rounded-xl border border-sky-200" title="Chọn hình ảnh Giáo viên AI">
+                <button type="button" id="teacher-btn-co" onclick="setTeacherGender('co')" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition flex items-center gap-1">👩‍🏫 Cô AI</button>
+                <button type="button" id="teacher-btn-thay" onclick="setTeacherGender('thay')" class="px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition flex items-center gap-1">👨‍🏫 Thầy AI</button>
+              </div>
+
               <div class="inline-flex bg-blue-50 p-0.5 rounded-xl border border-blue-100">
                 <button type="button" id="mode-tutor" onclick="setFeedbackMode('tutor')" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition">Gia sư</button>
                 <button type="button" id="mode-quick" onclick="setFeedbackMode('quick')" class="px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Chấm nhanh</button>
@@ -275,18 +281,25 @@
             </div>
           </div>
 
-          <!-- Khung hội thoại với Avatar Cô AI thân thiện -->
+          <!-- Khung hội thoại với Avatar Giáo viên AI thân thiện -->
           <div id="chat-scroll-area" class="max-h-[430px] overflow-y-auto pr-1 space-y-4">
-            <!-- Tin nhắn chào mẫu có Avatar Cô Lê Mộng Hòa AI & công thức Toán 9 -->
+            <!-- Tin nhắn chào mẫu có Avatar Thầy/Cô AI & công thức Toán 9 -->
             <div id="welcome-chat-card" class="flex items-start gap-3.5 bg-blue-50/50 border border-blue-100 rounded-2xl p-4">
-              <!-- Avatar Cô AI thân thiện -->
-              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-100 to-sky-100 border border-blue-200 flex items-center justify-center shrink-0 relative shadow-2xs">
-                <svg class="w-9 h-9 text-blue-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+              <!-- Avatar Giáo viên AI (thay đổi theo lựa chọn Cô / Thầy) -->
+              <div id="welcome-teacher-avatar" class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-100 to-sky-100 border border-blue-200 flex items-center justify-center shrink-0 relative shadow-2xs">
+                <!-- SVG Cô giáo mặc định -->
+                <svg viewBox="0 0 64 64" class="w-13 h-13">
+                  <circle cx="32" cy="32" r="28" fill="#dbeafe"/>
+                  <path d="M16 54c0-9 7-15 16-15s16 6 16 15" fill="#2563eb"/>
+                  <path d="M18 28c0-9 6-16 14-16s14 7 14 16v8c0 2-2 3-3 1-1-3-3-11-11-11s-10 8-11 11c-1 2-3 1-3-1v-8z" fill="#1e293b"/>
+                  <circle cx="32" cy="29" r="10" fill="#fde68a"/>
+                  <circle cx="28.5" cy="28" r="1.3" fill="#0f172a"/>
+                  <circle cx="35.5" cy="28" r="1.3" fill="#0f172a"/>
+                  <path d="M29 33c1.8 1.5 4.2 1.5 6 0" stroke="#dc2626" stroke-width="1.6" fill="none" stroke-linecap="round"/>
                 </svg>
-                <span class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center shadow-xs">AI</span>
+                <span class="absolute -top-1 -right-1 px-1.5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center shadow-xs">Cô AI</span>
               </div>
-              <div class="flex-1 text-xs sm:text-sm text-slate-800 space-y-1.5 leading-relaxed">
+              <div id="welcome-teacher-qa" class="flex-1 text-xs sm:text-sm text-slate-800 space-y-1.5 leading-relaxed">
                 <p><strong>Học sinh:</strong> Cô ơi, làm sao rút gọn $\sqrt{a^2}$ và giải phương trình $ax^2 + bx + c = 0$ ạ?</p>
                 <p><strong>Cô AI:</strong> Rất đơn giản! Em áp dụng hằng đẳng thức $\sqrt{a^2} = |a|$. Với phương trình bậc hai $ax^2 + bx + c = 0 \ (a \neq 0)$, ta tính $\Delta = b^2 - 4ac$ rồi xét dấu của $\Delta$ nhé! Em có thể gõ câu hỏi hoặc tải ảnh bài làm lên để Cô kiểm tra cùng em.</p>
               </div>
@@ -610,7 +623,7 @@
         <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 class="text-lg font-extrabold text-slate-900">Thông tin & Bảo mật Hệ thống</h2>
-            <p class="text-xs text-slate-500">TRỢ LÝ HỌC TẬP AI – Cô Lê Mộng Hòa · Trường THCS Hiệp Phước</p>
+            <p class="text-xs text-slate-500">Giáo viên AI Toán 9 – Cô Lê Mộng Hòa · Trường THCS Hiệp Phước</p>
           </div>
           <button type="button" onclick="switchMainTab('chat')" class="px-3.5 py-2 rounded-xl bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition">← Quay lại hỏi đáp AI</button>
         </div>
@@ -1086,6 +1099,83 @@
       handleComposerSubmit();
     }
 
+    const LOCAL_KEY_TEACHER_GENDER = 'trogiang_teacher_gender_v1';
+    let teacherGender = localStorage.getItem(LOCAL_KEY_TEACHER_GENDER) || 'co';
+
+    function getTeacherShort() { return teacherGender === 'thay' ? 'Thầy' : 'Cô'; }
+    function getTeacherName() { return teacherGender === 'thay' ? 'Thầy AI' : 'Cô AI'; }
+
+    function setTeacherGender(gender) {
+      teacherGender = gender === 'thay' ? 'thay' : 'co';
+      localStorage.setItem(LOCAL_KEY_TEACHER_GENDER, teacherGender);
+
+      const btnCo = document.getElementById('teacher-btn-co');
+      const btnThay = document.getElementById('teacher-btn-thay');
+      if (btnCo && btnThay) {
+        if (teacherGender === 'co') {
+          btnCo.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition flex items-center gap-1';
+          btnThay.className = 'px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition flex items-center gap-1';
+        } else {
+          btnThay.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition flex items-center gap-1';
+          btnCo.className = 'px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition flex items-center gap-1';
+        }
+      }
+
+      const subtitle = document.getElementById('hero-teacher-subtitle');
+      if (subtitle) {
+        subtitle.textContent = `${getTeacherName()} sẵn sàng giải đáp Toán 9 & chấm từng bước bài làm viết tay qua ảnh.`;
+      }
+
+      const avatarBox = document.getElementById('welcome-teacher-avatar');
+      if (avatarBox) {
+        if (teacherGender === 'thay') {
+          avatarBox.innerHTML = `
+            <svg viewBox="0 0 64 64" class="w-13 h-13">
+              <circle cx="32" cy="32" r="28" fill="#dbeafe"/>
+              <path d="M16 54c0-9 7-15 16-15s16 6 16 15" fill="#1d4ed8"/>
+              <path d="M27 39l5 6 5-6" fill="#ffffff"/>
+              <path d="M21 26c0-8 5-13 11-13s11 5 11 13c0-3-2-5-11-5s-11 2-11 5z" fill="#1e293b"/>
+              <circle cx="32" cy="29" r="10" fill="#fde68a"/>
+              <rect x="25" y="25.5" width="5.5" height="4" rx="1.2" fill="none" stroke="#1e293b" stroke-width="1.3"/>
+              <rect x="33.5" y="25.5" width="5.5" height="4" rx="1.2" fill="none" stroke="#1e293b" stroke-width="1.3"/>
+              <line x1="30.5" y1="27.5" x2="33.5" y2="27.5" stroke="#1e293b" stroke-width="1.2"/>
+              <circle cx="27.8" cy="27.5" r="1.1" fill="#0f172a"/>
+              <circle cx="36.2" cy="27.5" r="1.1" fill="#0f172a"/>
+              <path d="M29 33.5c1.8 1.4 4.2 1.4 6 0" stroke="#b45309" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            </svg>
+            <span class="absolute -top-1 -right-1 px-1.5 h-5 rounded-full bg-blue-700 text-white text-[10px] font-bold flex items-center justify-center shadow-xs">Thầy AI</span>
+          `;
+        } else {
+          avatarBox.innerHTML = `
+            <svg viewBox="0 0 64 64" class="w-13 h-13">
+              <circle cx="32" cy="32" r="28" fill="#dbeafe"/>
+              <path d="M16 54c0-9 7-15 16-15s16 6 16 15" fill="#2563eb"/>
+              <path d="M18 28c0-9 6-16 14-16s14 7 14 16v8c0 2-2 3-3 1-1-3-3-11-11-11s-10 8-11 11c-1 2-3 1-3-1v-8z" fill="#1e293b"/>
+              <circle cx="32" cy="29" r="10" fill="#fde68a"/>
+              <circle cx="28.5" cy="28" r="1.3" fill="#0f172a"/>
+              <circle cx="35.5" cy="28" r="1.3" fill="#0f172a"/>
+              <path d="M29 33c1.8 1.5 4.2 1.5 6 0" stroke="#dc2626" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+            </svg>
+            <span class="absolute -top-1 -right-1 px-1.5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center shadow-xs">Cô AI</span>
+          `;
+        }
+      }
+
+      const qaBox = document.getElementById('welcome-teacher-qa');
+      if (qaBox) {
+        const short = getTeacherShort();
+        const name = getTeacherName();
+        qaBox.innerHTML = `
+          <p><strong>Học sinh:</strong> ${short} ơi, làm sao rút gọn $\\sqrt{a^2}$ và giải phương trình $ax^2 + bx + c = 0$ ạ?</p>
+          <p><strong>${name}:</strong> Rất đơn giản! Em áp dụng hằng đẳng thức $\\sqrt{a^2} = |a|$. Với phương trình bậc hai $ax^2 + bx + c = 0 \\ (a \\neq 0)$, ta tính $\\Delta = b^2 - 4ac$ rồi xét dấu của $\\Delta$ nhé! Em có thể gõ câu hỏi hoặc tải ảnh bài làm lên để ${short} kiểm tra cùng em.</p>
+        `;
+        renderMathInContainer(qaBox);
+      }
+
+      const essayBtn = document.getElementById('essay-submit-btn');
+      if (essayBtn) essayBtn.textContent = `✓ Gửi ${getTeacherName()} chấm bài tự luận`;
+    }
+
     async function handleComposerSubmit() {
       if (isLoading) return;
       const text = composerInput.value.trim();
@@ -1096,7 +1186,7 @@
       const sentImage = currentImageSrc;
       const sentMime = currentMimeType;
       const sentSampleId = currentSampleId;
-      const userDisplay = text || 'Cô kiểm tra bài làm trong ảnh giúp em nhé!';
+      const userDisplay = text || `${getTeacherShort()} kiểm tra bài làm trong ảnh giúp em nhé!`;
 
       renderUserMessageDOM(userDisplay, sentImage);
       composerInput.value = '';
@@ -1105,7 +1195,7 @@
 
       isLoading = true;
       document.getElementById('send-btn').disabled = true;
-      setThinking(true, hasImage ? 'Cô AI đang đọc ảnh bài làm & chuẩn hóa LaTeX...' : 'Cô AI đang suy nghĩ câu trả lời...');
+      setThinking(true, hasImage ? `${getTeacherName()} đang đọc ảnh bài làm & chuẩn hóa LaTeX...` : `${getTeacherName()} đang suy nghĩ câu trả lời...`);
 
       const apiKeyOverride = localStorage.getItem(LOCAL_STORAGE_KEY_API_KEY) || '';
 
@@ -1121,6 +1211,7 @@
               student_note: text,
               mode: feedbackMode,
               grade: 'Toán 9',
+              teacher_gender: teacherGender,
               api_key: apiKeyOverride || undefined
             })
           });
@@ -1139,16 +1230,17 @@
               message: userDisplay,
               history: chatConversationHistory,
               context: lastGradingResult || {},
+              teacher_gender: teacherGender,
               api_key: apiKeyOverride || undefined
             })
           });
           const data = await res.json();
-          const reply = data.reply || 'Cô chưa nghe rõ, em nhắn lại giúp Cô nhé!';
+          const reply = data.reply || `${getTeacherShort()} chưa nghe rõ, em nhắn lại giúp ${getTeacherShort()} nhé!`;
           chatConversationHistory.push({ role: 'user', content: userDisplay });
           chatConversationHistory.push({ role: 'model', content: reply });
           setThinking(false);
           renderAiTextMessageDOM(reply, data.source);
-          recordStudentActivity('chat_question', `Hỏi Cô AI: ${userDisplay.slice(0, 60)}`);
+          recordStudentActivity('chat_question', `Hỏi ${getTeacherName()}: ${userDisplay.slice(0, 60)}`);
         }
       } catch (err) {
         console.error(err);
@@ -1190,11 +1282,13 @@
       const stream = document.getElementById('messages-stream');
       const div = document.createElement('div');
       div.className = 'flex items-start gap-3 animate-msg';
+      const short = getTeacherShort();
+      const tName = getTeacherName();
       div.innerHTML = `
-        <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-blue-200">Cô</div>
+        <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-blue-200">${short}</div>
         <div class="flex-1 bg-blue-50/40 border border-blue-100 rounded-2xl rounded-tl-sm p-3.5 text-xs sm:text-sm text-slate-800">
           <div class="flex items-center gap-2 mb-1">
-            <span class="font-bold text-blue-900">Cô Lê Mộng Hòa (AI)</span>
+            <span class="font-bold text-blue-900">${tName} · Toán 9</span>
             <span class="text-[10px] px-1.5 py-0.5 rounded bg-white border border-blue-100 text-blue-600">${source === 'gemini_api' ? 'Gemini AI' : 'Trợ lý Toán 9'}</span>
           </div>
           <div class="ai-prose">${formatMathAndMarkdown(replyText)}</div>
@@ -1212,9 +1306,10 @@
       const uid = 'grade_' + Date.now();
       const isClean = (data.first_error_step || '').toLowerCase().includes('không có lỗi');
       const goodHtml = (data.good_points || []).map(pt => `<li>${formatMathAndMarkdown(pt)}</li>`).join('');
+      const short = getTeacherShort();
 
       div.innerHTML = `
-        <div class="w-8 h-8 rounded-xl bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">Cô</div>
+        <div class="w-8 h-8 rounded-xl bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">${short}</div>
         <div class="flex-1 space-y-2.5 min-w-0">
           <div class="rounded-xl border border-blue-100 bg-slate-50/80 p-3.5">
             <div class="text-[11px] font-bold uppercase text-blue-700 mb-1">Bài làm đã đọc (OCR)</div>
@@ -1917,6 +2012,7 @@
             student_note: note || 'Chấm bài tự luận Toán 9 mục 3',
             mode: feedbackMode,
             grade: 'Toán 9',
+            teacher_gender: teacherGender,
             api_key: apiKeyOverride || undefined
           })
         });
@@ -1952,7 +2048,7 @@
         `;
         renderMathInContainer(resultBox);
         recordStudentActivity('grade_image', `Nộp bài tự luận mục 3${note ? ': ' + note : ''}`);
-        showToast('Cô AI đã chấm xong bài tự luận của em!');
+        showToast(`${getTeacherName()} đã chấm xong bài tự luận của em!`);
       } catch (err) {
         console.error(err);
         loading.classList.add('hidden');
@@ -1962,6 +2058,7 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+      setTeacherGender(teacherGender);
       updateAdminAuthUI();
       renderStudentStatsUI();
       loadPracticesList();
