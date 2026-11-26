@@ -377,6 +377,44 @@ NGỮ CẢNH BÀI TOÁN VỪA CHẤM CỦA HỌC SINH:
   throw lastError || new Error('Không thể kết nối đến Gemini Chat API sau nhiều lần thử.');
 }
 
+// 6B. QUẢN LÝ HỒ SƠ & QUÁ TRÌNH HỌC TẬP CỦA HỌC SINH
+let memoryStudentsStore = [];
+
+function getStudentsFilePath() {
+  const localDir = path.join(__dirname, 'data');
+  try {
+    if (!fs.existsSync(localDir)) fs.mkdirSync(localDir, { recursive: true });
+    const testPath = path.join(localDir, '.write_test');
+    fs.writeFileSync(testPath, '1');
+    fs.unlinkSync(testPath);
+    return path.join(localDir, 'students.json');
+  } catch {
+    return '/tmp/trogiang_students.json';
+  }
+}
+
+function readStudentsStore() {
+  try {
+    const file = getStudentsFilePath();
+    if (fs.existsSync(file)) {
+      const parsed = JSON.parse(fs.readFileSync(file, 'utf-8'));
+      if (Array.isArray(parsed)) {
+        memoryStudentsStore = parsed;
+        return parsed;
+      }
+    }
+  } catch {}
+  return memoryStudentsStore;
+}
+
+function writeStudentsStore(list) {
+  memoryStudentsStore = list;
+  try {
+    const file = getStudentsFilePath();
+    fs.writeFileSync(file, JSON.stringify(list, null, 2), 'utf-8');
+  } catch {}
+}
+
 // 7. XỬ LÝ HTTP SERVER
 function readRequestBody(req) {
   if (req.body && typeof req.body === 'object') {
@@ -478,6 +516,91 @@ export async function handleRequest(req, res) {
         return sendJson(res, 200, { ok: true, message: 'Đăng nhập thành công' });
       }
       return sendJson(res, 401, { ok: false, message: 'Sai tên đăng nhập hoặc mật khẩu' });
+    }
+
+    // API: GET /api/students (Danh sách học sinh & quá trình học tập)
+    if (req.method === 'GET' && pathname === '/api/students') {
+      const list = readStudentsStore();
+      return sendJson(res, 200, { students: list, total: list.length });
+    }
+
+    // API: POST /api/students/register (Đăng ký / đăng nhập tài khoản học sinh: Họ tên + Lớp)
+    if (req.method === 'POST' && pathname === '/api/students/register') {
+      const body = await readRequestBody(req);
+      const fullName = String(body.fullName || '').trim();
+      const className = String(body.className || '').trim();
+      if (!fullName || !className) {
+        return sendJson(res, 400, { ok: false, message: 'Vui lòng nhập đầy đủ Họ và tên và Lớp.' });
+      }
+
+      const list = readStudentsStore();
+      let student = list.find(
+        (s) => s.fullName.toLowerCase() === fullName.toLowerCase() && s.className.toLowerCase() === className.toLowerCase()
+      );
+      const now = new Date().toISOString();
+      if (!student) {
+        student = {
+          id: 'hs_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+          fullName,
+          className,
+          createdAt: now,
+          lastActiveAt: now,
+          stats: { questions: 0, gradedImages: 0, quizzesDone: 0, quizzesCorrect: 0 },
+          activities: [],
+        };
+        list.unshift(student);
+      } else {
+        student.lastActiveAt = now;
+      }
+      writeStudentsStore(list);
+      return sendJson(res, 200, { ok: true, student });
+    }
+
+    // API: POST /api/students/activity (Ghi nhận quá trình học tập & tương tác)
+    if (req.method === 'POST' && pathname === '/api/students/activity') {
+      const body = await readRequestBody(req);
+      const studentId = String(body.studentId || '');
+      const fullName = String(body.fullName || '').trim();
+      const className = String(body.className || '').trim();
+      const type = String(body.type || 'interaction');
+      const summary = String(body.summary || '').slice(0, 200);
+      const isCorrect = body.isCorrect;
+
+      const list = readStudentsStore();
+      let student = list.find(
+        (s) => s.id === studentId || (fullName && s.fullName.toLowerCase() === fullName.toLowerCase() && s.className.toLowerCase() === className.toLowerCase())
+      );
+      if (!student && fullName && className) {
+        student = {
+          id: studentId || 'hs_' + Date.now(),
+          fullName,
+          className,
+          createdAt: new Date().toISOString(),
+          lastActiveAt: new Date().toISOString(),
+          stats: { questions: 0, gradedImages: 0, quizzesDone: 0, quizzesCorrect: 0 },
+          activities: [],
+        };
+        list.unshift(student);
+      }
+      if (student) {
+        student.lastActiveAt = new Date().toISOString();
+        if (type === 'chat_question') student.stats.questions = (student.stats.questions || 0) + 1;
+        if (type === 'grade_image') student.stats.gradedImages = (student.stats.gradedImages || 0) + 1;
+        if (type === 'quiz_attempt') {
+          student.stats.quizzesDone = (student.stats.quizzesDone || 0) + 1;
+          if (isCorrect) student.stats.quizzesCorrect = (student.stats.quizzesCorrect || 0) + 1;
+        }
+        student.activities = student.activities || [];
+        student.activities.unshift({
+          type,
+          summary,
+          isCorrect: isCorrect ?? null,
+          timestamp: new Date().toISOString(),
+        });
+        student.activities = student.activities.slice(0, 50);
+        writeStudentsStore(list);
+      }
+      return sendJson(res, 200, { ok: true, student });
     }
 
     // API: POST /api/grade (Chấm bài qua ảnh)
