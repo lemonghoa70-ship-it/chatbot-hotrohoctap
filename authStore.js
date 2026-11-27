@@ -17,9 +17,27 @@ export function isSupabaseConfigured() {
   );
 }
 
-function normalizeStudentEmail(studentCode) {
-  const clean = String(studentCode || '').trim().toLowerCase().replace(/[^a-z0-9._-]/g, '-');
-  return `${clean}@hs.hiepphuoc.local`;
+export function normalizeVietnameseName(rawName) {
+  const nfc = String(rawName || '').normalize('NFC').trim().replace(/\s+/g, ' ');
+  const lookup = nfc.toLowerCase();
+  const display = nfc
+    ? nfc.split(' ').map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
+    : '';
+  return { display, lookup };
+}
+
+function makeInternalStudentEmail(displayName, className) {
+  const ascii = String(displayName || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '') || 'hs';
+  const cls = String(className || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const rnd = crypto.randomBytes(2).toString('hex');
+  return `${ascii}-${cls}-${rnd}@hs.hiepphuoc.local`;
 }
 
 function hashPasswordScrypt(password, salt = crypto.randomBytes(16).toString('hex')) {
@@ -213,43 +231,55 @@ export async function authenticateRequest(req) {
 }
 
 // ==========================================
-// LOGIN (STUDENT BY CODE / ADMIN BY EMAIL)
+// LOGIN (STUDENT BY FULL NAME + CLASS / ADMIN BY EMAIL)
 // ==========================================
-export async function loginStudent({ studentCode, password }) {
-  const code = String(studentCode || '').trim();
+export async function loginStudent({ fullName, className, password }) {
+  const { lookup } = normalizeVietnameseName(fullName);
+  const cls = String(className || '').normalize('NFC').trim();
   const pw = String(password || '');
-  const email = normalizeStudentEmail(code);
+  if (!lookup || !cls || !pw) {
+    return { ok: false, status: 400, message: 'Sai họ tên, lớp hoặc mật khẩu' };
+  }
 
   if (isSupabaseConfigured()) {
+    const pr = await supaFetch(`/rest/v1/profiles?role=eq.student&ho_ten_chuan_hoa=eq.${encodeURIComponent(lookup)}&class_name=eq.${encodeURIComponent(cls)}&select=*`);
+    const profile = Array.isArray(pr.data) ? pr.data[0] : null;
+    if (!profile || !profile.auth_email) {
+      return { ok: false, status: 401, message: 'Sai họ tên, lớp hoặc mật khẩu' };
+    }
     const r = await supaFetch('/auth/v1/token?grant_type=password', {
       method: 'POST',
       useServiceRole: false,
-      body: { email, password: pw },
+      body: { email: profile.auth_email, password: pw },
     });
-    if (!r.ok || !r.data?.access_token || !r.data?.user?.id) {
-      return { ok: false, status: 401, message: 'Sai mã học sinh hoặc mật khẩu' };
+    if (!r.ok || !r.data?.access_token) {
+      return { ok: false, status: 401, message: 'Sai họ tên, lớp hoặc mật khẩu' };
     }
-    const uid = r.data.user.id;
-    const pr = await supaFetch(`/rest/v1/profiles?id=eq.${uid}&select=*`);
-    const profile = Array.isArray(pr.data) ? pr.data[0] : null;
-    if (!profile) return { ok: false, status: 401, message: 'Sai mã học sinh hoặc mật khẩu' };
     if (profile.locked) return { ok: false, status: 403, message: 'Tài khoản đang tạm khóa, em liên hệ giáo viên nhé!' };
     if (!profile.approved) return { ok: false, status: 403, message: 'Tài khoản đang chờ giáo viên duyệt!' };
 
-    await supaFetch(`/rest/v1/profiles?id=eq.${uid}`, { method: 'PATCH', body: { last_login_at: new Date().toISOString() } });
-    await supaFetch('/rest/v1/activity_log', { method: 'POST', body: { user_id: uid, event_type: 'login', summary: 'Đăng nhập học sinh' } });
-    const bundle = await loadUserCloudData(uid);
+    await supaFetch(`/rest/v1/profiles?id=eq.${profile.id}`, { method: 'PATCH', body: { last_login_at: new Date().toISOString() } });
+    await supaFetch('/rest/v1/activity_log', { method: 'POST', body: { user_id: profile.id, event_type: 'login', summary: 'Đăng nhập học sinh' } });
+    const bundle = await loadUserCloudData(profile.id);
     return { ok: true, token: r.data.access_token, profile, ...bundle };
   }
 
   const store = readLocalCloud();
-  const user = (store.profiles || []).find((p) => p.role === 'student' && String(p.student_code || '').toLowerCase() === code.toLowerCase());
+  const user = (store.profiles || []).find((p) => {
+    if (p.role !== 'student') return false;
+    const pLookup = p.ho_ten_chuan_hoa || normalizeVietnameseName(p.full_name).lookup;
+    return pLookup === lookup && String(p.class_name || '').trim() === cls;
+  });
   if (!user || !verifyPasswordScrypt(pw, user.password_hash)) {
-    return { ok: false, status: 401, message: 'Sai mã học sinh hoặc mật khẩu' };
+    return { ok: false, status: 401, message: 'Sai họ tên, lớp hoặc mật khẩu' };
   }
   if (user.locked) return { ok: false, status: 403, message: 'Tài khoản đang tạm khóa, em liên hệ giáo viên nhé!' };
   if (!user.approved) return { ok: false, status: 403, message: 'Tài khoản đang chờ giáo viên duyệt!' };
 
+  // Chuyển cấu trúc cũ sang chuẩn mới nếu thiếu
+  const norm = normalizeVietnameseName(user.full_name);
+  user.full_name = norm.display;
+  user.ho_ten_chuan_hoa = norm.lookup;
   user.last_login_at = new Date().toISOString();
   store.activity_log[user.id] = store.activity_log[user.id] || [];
   store.activity_log[user.id].unshift({ event_type: 'login', summary: 'Đăng nhập học sinh', created_at: user.last_login_at });
@@ -298,50 +328,55 @@ export async function loginAdmin({ email, password }) {
 }
 
 // ==========================================
-// REGISTER STUDENT (CHỜ DUYỆT) & ADMIN CREATE
+// REGISTER STUDENT (HỌ TÊN + LỚP + MẬT KHẨU) & ADMIN CREATE
 // ==========================================
-export async function registerStudent({ studentCode, fullName, className, password, approved = false }) {
-  const code = String(studentCode || '').trim();
-  const name = String(fullName || '').trim();
-  const cls = String(className || '').trim();
+const DUPLICATE_NAME_MSG = 'Lớp em đã có bạn trùng họ tên đã đăng ký. Em thêm ký hiệu phân biệt sau tên, ví dụ: Nguyễn Văn An B, hoặc hỏi giáo viên nhé.';
+
+export async function registerStudent({ fullName, className, password, approved = false }) {
+  const { display, lookup } = normalizeVietnameseName(fullName);
+  const cls = String(className || '').normalize('NFC').trim();
   const pw = String(password || '');
 
-  if (!code || !name || !cls || pw.length < 6) {
-    return { ok: false, status: 400, message: 'Vui lòng nhập đủ Mã học sinh, Họ tên, Lớp và Mật khẩu tối thiểu 6 ký tự.' };
+  if (!display || !cls || pw.length < 6) {
+    return { ok: false, status: 400, message: 'Vui lòng nhập đủ Họ tên, Lớp và Mật khẩu tối thiểu 6 ký tự.' };
   }
 
-  const email = normalizeStudentEmail(code);
+  const authEmail = makeInternalStudentEmail(display, cls);
 
   if (isSupabaseConfigured()) {
-    const dup = await supaFetch(`/rest/v1/profiles?student_code=ilike.${encodeURIComponent(code)}&select=id`);
+    const dup = await supaFetch(`/rest/v1/profiles?role=eq.student&ho_ten_chuan_hoa=eq.${encodeURIComponent(lookup)}&class_name=eq.${encodeURIComponent(cls)}&select=id`);
     if (dup.ok && Array.isArray(dup.data) && dup.data.length > 0) {
-      return { ok: false, status: 409, message: 'Mã học sinh này đã được đăng ký, em hỏi giáo viên nhé' };
+      return { ok: false, status: 409, message: DUPLICATE_NAME_MSG };
     }
     const created = await supaFetch('/auth/v1/admin/users', {
       method: 'POST',
-      body: { email, password: pw, email_confirm: true, user_metadata: { student_code: code, full_name: name, class_name: cls, role: 'student' } },
+      body: { email: authEmail, password: pw, email_confirm: true, user_metadata: { full_name: display, class_name: cls, role: 'student' } },
     });
     if (!created.ok || !created.data?.id) {
       return { ok: false, status: 400, message: created.data?.msg || 'Không thể tạo tài khoản học sinh.' };
     }
     const uid = created.data.id;
-    const profileRow = { id: uid, role: 'student', student_code: code, full_name: name, class_name: cls, approved: Boolean(approved), locked: false };
+    const profileRow = { id: uid, role: 'student', full_name: display, ho_ten_chuan_hoa: lookup, class_name: cls, auth_email: authEmail, approved: Boolean(approved), locked: false };
     await supaFetch('/rest/v1/profiles', { method: 'POST', body: profileRow });
     await supaFetch('/rest/v1/settings', { method: 'POST', body: { user_id: uid } });
     return { ok: true, profile: profileRow };
   }
 
   const store = readLocalCloud();
-  const exists = (store.profiles || []).find((p) => String(p.student_code || '').toLowerCase() === code.toLowerCase());
+  const exists = (store.profiles || []).find((p) => {
+    const pLookup = p.ho_ten_chuan_hoa || normalizeVietnameseName(p.full_name).lookup;
+    return p.role === 'student' && pLookup === lookup && String(p.class_name || '').trim() === cls;
+  });
   if (exists) {
-    return { ok: false, status: 409, message: 'Mã học sinh này đã được đăng ký, em hỏi giáo viên nhé' };
+    return { ok: false, status: 409, message: DUPLICATE_NAME_MSG };
   }
   const newUser = {
     id: 'hs_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
     role: 'student',
-    student_code: code,
-    full_name: name,
+    full_name: display,
+    ho_ten_chuan_hoa: lookup,
     class_name: cls,
+    auth_email: authEmail,
     password_hash: hashPasswordScrypt(pw),
     approved: Boolean(approved),
     locked: false,
@@ -509,14 +544,23 @@ export async function adminListStudents() {
 }
 
 export async function adminUpdateStudent(userId, patch) {
+  const cleanPatch = { ...patch };
+  if (cleanPatch.full_name) {
+    const norm = normalizeVietnameseName(cleanPatch.full_name);
+    cleanPatch.full_name = norm.display;
+    cleanPatch.ho_ten_chuan_hoa = norm.lookup;
+  }
+  if (cleanPatch.class_name) {
+    cleanPatch.class_name = String(cleanPatch.class_name).normalize('NFC').trim();
+  }
   if (isSupabaseConfigured()) {
-    await supaFetch(`/rest/v1/profiles?id=eq.${userId}`, { method: 'PATCH', body: patch });
+    await supaFetch(`/rest/v1/profiles?id=eq.${userId}`, { method: 'PATCH', body: cleanPatch });
     return { ok: true };
   }
   const store = readLocalCloud();
   const user = (store.profiles || []).find((p) => p.id === userId);
   if (!user) return { ok: false };
-  Object.assign(user, patch);
+  Object.assign(user, cleanPatch);
   writeLocalCloud(store);
   return { ok: true };
 }

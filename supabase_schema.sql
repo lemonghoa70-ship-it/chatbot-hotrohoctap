@@ -5,13 +5,16 @@
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   role text not null check (role in ('student', 'admin')) default 'student',
-  student_code text unique,
+  student_code text,
   full_name text not null,
+  ho_ten_chuan_hoa text,
   class_name text,
+  auth_email text,
   approved boolean not null default true,
   locked boolean not null default false,
   created_at timestamptz not null default now(),
-  last_login_at timestamptz
+  last_login_at timestamptz,
+  unique (ho_ten_chuan_hoa, class_name)
 );
 
 -- 2. Bảng settings

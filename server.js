@@ -971,12 +971,12 @@ export async function handleRequest(req, res) {
     if (req.method === 'POST' && pathname === '/api/auth/student/login') {
       const body = await readRequestBody(req);
       const clientIp = req.socket?.remoteAddress || 'unknown';
-      const lockKey = `${clientIp}|student|${String(body.student_code || '').toLowerCase()}`;
+      const lockKey = `${clientIp}|student|${String(body.full_name || '').trim().toLowerCase()}|${String(body.class_name || '').trim()}`;
       const lock = checkLoginLockout(lockKey);
       if (lock.locked) {
         return sendJson(res, 429, { ok: false, message: `Em đã nhập sai quá 5 lần. Vui lòng thử lại sau ${lock.mins} phút.` });
       }
-      const result = await loginStudent({ studentCode: body.student_code, password: body.password });
+      const result = await loginStudent({ fullName: body.full_name, className: body.class_name, password: body.password });
       if (!result.ok) {
         if (result.status === 401) recordFailedAttempt(lockKey);
         return sendJson(res, result.status || 401, { ok: false, message: result.message });
@@ -992,7 +992,6 @@ export async function handleRequest(req, res) {
       }
       const body = await readRequestBody(req);
       const result = await registerStudent({
-        studentCode: body.student_code,
         fullName: body.full_name,
         className: body.class_name,
         password: body.password,
@@ -1071,19 +1070,18 @@ export async function handleRequest(req, res) {
         const results = [];
         for (const item of list) {
           const r = await registerStudent({
-            studentCode: item.student_code,
             fullName: item.full_name,
             className: item.class_name,
             password: item.password || '123456',
             approved: true,
           });
-          results.push({ student_code: item.student_code, ok: r.ok, message: r.message || 'OK', profile: r.profile });
+          results.push({ full_name: item.full_name, ok: r.ok, message: r.message || 'OK', profile: r.profile });
         }
         return sendJson(res, 200, { ok: true, results });
       }
       if (req.method === 'POST' && pathname === '/api/admin/cloud-students/action') {
         const body = await readRequestBody(req);
-        const { action, user_id, new_password, allow_self_register } = body;
+        const { action, user_id, full_name, class_name, new_password, allow_self_register } = body;
         if (action === 'set_self_register') {
           const updated = await setAllowSelfRegister(allow_self_register);
           return sendJson(res, 200, { ok: true, ...updated });
@@ -1091,6 +1089,7 @@ export async function handleRequest(req, res) {
         if (action === 'approve') await adminUpdateStudent(user_id, { approved: true });
         else if (action === 'lock') await adminUpdateStudent(user_id, { locked: true });
         else if (action === 'unlock') await adminUpdateStudent(user_id, { locked: false });
+        else if (action === 'edit') await adminUpdateStudent(user_id, { full_name, class_name });
         else if (action === 'reset_password') {
           const r = await changeUserPassword(user_id, new_password || '123456');
           if (!r.ok) return sendJson(res, 400, r);

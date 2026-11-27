@@ -978,7 +978,7 @@
             <p class="text-xs text-slate-500">Khu vực dành riêng cho giáo viên quản lý hệ thống.</p>
             <form onsubmit="handleAdminLogin(event)" class="space-y-2.5" autocomplete="off">
               <div>
-                <input type="text" id="admin-username" placeholder="Tên đăng nhập" required autocomplete="off" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <input type="email" id="admin-username" placeholder="Email giáo viên (vd: giaovien@hiepphuoc.edu.vn)" required autocomplete="off" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div class="relative">
                 <input type="password" id="admin-password" placeholder="Mật khẩu" required autocomplete="new-password" class="w-full rounded-xl border border-slate-300 pl-3.5 pr-10 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
@@ -1016,9 +1016,8 @@
             <!-- Tạo học sinh mới / Nhập hàng loạt CSV -->
             <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
               <div class="text-xs font-bold text-slate-800">➕ Cấp tài khoản học sinh (hoặc nhập hàng loạt CSV)</div>
-              <div class="grid grid-cols-1 sm:grid-cols-5 gap-2">
-                <input type="text" id="admin-new-code" placeholder="Mã HS (vd: 84-12)" class="rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs bg-white" />
-                <input type="text" id="admin-new-name" placeholder="Họ và tên" class="rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs bg-white sm:col-span-2" />
+              <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                <input type="text" id="admin-new-name" placeholder="Họ và tên (vd: Lê Dương Trường Hải)" class="rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs bg-white sm:col-span-2" />
                 <input type="text" id="admin-new-class" placeholder="Lớp (vd: 8/4)" class="rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs bg-white" />
                 <input type="text" id="admin-new-pw" placeholder="Mật khẩu (123456)" class="rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs bg-white" />
               </div>
@@ -1028,7 +1027,7 @@
                   📄 Nhập từ file CSV
                   <input type="file" accept=".csv" onchange="adminImportCsvStudents(event)" class="hidden" />
                 </label>
-                <span class="text-[11px] text-slate-500">Cột CSV: <code class="font-mono">ma_hoc_sinh,ho_ten,lop,mat_khau</code></span>
+                <span class="text-[11px] text-slate-500">Cột CSV: <code class="font-mono">ho_ten,lop,mat_khau</code></span>
               </div>
             </div>
 
@@ -1098,35 +1097,20 @@
         <button type="button" onclick="closeStudentRegisterModal()" class="p-1 rounded-lg text-blue-100 hover:text-white hover:bg-white/15">✕</button>
       </div>
 
-      <!-- 2 Tab Vai trò: Học sinh | Giáo viên -->
+      <!-- 2 Tab Học sinh: Đăng nhập | Đăng ký mới (KHÔNG có tab Giáo viên) -->
       <div class="grid grid-cols-2 bg-blue-50/70 p-1.5 gap-1 border-b border-blue-100">
-        <button type="button" id="role-tab-student" onclick="switchAuthRoleTab('student')" class="py-2 text-xs font-semibold rounded-xl transition bg-white text-blue-700 shadow-2xs">🎓 Học sinh</button>
-        <button type="button" id="role-tab-admin" onclick="switchAuthRoleTab('admin')" class="py-2 text-xs font-semibold rounded-xl transition text-slate-600">👨‍🏫 Giáo viên</button>
+        <button type="button" id="student-tab-login" onclick="switchStudentAuthMode('login')" class="py-2 text-xs font-semibold rounded-xl transition bg-white text-blue-700 shadow-2xs">Đăng nhập</button>
+        <button type="button" id="student-tab-register" onclick="switchStudentAuthMode('register')" class="py-2 text-xs font-semibold rounded-xl transition text-slate-600">Đăng ký mới</button>
       </div>
 
       <form onsubmit="handleStudentAuthSubmit(event)" class="p-5 space-y-3" autocomplete="off">
-        <!-- Form Học sinh -->
-        <div id="auth-student-fields" class="space-y-3">
-          <div id="student-code-wrap">
-            <label for="student-code-input" class="block text-xs font-bold text-slate-700 mb-1">Mã học sinh <span class="text-rose-500">*</span></label>
-            <input type="text" id="student-code-input" placeholder="Ví dụ: 84-12" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          </div>
-          <div id="student-fullname-wrap" class="hidden">
-            <label for="student-fullname-input" class="block text-xs font-bold text-slate-700 mb-1">Họ và tên <span class="text-rose-500">*</span></label>
-            <input type="text" id="student-fullname-input" placeholder="Ví dụ: Lê Dương Trường Hải" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          </div>
-          <div id="student-class-wrap" class="hidden">
-            <label for="student-class-select" class="block text-xs font-bold text-slate-700 mb-1">Lớp <span class="text-rose-500">*</span></label>
-            <select id="student-class-select" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
-          </div>
+        <div id="student-fullname-wrap">
+          <label for="student-fullname-input" class="block text-xs font-bold text-slate-700 mb-1">Họ và tên <span class="text-rose-500">*</span></label>
+          <input type="text" id="student-fullname-input" required placeholder="Ví dụ: Lê Dương Trường Hải" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
-
-        <!-- Form Giáo viên (Admin) -->
-        <div id="auth-admin-fields" class="hidden space-y-3">
-          <div>
-            <label for="admin-login-email-input" class="block text-xs font-bold text-slate-700 mb-1">Email giáo viên <span class="text-rose-500">*</span></label>
-            <input type="email" id="admin-login-email-input" placeholder="giaovien@hiepphuoc.edu.vn" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          </div>
+        <div id="student-class-wrap">
+          <label for="student-class-select" class="block text-xs font-bold text-slate-700 mb-1">Lớp <span class="text-rose-500">*</span></label>
+          <select id="student-class-select" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
         </div>
 
         <!-- Mật khẩu -->
@@ -2802,28 +2786,26 @@
 
     async function handleAdminLogin(e) {
       e.preventDefault();
-      const username = document.getElementById('admin-username').value.trim();
+      const email = document.getElementById('admin-username').value.trim();
       const password = document.getElementById('admin-password').value;
       const errEl = document.getElementById('admin-login-error');
       errEl.classList.add('hidden');
 
       try {
-        const res = await fetch('/api/admin/login', {
+        const res = await fetch('/api/auth/admin/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
+          body: JSON.stringify({ email, password })
         });
         const data = await res.json();
         if (res.ok && data.ok) {
-          isAdminAuthenticated = true;
-          sessionStorage.setItem('trogiang_admin_auth', '1');
+          applyAuthenticatedSession(data);
           document.getElementById('admin-username').value = '';
           document.getElementById('admin-password').value = '';
-          updateAdminAuthUI();
           loadAdminStudentsList();
           showToast('Đăng nhập Quản trị viên thành công!');
         } else {
-          errEl.textContent = data.message || 'Tên đăng nhập hoặc mật khẩu không đúng.';
+          errEl.textContent = data.message || 'Email hoặc mật khẩu giáo viên không đúng.';
           errEl.classList.remove('hidden');
         }
       } catch (err) {
@@ -3047,43 +3029,13 @@
       if (e.key === 'Escape') closeAccountMenu();
     });
 
-    function switchAuthRoleTab(role) {
-      authRoleTab = role === 'admin' ? 'admin' : 'student';
-      const rStu = document.getElementById('role-tab-student');
-      const rAdm = document.getElementById('role-tab-admin');
-      const stuFields = document.getElementById('auth-student-fields');
-      const admFields = document.getElementById('auth-admin-fields');
-      const switchRow = document.getElementById('student-switch-mode-row');
-      const errEl = document.getElementById('student-register-error');
-      const infoEl = document.getElementById('student-register-info');
-      if (errEl) errEl.classList.add('hidden');
-      if (infoEl) infoEl.classList.add('hidden');
-
-      if (authRoleTab === 'admin') {
-        rAdm.className = 'py-2 text-xs font-semibold rounded-xl bg-white text-blue-700 shadow-2xs transition';
-        rStu.className = 'py-2 text-xs font-medium rounded-xl text-slate-600 transition';
-        stuFields.classList.add('hidden');
-        admFields.classList.remove('hidden');
-        if (switchRow) switchRow.classList.add('hidden');
-        switchStudentAuthMode('login');
-      } else {
-        rStu.className = 'py-2 text-xs font-semibold rounded-xl bg-white text-blue-700 shadow-2xs transition';
-        rAdm.className = 'py-2 text-xs font-medium rounded-xl text-slate-600 transition';
-        stuFields.classList.remove('hidden');
-        admFields.classList.add('hidden');
-        if (switchRow) switchRow.classList.remove('hidden');
-      }
-    }
-
     function toggleStudentLoginRegisterMode() {
       switchStudentAuthMode(studentAuthMode === 'login' ? 'register' : 'login');
     }
 
     function switchStudentAuthMode(mode) {
       studentAuthMode = mode === 'register' ? 'register' : 'login';
-      const isReg = studentAuthMode === 'register' && authRoleTab === 'student';
-      document.getElementById('student-fullname-wrap')?.classList.toggle('hidden', !isReg);
-      document.getElementById('student-class-wrap')?.classList.toggle('hidden', !isReg);
+      const isReg = studentAuthMode === 'register';
       document.getElementById('student-confirm-wrapper')?.classList.toggle('hidden', !isReg);
       const confirmInput = document.getElementById('student-confirm-password-input');
       if (confirmInput) confirmInput.required = isReg;
@@ -3100,10 +3052,9 @@
       document.getElementById('student-confirm-password-input').value = '';
       document.getElementById('student-register-error')?.classList.add('hidden');
       document.getElementById('student-register-info')?.classList.add('hidden');
-      switchAuthRoleTab('student');
       switchStudentAuthMode('login');
       document.getElementById('student-register-modal').classList.remove('hidden');
-      setTimeout(() => document.getElementById('student-code-input')?.focus(), 50);
+      setTimeout(() => document.getElementById('student-fullname-input')?.focus(), 50);
     }
 
     function closeStudentRegisterModal() {
@@ -3137,39 +3088,16 @@
       errEl.classList.add('hidden');
       infoEl.classList.add('hidden');
 
+      const fullName = document.getElementById('student-fullname-input').value.trim();
+      const className = document.getElementById('student-class-select').value;
       const password = document.getElementById('student-password-input').value;
-
-      if (authRoleTab === 'admin') {
-        const email = document.getElementById('admin-login-email-input').value.trim();
-        if (!email || !password) return;
-        try {
-          const res = await fetch('/api/auth/admin/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-          });
-          const data = await res.json();
-          if (!res.ok || !data.ok) {
-            errEl.textContent = data.message || 'Sai email hoặc mật khẩu giáo viên';
-            errEl.classList.remove('hidden');
-            return;
-          }
-          applyAuthenticatedSession(data);
-          document.getElementById('student-register-modal').classList.add('hidden');
-          showToast(`Xin chào ${data.profile.full_name}!`);
-        } catch {
-          errEl.textContent = 'Không thể kết nối máy chủ.';
-          errEl.classList.remove('hidden');
-        }
+      if (!fullName || !className || !password) {
+        errEl.textContent = 'Em hãy nhập đầy đủ Họ tên, Lớp và Mật khẩu nhé!';
+        errEl.classList.remove('hidden');
         return;
       }
 
-      const studentCode = document.getElementById('student-code-input').value.trim();
-      if (!studentCode || !password) return;
-
       if (studentAuthMode === 'register') {
-        const fullName = document.getElementById('student-fullname-input').value.trim();
-        const className = document.getElementById('student-class-select').value;
         const confirmPw = document.getElementById('student-confirm-password-input').value;
         if (password.length < 6) {
           errEl.textContent = 'Mật khẩu tối thiểu 6 ký tự!';
@@ -3185,7 +3113,7 @@
           const res = await fetch('/api/auth/student/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ student_code: studentCode, full_name: fullName, class_name: className, password })
+            body: JSON.stringify({ full_name: fullName, class_name: className, password })
           });
           const data = await res.json();
           if (!res.ok || !data.ok) {
@@ -3207,11 +3135,11 @@
         const res = await fetch('/api/auth/student/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ student_code: studentCode, password })
+          body: JSON.stringify({ full_name: fullName, class_name: className, password })
         });
         const data = await res.json();
         if (!res.ok || !data.ok) {
-          errEl.textContent = data.message || 'Sai mã học sinh hoặc mật khẩu';
+          errEl.textContent = data.message || 'Sai họ tên, lớp hoặc mật khẩu';
           errEl.classList.remove('hidden');
           return;
         }
@@ -3488,13 +3416,14 @@
           ? `<button type="button" onclick="adminStudentAction('unlock','${s.id}')" class="px-2 py-0.5 rounded bg-blue-600 text-white text-[10px] font-semibold">Mở khóa</button>`
           : `<button type="button" onclick="adminStudentAction('lock','${s.id}')" class="px-2 py-0.5 rounded bg-amber-500 text-white text-[10px] font-semibold">Khóa</button>`;
         return `<tr class="hover:bg-blue-50/30">
-          <td class="px-3 py-2 font-semibold text-slate-900">${escapeHtml(s.full_name)} <div class="text-[10px] text-slate-500">Mã: ${escapeHtml(s.student_code || '')} ${statusBadge}</div></td>
+          <td class="px-3 py-2 font-semibold text-slate-900">${escapeHtml(s.full_name)} <div class="text-[10px] text-slate-500">${statusBadge}</div></td>
           <td class="px-3 py-2 text-blue-700 font-medium">${escapeHtml(s.class_name || '')}</td>
           <td class="px-3 py-2 text-center">${s.questions_count || 0}</td>
           <td class="px-3 py-2 text-center" colspan="2">
             <div class="flex flex-wrap items-center justify-center gap-1">
               ${approveBtn}${lockBtn}
-              <button type="button" onclick="adminResetStudentPw('${s.id}','${escapeHtml(s.student_code || '')}')" class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-[10px] font-semibold">Đặt lại MK</button>
+              <button type="button" onclick="adminEditStudent('${s.id}','${escapeHtml(s.full_name)}','${escapeHtml(s.class_name || '')}')" class="px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 text-[10px] font-semibold">Sửa</button>
+              <button type="button" onclick="adminResetStudentPw('${s.id}','${escapeHtml(s.full_name)}')" class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-[10px] font-semibold">Đặt lại MK</button>
               <button type="button" onclick="adminDeleteStudentAccount('${s.id}','${escapeHtml(s.full_name)}')" class="px-2 py-0.5 rounded bg-rose-100 text-rose-700 text-[10px] font-semibold">Xóa</button>
             </div>
           </td>
@@ -3503,24 +3432,41 @@
       }).join('');
     }
 
+    async function adminEditStudent(userId, currentName, currentClass) {
+      const full_name = window.prompt('Sửa họ và tên học sinh:', currentName || '');
+      if (full_name === null) return;
+      const class_name = window.prompt('Sửa lớp (vd: 8/4):', currentClass || '');
+      if (class_name === null) return;
+      const res = await fetch('/api/admin/cloud-students/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthToken()}` },
+        body: JSON.stringify({ action: 'edit', user_id: userId, full_name: full_name.trim(), class_name: class_name.trim() })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        showToast('Đã cập nhật thông tin học sinh.');
+        loadCloudAdminStudents();
+      } else {
+        showToast(data.message || 'Không cập nhật được.');
+      }
+    }
+
     async function adminCreateSingleStudent() {
-      const student_code = document.getElementById('admin-new-code')?.value.trim();
       const full_name = document.getElementById('admin-new-name')?.value.trim();
       const class_name = document.getElementById('admin-new-class')?.value.trim();
       const password = document.getElementById('admin-new-pw')?.value || '123456';
-      if (!student_code || !full_name || !class_name) {
-        showToast('Nhập đủ Mã HS, Họ tên và Lớp nhé!');
+      if (!full_name || !class_name) {
+        showToast('Nhập đủ Họ tên và Lớp nhé!');
         return;
       }
       const res = await fetch('/api/admin/cloud-students/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthToken()}` },
-        body: JSON.stringify({ student_code, full_name, class_name, password })
+        body: JSON.stringify({ full_name, class_name, password })
       });
       const data = await res.json();
       if (data.results?.[0]?.ok) {
-        showToast(`Đã tạo tài khoản ${student_code} (${full_name})`);
-        document.getElementById('admin-new-code').value = '';
+        showToast(`Đã tạo tài khoản ${full_name} (${class_name})`);
         document.getElementById('admin-new-name').value = '';
         loadCloudAdminStudents();
       } else {
@@ -3536,12 +3482,12 @@
       const students = [];
       lines.forEach((line, idx) => {
         const cols = line.split(',').map(c => c.trim());
-        if (idx === 0 && /ma_hoc_sinh|student_code/i.test(cols[0])) return;
-        if (cols[0] && cols[1] && cols[2]) {
-          students.push({ student_code: cols[0], full_name: cols[1], class_name: cols[2], password: cols[3] || '123456' });
+        if (idx === 0 && /ho_ten|full_name|ten/i.test(cols[0])) return;
+        if (cols[0] && cols[1]) {
+          students.push({ full_name: cols[0], class_name: cols[1], password: cols[2] || '123456' });
         }
       });
-      if (!students.length) { showToast('File CSV không có dữ liệu hợp lệ.'); return; }
+      if (!students.length) { showToast('File CSV không có dữ liệu hợp lệ (cột: ho_ten,lop,mat_khau).'); return; }
       const res = await fetch('/api/admin/cloud-students/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthToken()}` },
@@ -3562,11 +3508,11 @@
       loadCloudAdminStudents();
     }
 
-    async function adminResetStudentPw(userId, code) {
-      const newPw = window.prompt(`Nhập mật khẩu mới cho học sinh ${code} (tối thiểu 6 ký tự):`, '123456');
+    async function adminResetStudentPw(userId, name) {
+      const newPw = window.prompt(`Nhập mật khẩu mới cho học sinh ${name} (tối thiểu 6 ký tự):`, '123456');
       if (!newPw || newPw.length < 6) return;
       await adminStudentAction('reset_password', userId, { new_password: newPw });
-      showToast(`Đã đặt lại mật khẩu cho ${code}`);
+      showToast(`Đã đặt lại mật khẩu cho ${name}`);
     }
 
     async function adminDeleteStudentAccount(userId, name) {
@@ -3585,9 +3531,9 @@
     }
 
     function adminExportStudentsCsv() {
-      const rows = [['ma_hoc_sinh', 'ho_ten', 'lop', 'trang_thai', 'so_cau_hoi', 'lan_dang_nhap_cuoi']];
+      const rows = [['ho_ten', 'lop', 'trang_thai', 'so_cau_hoi', 'lan_dang_nhap_cuoi']];
       cachedCloudStudents.forEach(s => {
-        rows.push([s.student_code || '', s.full_name || '', s.class_name || '', s.locked ? 'Locked' : (s.approved ? 'Active' : 'Pending'), s.questions_count || 0, s.last_login_at || '']);
+        rows.push([s.full_name || '', s.class_name || '', s.locked ? 'Locked' : (s.approved ? 'Active' : 'Pending'), s.questions_count || 0, s.last_login_at || '']);
       });
       const csv = '\uFEFF' + rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
