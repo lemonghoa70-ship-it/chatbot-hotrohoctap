@@ -2937,13 +2937,6 @@
     // 7. QUẢN LÝ TÀI KHOẢN & THEO DÕI QUÁ TRÌNH HỌC TẬP CỦA HỌC SINH
     const LOCAL_KEY_STUDENT = 'trogiang_student_profile_v1';
     const LOCAL_KEY_ALL_STUDENTS = 'trogiang_all_students_v1';
-    let pendingStudentAction = null;
-
-    function getCurrentStudent() {
-      try {
-        return JSON.parse(localStorage.getItem(LOCAL_KEY_STUDENT) || 'null');
-      } catch { return null; }
-    }
 
     const LOCAL_KEY_AUTH_TOKEN = 'trogiang_auth_token_v1';
     const LOCAL_KEY_AUTH_PROFILE = 'trogiang_auth_profile_v1';
