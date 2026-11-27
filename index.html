@@ -115,7 +115,7 @@
       <div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between gap-2">
         <!-- Bộ chọn Ngôn ngữ: Tiếng Việt | English | Song ngữ -->
         <div class="flex items-center gap-2">
-          <span class="text-[11px] font-semibold text-slate-500 hidden sm:inline">🌐 Ngôn ngữ:</span>
+          <span data-i18n="labelLanguage" class="text-[11px] font-semibold text-slate-500 hidden sm:inline">Ngôn ngữ:</span>
           <div class="inline-flex items-center bg-sky-100/70 p-0.5 rounded-xl border border-sky-200" role="group" aria-label="Language mode">
             <button type="button" onclick="setLanguageMode('vi')" id="lang-btn-vi" class="lang-pill-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition">Tiếng Việt</button>
             <button type="button" onclick="setLanguageMode('en')" id="lang-btn-en" class="lang-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">English</button>
@@ -125,12 +125,12 @@
 
         <!-- Bộ chọn lớp THCS -->
         <div class="flex items-center gap-2">
-          <span class="text-[11px] font-semibold text-slate-500 hidden sm:inline">🎓 Chọn lớp:</span>
+          <span data-i18n="labelGrade" class="text-[11px] font-semibold text-slate-500 hidden sm:inline">Chọn lớp:</span>
           <div class="inline-flex items-center bg-blue-100/60 p-0.5 rounded-xl border border-blue-200/80 shrink-0 whitespace-nowrap" role="group" aria-label="Chọn lớp">
-            <button type="button" onclick="setSelectedGrade(6)" id="grade-btn-6" class="grade-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Lớp 6</button>
-            <button type="button" onclick="setSelectedGrade(7)" id="grade-btn-7" class="grade-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Lớp 7</button>
-            <button type="button" onclick="setSelectedGrade(8)" id="grade-btn-8" class="grade-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Lớp 8</button>
-            <button type="button" onclick="setSelectedGrade(9)" id="grade-btn-9" class="grade-pill-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition">Lớp 9</button>
+            <button type="button" onclick="setSelectedGrade(6)" id="grade-btn-6" data-i18n="grade6" class="grade-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Lớp 6</button>
+            <button type="button" onclick="setSelectedGrade(7)" id="grade-btn-7" data-i18n="grade7" class="grade-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Lớp 7</button>
+            <button type="button" onclick="setSelectedGrade(8)" id="grade-btn-8" data-i18n="grade8" class="grade-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Lớp 8</button>
+            <button type="button" onclick="setSelectedGrade(9)" id="grade-btn-9" data-i18n="grade9" class="grade-pill-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition">Lớp 9</button>
           </div>
         </div>
       </div>
@@ -146,7 +146,7 @@
     <aside id="app-sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-72 bg-white/95 lg:bg-white/80 backdrop-blur-sm border-r border-blue-100 flex flex-col justify-between transition-transform duration-200 -translate-x-full lg:translate-x-0 shrink-0">
       <div class="p-4 space-y-5 overflow-y-auto">
         <div class="flex items-center justify-between lg:hidden pb-2 border-b border-blue-100">
-          <span class="text-xs font-bold text-blue-800 uppercase">Menu học tập</span>
+          <span data-i18n="menuHeader" class="text-xs font-bold text-blue-800 uppercase">Menu học tập</span>
           <button type="button" onclick="toggleSidebar(false)" class="p-1.5 rounded-lg text-slate-500 hover:bg-blue-50">✕</button>
         </div>
 
@@ -175,16 +175,21 @@
 
           <button type="button" onclick="switchMainTab('glossary')" id="nav-glossary" class="nav-item w-full text-left px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-800 flex items-center gap-2.5 transition">
             <svg class="w-4 h-4 shrink-0 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="m5 8 6 6" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="m4 14 6-6 2-3" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2 5h12" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7 2h1" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="m22 22-5-10-5 10" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14 18h6" />
             </svg>
-            <span data-i18n="navGlossary">Từ điển thuật ngữ / Math Glossary</span>
+            <span data-i18n="navGlossary">4. Từ điển thuật ngữ</span>
           </button>
 
           <button type="button" onclick="switchMainTab('stats')" id="nav-stats" class="nav-item w-full text-left px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-800 flex items-center gap-2.5 transition">
             <svg class="w-4 h-4 shrink-0 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
             </svg>
-            <span data-i18n="navStats">4. Thống kê học tập</span>
+            <span data-i18n="navStats">5. Thống kê học tập</span>
           </button>
 
           <button type="button" onclick="switchMainTab('admin')" id="nav-admin" class="nav-item w-full text-left px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-800 flex items-center gap-2.5 transition">
@@ -192,25 +197,25 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            <span data-i18n="navAdmin">5. Quản trị hệ thống</span>
+            <span data-i18n="navAdmin">6. Quản trị hệ thống</span>
           </button>
         </nav>
 
         <!-- Bài mẫu kiểm tra nhanh -->
         <div class="pt-3 border-t border-blue-100">
-          <div class="px-2 mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Thử nhanh bài làm mẫu</div>
+          <div data-i18n="quickSampleTitle" class="px-2 mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">THỬ NHANH BÀI LÀM MẪU</div>
           <div class="space-y-1">
             <button type="button" onclick="loadSampleCase('sample1')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-700 hover:bg-blue-50 hover:text-blue-800 transition flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
-              <span class="truncate">Bài 1: Quên ĐKXĐ phân thức</span>
+              <span data-i18n="sample1Label" class="truncate">Bài 1: Quên ĐKXĐ phân thức</span>
             </button>
             <button type="button" onclick="loadSampleCase('sample2')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-700 hover:bg-blue-50 hover:text-blue-800 transition flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
-              <span class="truncate">Bài 2: Nhầm dấu căn thức</span>
+              <span data-i18n="sample2Label" class="truncate">Bài 2: Nhầm dấu căn thức</span>
             </button>
             <button type="button" onclick="loadSampleCase('sample3')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-700 hover:bg-blue-50 hover:text-blue-800 transition flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-              <span class="truncate">Bài 3: Giải hệ PT (Đạt 10đ)</span>
+              <span data-i18n="sample3Label" class="truncate">Bài 3: Giải hệ PT (Đạt 10đ)</span>
             </button>
           </div>
         </div>
@@ -218,8 +223,8 @@
 
       <!-- Footer Sidebar -->
       <div class="p-4 border-t border-blue-100 bg-blue-50/40 text-[11px] text-slate-500">
-        <div class="font-semibold text-blue-900">SGK Kết nối tri thức (Lớp 6–9)</div>
-        <div>Hỗ trợ chấm ảnh & giải từng bước</div>
+        <div data-i18n="footerBook" class="font-semibold text-blue-900">SGK Kết nối tri thức (Lớp 6–9)</div>
+        <div data-i18n="footerSub">Hỗ trợ chấm ảnh & giải từng bước</div>
       </div>
     </aside>
 
@@ -238,8 +243,8 @@
             </svg>
           </div>
           <div>
-            <div class="text-xs font-medium text-slate-500">Tổng thành viên</div>
-            <div class="text-2xl font-extrabold text-slate-900 tracking-tight">486</div>
+            <div data-i18n="statMembers" class="text-xs font-medium text-slate-500">Tổng thành viên</div>
+            <div id="stat-members" class="text-2xl font-extrabold text-slate-900 tracking-tight">486</div>
           </div>
         </div>
 
@@ -251,7 +256,7 @@
             </svg>
           </div>
           <div>
-            <div class="text-xs font-medium text-slate-500">Tổng lượt làm bài</div>
+            <div data-i18n="statExercises" class="text-xs font-medium text-slate-500">Tổng lượt làm bài</div>
             <div id="stat-exercises" class="text-2xl font-extrabold text-slate-900 tracking-tight">3.240</div>
           </div>
         </div>
@@ -265,7 +270,7 @@
             </svg>
           </div>
           <div>
-            <div class="text-xs font-medium text-slate-500">Tổng lượt truy cập</div>
+            <div data-i18n="statVisits" class="text-xs font-medium text-slate-500">Tổng lượt truy cập</div>
             <div id="stat-visits" class="text-2xl font-extrabold text-slate-900 tracking-tight">12.850</div>
           </div>
         </div>
@@ -273,8 +278,8 @@
         <!-- Thẻ 4: Biểu đồ thống kê học tập hiện đại -->
         <div class="bg-white rounded-2xl border border-blue-100 p-4 shadow-xs flex flex-col justify-between">
           <div class="flex items-center justify-between mb-1">
-            <span class="text-xs font-bold text-slate-700">Thống kê học tập</span>
-            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">Tuần này</span>
+            <span data-i18n="statChartTitle" class="text-xs font-bold text-slate-700">Thống kê học tập</span>
+            <span data-i18n="statThisWeek" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">Tuần này</span>
           </div>
           <div class="flex items-end justify-between gap-1.5 h-11 pt-1">
             <div class="flex-1 bg-blue-100 rounded-t-md h-[45%]" title="T2"></div>
@@ -287,6 +292,9 @@
           </div>
         </div>
       </section>
+      <div class="-mt-3 flex justify-end">
+        <span data-i18n="demoDataNote" class="text-[11px] italic text-slate-400">Dữ liệu minh họa</span>
+      </div>
 
       <!-- ========================================== -->
       <!-- VIEW 1: HỎI ĐÁP GIÁO VIÊN AI (TRUNG TÂM)   -->
@@ -686,6 +694,10 @@
                 <span class="font-semibold text-emerald-700">Đang hoạt động ổn định</span>
               </li>
               <li class="flex items-center justify-between py-1.5 border-b border-slate-100">
+                <span>Mô hình AI & API Keys</span>
+                <span id="admin-model-info" class="font-semibold text-blue-700">Đang kiểm tra...</span>
+              </li>
+              <li class="flex items-center justify-between py-1.5 border-b border-slate-100">
                 <span>Chương trình giảng dạy</span>
                 <span class="font-semibold text-blue-700">Toán THCS (Lớp 6–9) – Kết nối tri thức</span>
               </li>
@@ -1012,14 +1024,22 @@
       .then(data => {
         const badge = document.getElementById('api-status-badge');
         if (data.status === 'ok') {
-          const keyInfo = data.gemini_configured ? `${data.keys_count || 1} keys` : 'Demo';
-          badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span><span>Online · ${data.model} (${keyInfo})</span>`;
+          if (badge) badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span><span>Online</span>`;
+          const adminInfo = document.getElementById('admin-model-info');
+          if (adminInfo) {
+            const keyInfo = data.gemini_configured ? `${data.keys_count || 1} keys` : 'Demo';
+            adminInfo.textContent = `${data.model} (${keyInfo})`;
+          }
         }
       })
       .catch(() => {
         const badge = document.getElementById('api-status-badge');
-        badge.className = 'hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-xs font-semibold text-amber-800';
-        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span><span>Chế độ Offline</span>`;
+        if (badge) {
+          badge.className = 'hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-xs font-semibold text-amber-800';
+          badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span><span>Offline</span>`;
+        }
+        const adminInfo = document.getElementById('admin-model-info');
+        if (adminInfo) adminInfo.textContent = 'Offline';
       });
 
     // 1B. HỆ THỐNG 3 CHẾ ĐỘ NGÔN NGỮ (vi | en | bilingual)
@@ -1072,12 +1092,23 @@
       if (isHidden) renderMathInContainer(box);
     }
 
+    function formatNumberByLang(num) {
+      const locale = currentLang === 'vi' ? 'vi-VN' : 'en-US';
+      return new Intl.NumberFormat(locale).format(Number(num) || 0);
+    }
+
     function applyTranslations() {
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         const val = t(key);
         if (val) el.textContent = val;
       });
+      const statMembers = document.getElementById('stat-members');
+      if (statMembers) statMembers.textContent = formatNumberByLang(486);
+      const statExercises = document.getElementById('stat-exercises');
+      if (statExercises) statExercises.textContent = formatNumberByLang(3240);
+      const statVisits = document.getElementById('stat-visits');
+      if (statVisits) statVisits.textContent = formatNumberByLang(12850);
       const composer = document.getElementById('composer-input');
       if (composer && t('composerPlaceholder')) {
         composer.placeholder = t('composerPlaceholder');
@@ -1553,7 +1584,11 @@
       }
 
       const essayBtn = document.getElementById('essay-submit-btn');
-      if (essayBtn) essayBtn.textContent = `✓ Gửi ${getTeacherName()} chấm bài tự luận`;
+      if (essayBtn) {
+        essayBtn.textContent = currentLang === 'vi'
+          ? `✓ Gửi ${getTeacherName()} chấm bài tự luận`
+          : `✓ Submit Essay for AI Grading`;
+      }
     }
 
     async function handleComposerSubmit() {
