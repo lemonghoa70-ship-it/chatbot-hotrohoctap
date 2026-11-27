@@ -100,7 +100,7 @@
         </div>
 
         <!-- Bộ chọn lớp THCS -->
-        <div class="hidden sm:inline-flex items-center bg-blue-50/80 p-0.5 rounded-xl border border-blue-200/80" role="group" aria-label="Chọn lớp">
+        <div class="hidden sm:inline-flex items-center bg-blue-50/80 p-0.5 rounded-xl border border-blue-200/80 shrink-0 whitespace-nowrap" role="group" aria-label="Chọn lớp">
           <button type="button" onclick="setSelectedGrade(6)" id="grade-btn-6" class="grade-pill-btn px-2 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Lớp 6</button>
           <button type="button" onclick="setSelectedGrade(7)" id="grade-btn-7" class="grade-pill-btn px-2 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Lớp 7</button>
           <button type="button" onclick="setSelectedGrade(8)" id="grade-btn-8" class="grade-pill-btn px-2 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Lớp 8</button>
@@ -175,6 +175,13 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
             </svg>
             <span data-i18n="navPractice">3. Tự luyện theo cấu trúc Công văn 7991</span>
+          </button>
+
+          <button type="button" onclick="switchMainTab('glossary')" id="nav-glossary" class="nav-item w-full text-left px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-800 flex items-center gap-2.5 transition">
+            <svg class="w-4 h-4 shrink-0 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+            </svg>
+            <span data-i18n="navGlossary">Từ điển thuật ngữ / Math Glossary</span>
           </button>
 
           <button type="button" onclick="switchMainTab('stats')" id="nav-stats" class="nav-item w-full text-left px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-800 flex items-center gap-2.5 transition">
@@ -605,6 +612,54 @@
       </section>
 
       <!-- ========================================== -->
+      <!-- VIEW 4B: TỪ ĐIỂN THUẬT NGỮ / MATH GLOSSARY -->
+      <!-- ========================================== -->
+      <section id="view-glossary" class="hidden space-y-4">
+        <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 id="glossary-view-title" class="text-lg font-extrabold text-slate-900">Từ điển thuật ngữ / Math Glossary</h2>
+            <p class="text-xs text-slate-500">Tra cứu thuật ngữ Toán THCS Anh–Việt kèm phiên âm, phát âm 🔊 và thẻ lật Flashcard</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" id="glossary-flashcard-toggle" onclick="toggleGlossaryFlashcardMode()" class="px-3.5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-xs font-semibold transition">
+              🃏 Luyện tập (Flashcard)
+            </button>
+            <button type="button" onclick="switchMainTab('chat')" data-i18n="backToChat" class="px-3.5 py-2 rounded-xl bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition">← Quay lại hỏi đáp AI</button>
+          </div>
+        </div>
+
+        <!-- Bộ lọc Chương + Ô tìm kiếm -->
+        <div class="bg-white rounded-2xl border border-blue-100 p-4 shadow-xs flex flex-col sm:flex-row gap-3">
+          <select id="glossary-chapter-filter" onchange="renderGlossaryView()" class="sm:w-72 rounded-xl border border-blue-200 bg-blue-50/40 px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">Tất cả các chương</option>
+          </select>
+          <div class="flex-1 relative">
+            <input type="text" id="glossary-search-input" oninput="renderGlossaryView()" placeholder="Tìm thuật ngữ tiếng Anh hoặc tiếng Việt (vd: square root, biệt thức)..." class="w-full rounded-xl border border-slate-300 pl-9 pr-3.5 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">🔍</span>
+          </div>
+        </div>
+
+        <!-- Chế độ Flashcard -->
+        <div id="glossary-flashcard-box" class="hidden bg-white rounded-2xl border border-blue-200 p-6 shadow-sm text-center space-y-4">
+          <div class="flex items-center justify-between text-xs text-slate-500">
+            <span id="flashcard-counter">Thẻ 1 / 10</span>
+            <span>Nhấn vào thẻ để lật mặt Anh ↔ Việt</span>
+          </div>
+          <div id="flashcard-card" onclick="flipGlossaryFlashcard()" class="mx-auto max-w-lg min-h-[210px] rounded-2xl border-2 border-blue-200 bg-gradient-to-br from-blue-50/60 to-white p-6 flex flex-col items-center justify-center cursor-pointer shadow-xs hover:border-blue-400 transition select-none">
+            <div id="flashcard-content" class="space-y-2"></div>
+          </div>
+          <div class="flex items-center justify-center gap-3">
+            <button type="button" onclick="prevGlossaryFlashcard()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">← Trước</button>
+            <button type="button" onclick="speakActiveFlashcard()" class="px-4 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold border border-blue-200 transition">🔊 Phát âm</button>
+            <button type="button" onclick="nextGlossaryFlashcard()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition">Tiếp →</button>
+          </div>
+        </div>
+
+        <!-- Danh sách thẻ thuật ngữ -->
+        <div id="glossary-cards-container" class="grid grid-cols-1 md:grid-cols-2 gap-3.5"></div>
+      </section>
+
+      <!-- ========================================== -->
       <!-- VIEW 5: THÔNG TIN & BẢO MẬT HỆ THỐNG       -->
       <!-- ========================================== -->
       <section id="view-admin" class="hidden space-y-4">
@@ -822,6 +877,17 @@
         </div>
       </form>
     </div>
+  </div>
+
+  <!-- POPOVER THUẬT NGỮ KHI BẤM TỪ GẠCH CHÂN CHẤM -->
+  <div id="glossary-popover" class="fixed z-50 hidden bg-white rounded-2xl border border-blue-200 shadow-2xl p-3.5 max-w-xs text-xs space-y-1.5">
+    <div class="flex items-center justify-between gap-2">
+      <strong id="gp-term-en" class="text-sm font-bold text-blue-900"></strong>
+      <button type="button" onclick="document.getElementById('glossary-popover').classList.add('hidden')" class="text-slate-400 hover:text-slate-700">✕</button>
+    </div>
+    <div id="gp-ipa" class="font-mono text-[11px] text-slate-500"></div>
+    <div id="gp-term-vi" class="font-semibold text-emerald-800 bg-emerald-50 px-2 py-1 rounded-lg"></div>
+    <button type="button" id="gp-speak-btn" class="w-full py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold transition">🔊 Phát âm (en-US)</button>
   </div>
 
   <!-- TOAST THÔNG BÁO -->
@@ -1061,6 +1127,7 @@
       setTeacherGender(teacherGender);
       renderTheoryByGrade(currentCurriculum);
       renderPracticeQuizzesByGrade(currentCurriculum);
+      renderGlossaryView();
       renderStudentStatsUI();
     }
 
@@ -1113,7 +1180,10 @@
           : `Grade ${selectedGrade} Math Assistant is ready to answer questions & check your handwritten work step by step.`;
       }
 
-      await loadCurriculumForGrade(selectedGrade);
+      await Promise.all([
+        loadCurriculumForGrade(selectedGrade),
+        loadGlossaryForGrade(selectedGrade)
+      ]);
     }
 
     async function loadCurriculumForGrade(gradeNum) {
@@ -1231,7 +1301,7 @@
     }
 
     function switchMainTab(tab) {
-      ['chat', 'theory', 'practice', 'stats', 'admin'].forEach(t => {
+      ['chat', 'theory', 'practice', 'glossary', 'stats', 'admin'].forEach(t => {
         document.getElementById(`view-${t}`).classList.add('hidden');
         const navBtn = document.getElementById(`nav-${t}`);
         if (navBtn) {
@@ -1719,8 +1789,17 @@
         ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
         throwOnError: false
       };
-      if (typeof renderMathInElement === 'function') renderMathInElement(el, opts);
-      else setTimeout(() => { if (typeof renderMathInElement === 'function') renderMathInElement(el, opts); }, 250);
+      if (typeof renderMathInElement === 'function') {
+        renderMathInElement(el, opts);
+        annotateGlossaryTerms(el);
+      } else {
+        setTimeout(() => {
+          if (typeof renderMathInElement === 'function') {
+            renderMathInElement(el, opts);
+            annotateGlossaryTerms(el);
+          }
+        }, 250);
+      }
     }
 
     function scrollToBottom() {
@@ -2486,6 +2565,270 @@
       }
     }
 
+    // 10. TỪ ĐIỂN THUẬT NGỮ TOÁN THCS (MATH GLOSSARY, WEB SPEECH API & FLASHCARD)
+    let glossaryTerms = [];
+    let filteredGlossaryTerms = [];
+    let isGlossaryFlashcardMode = false;
+    let flashcardIndex = 0;
+    let isFlashcardFlipped = false;
+
+    async function loadGlossaryForGrade(gradeNum) {
+      try {
+        const res = await fetch(`/glossary/glossary_${gradeNum}.json`);
+        glossaryTerms = res.ok ? await res.json() : [];
+      } catch {
+        glossaryTerms = [];
+      }
+      populateGlossaryChapters();
+      renderGlossaryView();
+    }
+
+    function populateGlossaryChapters() {
+      const sel = document.getElementById('glossary-chapter-filter');
+      if (!sel) return;
+      const chapters = [...new Set(glossaryTerms.map(t => t.chapter).filter(Boolean))];
+      sel.innerHTML = `<option value="">${currentLang === 'vi' ? 'Tất cả các chương' : 'All chapters'} (${glossaryTerms.length})</option>` +
+        chapters.map(ch => `<option value="${escapeHtml(ch)}">${escapeHtml(ch)}</option>`).join('');
+    }
+
+    function speakEnglishTerm(text) {
+      if (!('speechSynthesis' in window)) {
+        showToast('Trình duyệt không hỗ trợ phát âm Web Speech API.');
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'en-US';
+      utter.rate = 0.85;
+      window.speechSynthesis.speak(utter);
+    }
+
+    function renderGlossaryView() {
+      const container = document.getElementById('glossary-cards-container');
+      const flashBox = document.getElementById('glossary-flashcard-box');
+      if (!container) return;
+
+      const chFilter = document.getElementById('glossary-chapter-filter')?.value || '';
+      const q = (document.getElementById('glossary-search-input')?.value || '').trim().toLowerCase();
+
+      if (!glossaryTerms.length) {
+        filteredGlossaryTerms = [];
+        if (flashBox) flashBox.classList.add('hidden');
+        container.classList.remove('hidden');
+        container.innerHTML = `
+          <div class="md:col-span-2 bg-white rounded-2xl border border-blue-100 p-8 text-center space-y-2 shadow-xs">
+            <div class="text-3xl">📖</div>
+            <h3 class="text-sm font-bold text-slate-800">Từ điển thuật ngữ Lớp ${selectedGrade}</h3>
+            <p class="text-xs sm:text-sm text-blue-700 font-medium">Nội dung đang được thầy cô biên soạn, em quay lại sau nhé!</p>
+          </div>
+        `;
+        return;
+      }
+
+      filteredGlossaryTerms = glossaryTerms.filter(item => {
+        if (chFilter && item.chapter !== chFilter) return false;
+        if (!q) return true;
+        return item.term_en.toLowerCase().includes(q) || item.term_vi.toLowerCase().includes(q);
+      });
+
+      if (isGlossaryFlashcardMode) {
+        container.classList.add('hidden');
+        if (flashBox) flashBox.classList.remove('hidden');
+        if (flashcardIndex >= filteredGlossaryTerms.length) flashcardIndex = 0;
+        renderGlossaryFlashcard();
+        return;
+      }
+
+      if (flashBox) flashBox.classList.add('hidden');
+      container.classList.remove('hidden');
+
+      if (!filteredGlossaryTerms.length) {
+        container.innerHTML = `<div class="md:col-span-2 bg-white rounded-2xl border border-blue-100 p-6 text-center text-xs text-slate-500">Không tìm thấy thuật ngữ phù hợp với "${escapeHtml(q)}".</div>`;
+        return;
+      }
+
+      container.innerHTML = filteredGlossaryTerms.map(item => `
+        <div class="bg-white rounded-2xl border border-blue-100 p-4 shadow-xs space-y-2 hover:border-blue-300 transition">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <div class="text-sm font-extrabold text-blue-900">${escapeHtml(item.term_en)}</div>
+              <div class="text-[11px] font-mono text-slate-500">${escapeHtml(item.ipa || '')}</div>
+            </div>
+            <button type="button" onclick="speakEnglishTerm(decodeURIComponent('${encodeURIComponent(item.term_en)}'))" class="px-2.5 py-1 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-xs font-semibold shrink-0 transition" title="Phát âm tiếng Anh">🔊</button>
+          </div>
+          <div class="text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/60 px-2.5 py-1 rounded-lg inline-block">${escapeHtml(item.term_vi)}</div>
+          <div class="text-[11px] text-slate-400 truncate">${escapeHtml(item.chapter)}</div>
+          <div class="pt-1.5 border-t border-slate-100 text-xs text-slate-700 space-y-1">
+            <div><strong>EN:</strong> ${item.example_en || ''}</div>
+            <div class="text-slate-500"><strong>VI:</strong> ${item.example_vi || ''}</div>
+          </div>
+        </div>
+      `).join('');
+
+      if (typeof renderMathInElement === 'function') {
+        renderMathInElement(container, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false }
+          ],
+          throwOnError: false
+        });
+      }
+    }
+
+    function toggleGlossaryFlashcardMode() {
+      isGlossaryFlashcardMode = !isGlossaryFlashcardMode;
+      isFlashcardFlipped = false;
+      flashcardIndex = 0;
+      const btn = document.getElementById('glossary-flashcard-toggle');
+      if (btn) {
+        btn.textContent = isGlossaryFlashcardMode ? '📖 Danh sách thuật ngữ' : '🃏 Luyện tập (Flashcard)';
+      }
+      renderGlossaryView();
+    }
+
+    function renderGlossaryFlashcard() {
+      const counter = document.getElementById('flashcard-counter');
+      const content = document.getElementById('flashcard-content');
+      if (!counter || !content) return;
+      if (!filteredGlossaryTerms.length) {
+        counter.textContent = '0 / 0';
+        content.innerHTML = '<p class="text-xs text-slate-500">Không có thuật ngữ để luyện tập.</p>';
+        return;
+      }
+      const item = filteredGlossaryTerms[flashcardIndex];
+      counter.textContent = `Thẻ ${flashcardIndex + 1} / ${filteredGlossaryTerms.length}`;
+      if (!isFlashcardFlipped) {
+        content.innerHTML = `
+          <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700">English · Nhấn để lật</span>
+          <div class="text-2xl font-extrabold text-blue-900 mt-2">${escapeHtml(item.term_en)}</div>
+          <div class="text-xs font-mono text-slate-500">${escapeHtml(item.ipa || '')}</div>
+        `;
+      } else {
+        content.innerHTML = `
+          <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Tiếng Việt</span>
+          <div class="text-xl font-extrabold text-emerald-800 mt-2">${escapeHtml(item.term_vi)}</div>
+          <div class="text-xs text-slate-600 mt-2">${item.example_en || ''}</div>
+          <div class="text-xs text-slate-500">${item.example_vi || ''}</div>
+        `;
+        if (typeof renderMathInElement === 'function') {
+          renderMathInElement(content, { delimiters: [{ left: '$', right: '$', display: false }], throwOnError: false });
+        }
+      }
+    }
+
+    function flipGlossaryFlashcard() {
+      isFlashcardFlipped = !isFlashcardFlipped;
+      renderGlossaryFlashcard();
+    }
+
+    function prevGlossaryFlashcard() {
+      if (!filteredGlossaryTerms.length) return;
+      flashcardIndex = (flashcardIndex - 1 + filteredGlossaryTerms.length) % filteredGlossaryTerms.length;
+      isFlashcardFlipped = false;
+      renderGlossaryFlashcard();
+    }
+
+    function nextGlossaryFlashcard() {
+      if (!filteredGlossaryTerms.length) return;
+      flashcardIndex = (flashcardIndex + 1) % filteredGlossaryTerms.length;
+      isFlashcardFlipped = false;
+      renderGlossaryFlashcard();
+    }
+
+    function speakActiveFlashcard() {
+      const item = filteredGlossaryTerms[flashcardIndex];
+      if (item) speakEnglishTerm(item.term_en);
+    }
+
+    // Gạch chân chấm các thuật ngữ xuất hiện trong đề bài / lời giải khi dùng chế độ English hoặc Song ngữ
+    function annotateGlossaryTerms(rootEl) {
+      if (!rootEl || currentLang === 'vi' || !glossaryTerms.length) return;
+      if (rootEl.id === 'glossary-cards-container' || rootEl.closest('#view-glossary')) return;
+
+      const sortedTerms = [...glossaryTerms]
+        .filter(t => t.term_en && t.term_en.length >= 4)
+        .sort((a, b) => b.term_en.length - a.term_en.length)
+        .slice(0, 60);
+      if (!sortedTerms.length) return;
+
+      const escapedList = sortedTerms.map(t => t.term_en.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+      const regex = new RegExp(`\\b(${escapedList.join('|')})\\b`, 'gi');
+
+      const walker = document.createTreeWalker(rootEl, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+          const p = node.parentElement;
+          if (!p) return NodeFilter.FILTER_REJECT;
+          if (p.closest('.katex, button, script, style, textarea, input, .bilingual-vi, .glossary-term-chip')) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+
+      const nodesToProcess = [];
+      let n;
+      while ((n = walker.nextNode())) nodesToProcess.push(n);
+
+      nodesToProcess.forEach(textNode => {
+        const text = textNode.nodeValue;
+        regex.lastIndex = 0;
+        if (!regex.test(text)) return;
+        regex.lastIndex = 0;
+
+        const frag = document.createDocumentFragment();
+        let lastIdx = 0;
+        let match;
+        while ((match = regex.exec(text)) !== null) {
+          if (match.index > lastIdx) {
+            frag.appendChild(document.createTextNode(text.slice(lastIdx, match.index)));
+          }
+          const matchedText = match[0];
+          const foundIdx = glossaryTerms.findIndex(t => t.term_en.toLowerCase() === matchedText.toLowerCase());
+          if (foundIdx >= 0) {
+            const span = document.createElement('span');
+            span.className = 'glossary-term-chip border-b border-dotted border-blue-600 text-blue-800 cursor-pointer hover:bg-blue-50 rounded-xs px-0.5';
+            span.textContent = matchedText;
+            span.onclick = (ev) => showGlossaryPopover(ev, foundIdx);
+            frag.appendChild(span);
+          } else {
+            frag.appendChild(document.createTextNode(matchedText));
+          }
+          lastIdx = regex.lastIndex;
+        }
+        if (lastIdx < text.length) {
+          frag.appendChild(document.createTextNode(text.slice(lastIdx)));
+        }
+        textNode.parentNode.replaceChild(frag, textNode);
+      });
+    }
+
+    function showGlossaryPopover(event, termIdx) {
+      event.stopPropagation();
+      const item = glossaryTerms[termIdx];
+      const pop = document.getElementById('glossary-popover');
+      if (!item || !pop) return;
+
+      document.getElementById('gp-term-en').textContent = item.term_en;
+      document.getElementById('gp-ipa').textContent = item.ipa || '';
+      document.getElementById('gp-term-vi').textContent = item.term_vi;
+      document.getElementById('gp-speak-btn').onclick = () => speakEnglishTerm(item.term_en);
+
+      pop.classList.remove('hidden');
+      const x = Math.min(window.innerWidth - 330, Math.max(12, event.clientX - 40));
+      const y = Math.min(window.innerHeight - 170, Math.max(12, event.clientY + 14));
+      pop.style.left = x + 'px';
+      pop.style.top = y + 'px';
+    }
+
+    document.addEventListener('click', (e) => {
+      const pop = document.getElementById('glossary-popover');
+      if (pop && !pop.classList.contains('hidden') && !pop.contains(e.target) && !e.target.classList.contains('glossary-term-chip')) {
+        pop.classList.add('hidden');
+      }
+    });
+
     window.addEventListener('DOMContentLoaded', async () => {
       await loadI18nFiles();
       setLanguageMode(currentLang);
@@ -2495,6 +2838,9 @@
       renderStudentStatsUI();
       loadPracticesList();
       if (isAdminAuthenticated) loadAdminStudentsList();
+      renderMathInContainer(document.body);
+    });
+    window.addEventListener('load', () => {
       renderMathInContainer(document.body);
     });
   </script>

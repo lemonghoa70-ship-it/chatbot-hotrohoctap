@@ -1,0 +1,902 @@
+[
+  {
+    "term_en": "linear equation in two variables",
+    "term_vi": "phương trình bậc nhất hai ẩn",
+    "ipa": "/ˈlɪniər ɪˈkweɪʒən ɪn tuː ˈvɛriəbəlz/",
+    "grade": 9,
+    "chapter": "Chương I: Phương trình và hệ hai phương trình bậc nhất hai ẩn",
+    "example_en": "The equation $2x + 3y = 5$ is a linear equation in two variables.",
+    "example_vi": "Phương trình $2x + 3y = 5$ là một phương trình bậc nhất hai ẩn."
+  },
+  {
+    "term_en": "system of linear equations",
+    "term_vi": "hệ phương trình bậc nhất hai ẩn",
+    "ipa": "/ˈsɪstəm əv ˈlɪniər ɪˈkweɪʒənz/",
+    "grade": 9,
+    "chapter": "Chương I: Phương trình và hệ hai phương trình bậc nhất hai ẩn",
+    "example_en": "Solve the system of linear equations $\\begin{cases} x + y = 3 \\\\ x - y = 1 \\end{cases}$.",
+    "example_vi": "Giải hệ phương trình bậc nhất hai ẩn $\\begin{cases} x + y = 3 \\\\ x - y = 1 \\end{cases}$."
+  },
+  {
+    "term_en": "solution",
+    "term_vi": "nghiệm",
+    "ipa": "/səˈluːʃən/",
+    "grade": 9,
+    "chapter": "Chương I: Phương trình và hệ hai phương trình bậc nhất hai ẩn",
+    "example_en": "The pair $(2; 1)$ is a solution of $x + y = 3$.",
+    "example_vi": "Cặp số $(2; 1)$ là một nghiệm của $x + y = 3$."
+  },
+  {
+    "term_en": "ordered pair",
+    "term_vi": "cặp số có thứ tự",
+    "ipa": "/ˈɔːrdərd pɛr/",
+    "grade": 9,
+    "chapter": "Chương I: Phương trình và hệ hai phương trình bậc nhất hai ẩn",
+    "example_en": "Write the solution as an ordered pair $(x; y)$.",
+    "example_vi": "Viết nghiệm dưới dạng cặp số có thứ tự $(x; y)$."
+  },
+  {
+    "term_en": "substitution method",
+    "term_vi": "phương pháp thế",
+    "ipa": "/ˌsʌbstɪˈtjuːʃən ˈmɛθəd/",
+    "grade": 9,
+    "chapter": "Chương I: Phương trình và hệ hai phương trình bậc nhất hai ẩn",
+    "example_en": "Use the substitution method by expressing $y = 3 - x$.",
+    "example_vi": "Dùng phương pháp thế bằng cách biểu diễn $y = 3 - x$."
+  },
+  {
+    "term_en": "elimination method",
+    "term_vi": "phương pháp cộng đại số",
+    "ipa": "/ɪˌlɪmɪˈneɪʃən ˈmɛθəd/",
+    "grade": 9,
+    "chapter": "Chương I: Phương trình và hệ hai phương trình bậc nhất hai ẩn",
+    "example_en": "Use the elimination method to cancel $y$ when adding both equations.",
+    "example_vi": "Dùng phương pháp cộng đại số để khử $y$ khi cộng hai phương trình."
+  },
+  {
+    "term_en": "coefficient",
+    "term_vi": "hệ số",
+    "ipa": "/ˌkoʊɪˈfɪʃənt/",
+    "grade": 9,
+    "chapter": "Chương I: Phương trình và hệ hai phương trình bậc nhất hai ẩn",
+    "example_en": "In $3x - 2y = 7$, the coefficient of $x$ is $3$.",
+    "example_vi": "Trong $3x - 2y = 7$, hệ số của $x$ là $3$."
+  },
+  {
+    "term_en": "unknown",
+    "term_vi": "ẩn số",
+    "ipa": "/ʌnˈnoʊn/",
+    "grade": 9,
+    "chapter": "Chương I: Phương trình và hệ hai phương trình bậc nhất hai ẩn",
+    "example_en": "Let $x$ and $y$ be the two unknowns.",
+    "example_vi": "Gọi $x$ và $y$ là hai ẩn số."
+  },
+  {
+    "term_en": "no solution",
+    "term_vi": "vô nghiệm",
+    "ipa": "/noʊ səˈluːʃən/",
+    "grade": 9,
+    "chapter": "Chương I: Phương trình và hệ hai phương trình bậc nhất hai ẩn",
+    "example_en": "Parallel lines mean the system has no solution.",
+    "example_vi": "Hai đường thẳng song song nghĩa là hệ phương trình vô nghiệm."
+  },
+  {
+    "term_en": "infinitely many solutions",
+    "term_vi": "vô số nghiệm",
+    "ipa": "/ˈɪnfɪnɪtli ˈmɛni səˈluːʃənz/",
+    "grade": 9,
+    "chapter": "Chương I: Phương trình và hệ hai phương trình bậc nhất hai ẩn",
+    "example_en": "Coincident lines give infinitely many solutions.",
+    "example_vi": "Hai đường thẳng trùng nhau cho vô số nghiệm."
+  },
+  {
+    "term_en": "product equation",
+    "term_vi": "phương trình tích",
+    "ipa": "/ˈprɑːdʌkt ɪˈkweɪʒən/",
+    "grade": 9,
+    "chapter": "Chương II: Phương trình và bất phương trình bậc nhất một ẩn",
+    "example_en": "Solve the product equation $(x - 1)(x + 2) = 0$.",
+    "example_vi": "Giải phương trình tích $(x - 1)(x + 2) = 0$."
+  },
+  {
+    "term_en": "domain condition",
+    "term_vi": "điều kiện xác định (ĐKXĐ)",
+    "ipa": "/doʊˈmeɪn kənˈdɪʃən/",
+    "grade": 9,
+    "chapter": "Chương II: Phương trình và bất phương trình bậc nhất một ẩn",
+    "example_en": "Find the domain condition $x - 2 \\neq 0$ before solving.",
+    "example_vi": "Tìm điều kiện xác định $x - 2 \\neq 0$ trước khi giải."
+  },
+  {
+    "term_en": "rational equation",
+    "term_vi": "phương trình chứa ẩn ở mẫu",
+    "ipa": "/ˈræʃənəl ɪˈkweɪʒən/",
+    "grade": 9,
+    "chapter": "Chương II: Phương trình và bất phương trình bậc nhất một ẩn",
+    "example_en": "Check every root of a rational equation against the domain.",
+    "example_vi": "Kiểm tra mọi nghiệm của phương trình chứa ẩn ở mẫu với ĐKXĐ."
+  },
+  {
+    "term_en": "common denominator",
+    "term_vi": "mẫu thức chung",
+    "ipa": "/ˈkɑːmən dɪˈnɑːmɪneɪtər/",
+    "grade": 9,
+    "chapter": "Chương II: Phương trình và bất phương trình bậc nhất một ẩn",
+    "example_en": "Multiply both sides by the common denominator $(x-1)(x+1)$.",
+    "example_vi": "Quy đồng hai vế theo mẫu thức chung $(x-1)(x+1)$."
+  },
+  {
+    "term_en": "inequality",
+    "term_vi": "bất đẳng thức",
+    "ipa": "/ˌɪnɪˈkwɑːlɪti/",
+    "grade": 9,
+    "chapter": "Chương II: Phương trình và bất phương trình bậc nhất một ẩn",
+    "example_en": "For real numbers, $a > b$ is an inequality.",
+    "example_vi": "Với các số thực, $a > b$ là một bất đẳng thức."
+  },
+  {
+    "term_en": "linear inequality",
+    "term_vi": "bất phương trình bậc nhất một ẩn",
+    "ipa": "/ˈlɪniər ˌɪnɪˈkwɑːlɪti/",
+    "grade": 9,
+    "chapter": "Chương II: Phương trình và bất phương trình bậc nhất một ẩn",
+    "example_en": "Solve the linear inequality $2x - 4 > 0$.",
+    "example_vi": "Giải bất phương trình bậc nhất một ẩn $2x - 4 > 0$."
+  },
+  {
+    "term_en": "reverse the inequality sign",
+    "term_vi": "đổi chiều bất đẳng thức",
+    "ipa": "/rɪˈvɜːrs ði ˌɪnɪˈkwɑːlɪti saɪn/",
+    "grade": 9,
+    "chapter": "Chương II: Phương trình và bất phương trình bậc nhất một ẩn",
+    "example_en": "When dividing by $-2$, reverse the inequality sign: $x < -3$.",
+    "example_vi": "Khi chia cho $-2$, phải đổi chiều bất đẳng thức: $x < -3$."
+  },
+  {
+    "term_en": "greater than or equal to",
+    "term_vi": "lớn hơn hoặc bằng",
+    "ipa": "/ˈɡreɪtər ðæn ɔːr ˈiːkwəl tuː/",
+    "grade": 9,
+    "chapter": "Chương II: Phương trình và bất phương trình bậc nhất một ẩn",
+    "example_en": "Write $x \\ge 5$ for $x$ greater than or equal to $5$.",
+    "example_vi": "Viết $x \\ge 5$ cho $x$ lớn hơn hoặc bằng $5$."
+  },
+  {
+    "term_en": "less than or equal to",
+    "term_vi": "nhỏ hơn hoặc bằng",
+    "ipa": "/lɛs ðæn ɔːr ˈiːkwəl tuː/",
+    "grade": 9,
+    "chapter": "Chương II: Phương trình và bất phương trình bậc nhất một ẩn",
+    "example_en": "The solution is $x \\le 4$ (less than or equal to $4$).",
+    "example_vi": "Nghiệm là $x \\le 4$ (nhỏ hơn hoặc bằng $4$)."
+  },
+  {
+    "term_en": "solution set",
+    "term_vi": "tập nghiệm",
+    "ipa": "/səˈluːʃən sɛt/",
+    "grade": 9,
+    "chapter": "Chương II: Phương trình và bất phương trình bậc nhất một ẩn",
+    "example_en": "The solution set is $S = \\{x \\mid x > 2\\}$.",
+    "example_vi": "Tập nghiệm là $S = \\{x \\mid x > 2\\}$."
+  },
+  {
+    "term_en": "square root",
+    "term_vi": "căn bậc hai",
+    "ipa": "/skwɛr ruːt/",
+    "grade": 9,
+    "chapter": "Chương III: Căn bậc hai và căn bậc ba",
+    "example_en": "The principal square root of $9$ is $\\sqrt{9} = 3$.",
+    "example_vi": "Căn bậc hai số học của $9$ là $\\sqrt{9} = 3$."
+  },
+  {
+    "term_en": "cube root",
+    "term_vi": "căn bậc ba",
+    "ipa": "/kjuːb ruːt/",
+    "grade": 9,
+    "chapter": "Chương III: Căn bậc hai và căn bậc ba",
+    "example_en": "The cube root of $-8$ is $\\sqrt[3]{-8} = -2$.",
+    "example_vi": "Căn bậc ba của $-8$ là $\\sqrt[3]{-8} = -2$."
+  },
+  {
+    "term_en": "radicand",
+    "term_vi": "biểu thức dưới dấu căn",
+    "ipa": "/ˈrædɪkænd/",
+    "grade": 9,
+    "chapter": "Chương III: Căn bậc hai và căn bậc ba",
+    "example_en": "The radicand $A$ in $\\sqrt{A}$ must satisfy $A \\ge 0$.",
+    "example_vi": "Biểu thức dưới dấu căn $A$ trong $\\sqrt{A}$ phải thỏa mãn $A \\ge 0$."
+  },
+  {
+    "term_en": "radical expression",
+    "term_vi": "căn thức bậc hai",
+    "ipa": "/ˈrædɪkəl ɪkˈsprɛʃən/",
+    "grade": 9,
+    "chapter": "Chương III: Căn bậc hai và căn bậc ba",
+    "example_en": "Simplify the radical expression $\\sqrt{12} + \\sqrt{27}$.",
+    "example_vi": "Rút gọn căn thức bậc hai $\\sqrt{12} + \\sqrt{27}$."
+  },
+  {
+    "term_en": "absolute value",
+    "term_vi": "giá trị tuyệt đối",
+    "ipa": "/ˈæbsəluːt ˈvæljuː/",
+    "grade": 9,
+    "chapter": "Chương III: Căn bậc hai và căn bậc ba",
+    "example_en": "Remember the identity $\\sqrt{A^2} = |A|$ using absolute value.",
+    "example_vi": "Nhớ hằng đẳng thức $\\sqrt{A^2} = |A|$ dùng giá trị tuyệt đối."
+  },
+  {
+    "term_en": "rationalize the denominator",
+    "term_vi": "trục căn thức ở mẫu",
+    "ipa": "/ˈræʃənəlaɪz ðə dɪˈnɑːmɪneɪtər/",
+    "grade": 9,
+    "chapter": "Chương III: Căn bậc hai và căn bậc ba",
+    "example_en": "Rationalize the denominator of $\\frac{1}{\\sqrt{2}} = \\frac{\\sqrt{2}}{2}$.",
+    "example_vi": "Trục căn thức ở mẫu của $\\frac{1}{\\sqrt{2}} = \\frac{\\sqrt{2}}{2}$."
+  },
+  {
+    "term_en": "conjugate",
+    "term_vi": "biểu thức liên hợp",
+    "ipa": "/ˈkɑːndʒəɡət/",
+    "grade": 9,
+    "chapter": "Chương III: Căn bậc hai và căn bậc ba",
+    "example_en": "The conjugate of $\\sqrt{a} + \\sqrt{b}$ is $\\sqrt{a} - \\sqrt{b}$.",
+    "example_vi": "Biểu thức liên hợp của $\\sqrt{a} + \\sqrt{b}$ là $\\sqrt{a} - \\sqrt{b}$."
+  },
+  {
+    "term_en": "perfect square",
+    "term_vi": "số chính phương / bình phương đúng",
+    "ipa": "/ˈpɜːrfɪkt skwɛr/",
+    "grade": 9,
+    "chapter": "Chương III: Căn bậc hai và căn bậc ba",
+    "example_en": "Since $16 = 4^2$, $16$ is a perfect square.",
+    "example_vi": "Vì $16 = 4^2$, $16$ là một số chính phương."
+  },
+  {
+    "term_en": "factor out of the radical",
+    "term_vi": "đưa thừa số ra ngoài dấu căn",
+    "ipa": "/ˈfæktər aʊt əv ðə ˈrædɪkəl/",
+    "grade": 9,
+    "chapter": "Chương III: Căn bậc hai và căn bậc ba",
+    "example_en": "Factor out of the radical: $\\sqrt{4a} = 2\\sqrt{a}$ for $a \\ge 0$.",
+    "example_vi": "Đưa thừa số ra ngoài dấu căn: $\\sqrt{4a} = 2\\sqrt{a}$ với $a \\ge 0$."
+  },
+  {
+    "term_en": "simplify",
+    "term_vi": "rút gọn",
+    "ipa": "/ˈsɪmplɪfaɪ/",
+    "grade": 9,
+    "chapter": "Chương III: Căn bậc hai và căn bậc ba",
+    "example_en": "Simplify $A = \\sqrt{(3 - \\sqrt{5})^2}$ to $3 - \\sqrt{5}$.",
+    "example_vi": "Rút gọn $A = \\sqrt{(3 - \\sqrt{5})^2}$ thành $3 - \\sqrt{5}$."
+  },
+  {
+    "term_en": "right triangle",
+    "term_vi": "tam giác vuông",
+    "ipa": "/raɪt ˈtraɪæŋɡəl/",
+    "grade": 9,
+    "chapter": "Chương IV: Hệ thức lượng trong tam giác vuông",
+    "example_en": "In a right triangle $ABC$ at $A$, $BC$ is the longest side.",
+    "example_vi": "Trong tam giác vuông $ABC$ tại $A$, $BC$ là cạnh dài nhất."
+  },
+  {
+    "term_en": "hypotenuse",
+    "term_vi": "cạnh huyền",
+    "ipa": "/haɪˈpɑːtənuːs/",
+    "grade": 9,
+    "chapter": "Chương IV: Hệ thức lượng trong tam giác vuông",
+    "example_en": "By the Pythagorean theorem, the hypotenuse satisfies $c^2 = a^2 + b^2$.",
+    "example_vi": "Theo định lý Pythagore, cạnh huyền thỏa mãn $c^2 = a^2 + b^2$."
+  },
+  {
+    "term_en": "opposite side",
+    "term_vi": "cạnh đối",
+    "ipa": "/ˈɑːpəzɪt saɪd/",
+    "grade": 9,
+    "chapter": "Chương IV: Hệ thức lượng trong tam giác vuông",
+    "example_en": "For acute angle $B$, $AC$ is the opposite side.",
+    "example_vi": "Với góc nhọn $B$, $AC$ là cạnh đối."
+  },
+  {
+    "term_en": "adjacent side",
+    "term_vi": "cạnh kề",
+    "ipa": "/əˈdʒeɪsənt saɪd/",
+    "grade": 9,
+    "chapter": "Chương IV: Hệ thức lượng trong tam giác vuông",
+    "example_en": "For acute angle $B$, $AB$ is the adjacent side.",
+    "example_vi": "Với góc nhọn $B$, $AB$ là cạnh kề."
+  },
+  {
+    "term_en": "sine",
+    "term_vi": "sin (tỉ số đối trên huyền)",
+    "ipa": "/saɪn/",
+    "grade": 9,
+    "chapter": "Chương IV: Hệ thức lượng trong tam giác vuông",
+    "example_en": "In a right triangle, $\\sin \\alpha = \\frac{\\text{opposite}}{\\text{hypotenuse}}$.",
+    "example_vi": "Trong tam giác vuông, $\\sin \\alpha = \\frac{\\text{đối}}{\\text{huyền}}$."
+  },
+  {
+    "term_en": "cosine",
+    "term_vi": "cosin (tỉ số kề trên huyền)",
+    "ipa": "/ˈkoʊsaɪn/",
+    "grade": 9,
+    "chapter": "Chương IV: Hệ thức lượng trong tam giác vuông",
+    "example_en": "In a right triangle, $\\cos \\alpha = \\frac{\\text{adjacent}}{\\text{hypotenuse}}$.",
+    "example_vi": "Trong tam giác vuông, $\\cos \\alpha = \\frac{\\text{kề}}{\\text{huyền}}$."
+  },
+  {
+    "term_en": "tangent",
+    "term_vi": "tang (tỉ số đối trên kề)",
+    "ipa": "/ˈtændʒənt/",
+    "grade": 9,
+    "chapter": "Chương IV: Hệ thức lượng trong tam giác vuông",
+    "example_en": "We have $\\tan \\alpha = \\frac{\\sin \\alpha}{\\cos \\alpha}$.",
+    "example_vi": "Ta có $\\tan \\alpha = \\frac{\\sin \\alpha}{\\cos \\alpha}$."
+  },
+  {
+    "term_en": "cotangent",
+    "term_vi": "cotang (tỉ số kề trên đối)",
+    "ipa": "/ˌkoʊˈtændʒənt/",
+    "grade": 9,
+    "chapter": "Chương IV: Hệ thức lượng trong tam giác vuông",
+    "example_en": "For acute angle $\\alpha$, $\\tan \\alpha \\cdot \\cot \\alpha = 1$.",
+    "example_vi": "Với góc nhọn $\\alpha$, $\\tan \\alpha \\cdot \\cot \\alpha = 1$."
+  },
+  {
+    "term_en": "acute angle",
+    "term_vi": "góc nhọn",
+    "ipa": "/əˈkjuːt ˈæŋɡəl/",
+    "grade": 9,
+    "chapter": "Chương IV: Hệ thức lượng trong tam giác vuông",
+    "example_en": "An acute angle measures between $0^\\circ$ and $90^\\circ$.",
+    "example_vi": "Góc nhọn có số đo lớn hơn $0^\\circ$ và nhỏ hơn $90^\\circ$."
+  },
+  {
+    "term_en": "complementary angles",
+    "term_vi": "hai góc phụ nhau",
+    "ipa": "/ˌkɑːmplɪˈmɛntəri ˈæŋɡəlz/",
+    "grade": 9,
+    "chapter": "Chương IV: Hệ thức lượng trong tam giác vuông",
+    "example_en": "If $\\alpha + \\beta = 90^\\circ$, they are complementary angles and $\\sin \\alpha = \\cos \\beta$.",
+    "example_vi": "Nếu $\\alpha + \\beta = 90^\\circ$, đó là hai góc phụ nhau và $\\sin \\alpha = \\cos \\beta$."
+  },
+  {
+    "term_en": "circle",
+    "term_vi": "đường tròn",
+    "ipa": "/ˈsɜːrkəl/",
+    "grade": 9,
+    "chapter": "Chương V: Đường tròn",
+    "example_en": "Consider circle $(O; R)$ with center $O$ and radius $R$.",
+    "example_vi": "Xét đường tròn $(O; R)$ tâm $O$ bán kính $R$."
+  },
+  {
+    "term_en": "radius",
+    "term_vi": "bán kính",
+    "ipa": "/ˈreɪdiəs/",
+    "grade": 9,
+    "chapter": "Chương V: Đường tròn",
+    "example_en": "Every point on $(O; R)$ is at distance $R$ (radius) from $O$.",
+    "example_vi": "Mọi điểm trên $(O; R)$ cách $O$ một khoảng bằng bán kính $R$."
+  },
+  {
+    "term_en": "diameter",
+    "term_vi": "đường kính",
+    "ipa": "/daɪˈæmɪtər/",
+    "grade": 9,
+    "chapter": "Chương V: Đường tròn",
+    "example_en": "The diameter $d = 2R$ is the longest chord.",
+    "example_vi": "Đường kính $d = 2R$ là dây cung dài nhất."
+  },
+  {
+    "term_en": "chord",
+    "term_vi": "dây cung",
+    "ipa": "/kɔːrd/",
+    "grade": 9,
+    "chapter": "Chương V: Đường tròn",
+    "example_en": "A line segment connecting two points on a circle is a chord.",
+    "example_vi": "Đoạn thẳng nối hai điểm trên đường tròn là một dây cung."
+  },
+  {
+    "term_en": "arc",
+    "term_vi": "cung tròn",
+    "ipa": "/ɑːrk/",
+    "grade": 9,
+    "chapter": "Chương V: Đường tròn",
+    "example_en": "The minor arc $AB$ is denoted by $\\widehat{AB}$.",
+    "example_vi": "Cung nhỏ $AB$ được ký hiệu là $\\widehat{AB}$."
+  },
+  {
+    "term_en": "tangent line",
+    "term_vi": "tiếp tuyến",
+    "ipa": "/ˈtændʒənt laɪn/",
+    "grade": 9,
+    "chapter": "Chương V: Đường tròn",
+    "example_en": "A tangent line is perpendicular to the radius at the contact point.",
+    "example_vi": "Tiếp tuyến vuông góc với bán kính tại tiếp điểm."
+  },
+  {
+    "term_en": "point of tangency",
+    "term_vi": "tiếp điểm",
+    "ipa": "/pɔɪnt əv ˈtændʒənsi/",
+    "grade": 9,
+    "chapter": "Chương V: Đường tròn",
+    "example_en": "Let $H$ be the point of tangency of line $d$ and $(O)$.",
+    "example_vi": "Gọi $H$ là tiếp điểm của đường thẳng $d$ và $(O)$."
+  },
+  {
+    "term_en": "secant line",
+    "term_vi": "cát tuyến",
+    "ipa": "/ˈsiːkənt laɪn/",
+    "grade": 9,
+    "chapter": "Chương V: Đường tròn",
+    "example_en": "A secant line intersects a circle at two distinct points.",
+    "example_vi": "Cát tuyến cắt đường tròn tại hai điểm phân biệt."
+  },
+  {
+    "term_en": "central angle",
+    "term_vi": "góc ở tâm",
+    "ipa": "/ˈsɛntrəl ˈæŋɡəl/",
+    "grade": 9,
+    "chapter": "Chương V: Đường tròn",
+    "example_en": "The measure of a central angle $\\widehat{AOB}$ equals the measure of arc $AB$.",
+    "example_vi": "Số đo góc ở tâm $\\widehat{AOB}$ bằng số đo cung bị chắn $AB$."
+  },
+  {
+    "term_en": "sector",
+    "term_vi": "hình quạt tròn",
+    "ipa": "/ˈsɛktər/",
+    "grade": 9,
+    "chapter": "Chương V: Đường tròn",
+    "example_en": "The area of a sector with angle $n^\\circ$ is $S = \\frac{\\pi R^2 n}{360}$.",
+    "example_vi": "Diện tích hình quạt tròn góc $n^\\circ$ là $S = \\frac{\\pi R^2 n}{360}$."
+  },
+  {
+    "term_en": "parabola",
+    "term_vi": "parabol",
+    "ipa": "/pəˈræbələ/",
+    "grade": 9,
+    "chapter": "Chương VI: Hàm số y = ax² (a ≠ 0). Phương trình bậc hai một ẩn",
+    "example_en": "The graph of $y = ax^2 \\ (a \\neq 0)$ is a parabola.",
+    "example_vi": "Đồ thị của hàm số $y = ax^2 \\ (a \\neq 0)$ là một parabol."
+  },
+  {
+    "term_en": "vertex",
+    "term_vi": "đỉnh (của parabol)",
+    "ipa": "/ˈvɜːrtɛks/",
+    "grade": 9,
+    "chapter": "Chương VI: Hàm số y = ax² (a ≠ 0). Phương trình bậc hai một ẩn",
+    "example_en": "The vertex of $y = ax^2$ is the origin $O(0; 0)$.",
+    "example_vi": "Đỉnh của parabol $y = ax^2$ là gốc tọa độ $O(0; 0)$."
+  },
+  {
+    "term_en": "axis of symmetry",
+    "term_vi": "trục đối xứng",
+    "ipa": "/ˈæksɪs əv ˈsɪmətri/",
+    "grade": 9,
+    "chapter": "Chương VI: Hàm số y = ax² (a ≠ 0). Phương trình bậc hai một ẩn",
+    "example_en": "The $y$-axis ($Oy$) is the axis of symmetry of $y = ax^2$.",
+    "example_vi": "Trục $Oy$ là trục đối xứng của đồ thị $y = ax^2$."
+  },
+  {
+    "term_en": "quadratic equation",
+    "term_vi": "phương trình bậc hai một ẩn",
+    "ipa": "/kwɑːˈdrætɪk ɪˈkweɪʒən/",
+    "grade": 9,
+    "chapter": "Chương VI: Hàm số y = ax² (a ≠ 0). Phương trình bậc hai một ẩn",
+    "example_en": "$ax^2 + bx + c = 0 \\ (a \\neq 0)$ is a quadratic equation.",
+    "example_vi": "$ax^2 + bx + c = 0 \\ (a \\neq 0)$ là phương trình bậc hai một ẩn."
+  },
+  {
+    "term_en": "discriminant",
+    "term_vi": "biệt thức Δ",
+    "ipa": "/dɪˈskrɪmɪnənt/",
+    "grade": 9,
+    "chapter": "Chương VI: Hàm số y = ax² (a ≠ 0). Phương trình bậc hai một ẩn",
+    "example_en": "Compute the discriminant $\\Delta = b^2 - 4ac$.",
+    "example_vi": "Tính biệt thức $\\Delta = b^2 - 4ac$."
+  },
+  {
+    "term_en": "quadratic formula",
+    "term_vi": "công thức nghiệm",
+    "ipa": "/kwɑːˈdrætɪk ˈfɔːrmjələ/",
+    "grade": 9,
+    "chapter": "Chương VI: Hàm số y = ax² (a ≠ 0). Phương trình bậc hai một ẩn",
+    "example_en": "When $\\Delta > 0$, use the quadratic formula $x = \\frac{-b \\pm \\sqrt{\\Delta}}{2a}$.",
+    "example_vi": "Khi $\\Delta > 0$, dùng công thức nghiệm $x = \\frac{-b \\pm \\sqrt{\\Delta}}{2a}$."
+  },
+  {
+    "term_en": "double root",
+    "term_vi": "nghiệm kép",
+    "ipa": "/ˈdʌbəl ruːt/",
+    "grade": 9,
+    "chapter": "Chương VI: Hàm số y = ax² (a ≠ 0). Phương trình bậc hai một ẩn",
+    "example_en": "When $\\Delta = 0$, the equation has a double root $x_1 = x_2 = -\\frac{b}{2a}$.",
+    "example_vi": "Khi $\\Delta = 0$, phương trình có nghiệm kép $x_1 = x_2 = -\\frac{b}{2a}$."
+  },
+  {
+    "term_en": "distinct real roots",
+    "term_vi": "hai nghiệm phân biệt",
+    "ipa": "/dɪˈstɪŋkt riːəl ruːts/",
+    "grade": 9,
+    "chapter": "Chương VI: Hàm số y = ax² (a ≠ 0). Phương trình bậc hai một ẩn",
+    "example_en": "If $\\Delta > 0$, there are two distinct real roots.",
+    "example_vi": "Nếu $\\Delta > 0$, phương trình có hai nghiệm phân biệt."
+  },
+  {
+    "term_en": "Vieta’s formulas",
+    "term_vi": "hệ thức Viète",
+    "ipa": "/viˈɛtəz ˈfɔːrmjələz/",
+    "grade": 9,
+    "chapter": "Chương VI: Hàm số y = ax² (a ≠ 0). Phương trình bậc hai một ẩn",
+    "example_en": "By Vieta’s formulas, $x_1 + x_2 = -\\frac{b}{a}$ and $x_1 x_2 = \\frac{c}{a}$.",
+    "example_vi": "Theo hệ thức Viète, $x_1 + x_2 = -\\frac{b}{a}$ và $x_1 x_2 = \\frac{c}{a}$."
+  },
+  {
+    "term_en": "sum and product of roots",
+    "term_vi": "tổng và tích hai nghiệm",
+    "ipa": "/sʌm ænd ˈprɑːdʌkt əv ruːts/",
+    "grade": 9,
+    "chapter": "Chương VI: Hàm số y = ax² (a ≠ 0). Phương trình bậc hai một ẩn",
+    "example_en": "Find $S = x_1 + x_2$ and $P = x_1 x_2$ (sum and product of roots).",
+    "example_vi": "Tính tổng và tích hai nghiệm $S = x_1 + x_2$ và $P = x_1 x_2$."
+  },
+  {
+    "term_en": "frequency",
+    "term_vi": "tần số",
+    "ipa": "/ˈfriːkwənsi/",
+    "grade": 9,
+    "chapter": "Chương VII: Tần số và tần số tương đối",
+    "example_en": "The frequency $m$ shows how many times a value appears.",
+    "example_vi": "Tần số $m$ cho biết số lần xuất hiện của một giá trị."
+  },
+  {
+    "term_en": "relative frequency",
+    "term_vi": "tần số tương đối",
+    "ipa": "/ˈrɛlətɪv ˈfriːkwənsi/",
+    "grade": 9,
+    "chapter": "Chương VII: Tần số và tần số tương đối",
+    "example_en": "The relative frequency is $f = \\frac{m}{N} \\cdot 100\\%$.",
+    "example_vi": "Tần số tương đối là $f = \\frac{m}{N} \\cdot 100\\%$."
+  },
+  {
+    "term_en": "frequency table",
+    "term_vi": "bảng tần số",
+    "ipa": "/ˈfriːkwənsi ˈteɪbəl/",
+    "grade": 9,
+    "chapter": "Chương VII: Tần số và tần số tương đối",
+    "example_en": "Organize the collected data into a frequency table.",
+    "example_vi": "Lập bảng tần số cho dữ liệu thu thập được."
+  },
+  {
+    "term_en": "grouped data",
+    "term_vi": "dữ liệu ghép nhóm",
+    "ipa": "/ɡruːpt ˈdeɪtə/",
+    "grade": 9,
+    "chapter": "Chương VII: Tần số và tần số tương đối",
+    "example_en": "Scores are divided into intervals as grouped data like $[5; 7)$.",
+    "example_vi": "Điểm số được chia thành các khoảng dữ liệu ghép nhóm như $[5; 7)$."
+  },
+  {
+    "term_en": "class interval",
+    "term_vi": "nhóm số liệu / khoảng lớp",
+    "ipa": "/klæs ˈɪntərvəl/",
+    "grade": 9,
+    "chapter": "Chương VII: Tần số và tần số tương đối",
+    "example_en": "Each class interval $[a; b)$ has width $b - a$.",
+    "example_vi": "Mỗi nhóm số liệu $[a; b)$ có độ dài $b - a$."
+  },
+  {
+    "term_en": "sample size",
+    "term_vi": "cỡ mẫu (N)",
+    "ipa": "/ˈsæmpəl saɪz/",
+    "grade": 9,
+    "chapter": "Chương VII: Tần số và tần số tương đối",
+    "example_en": "The total number of observations is the sample size $N = 40$.",
+    "example_vi": "Tổng số quan sát là cỡ mẫu $N = 40$."
+  },
+  {
+    "term_en": "bar chart",
+    "term_vi": "biểu đồ cột",
+    "ipa": "/bɑːr tʃɑːrt/",
+    "grade": 9,
+    "chapter": "Chương VII: Tần số và tần số tương đối",
+    "example_en": "Draw a bar chart to display frequencies.",
+    "example_vi": "Vẽ biểu đồ cột để biểu diễn tần số."
+  },
+  {
+    "term_en": "pie chart",
+    "term_vi": "biểu đồ hình quạt tròn",
+    "ipa": "/paɪ tʃɑːrt/",
+    "grade": 9,
+    "chapter": "Chương VII: Tần số và tần số tương đối",
+    "example_en": "Use a pie chart to show relative frequencies in percent.",
+    "example_vi": "Dùng biểu đồ hình quạt tròn để biểu diễn tần số tương đối (%)."
+  },
+  {
+    "term_en": "line graph",
+    "term_vi": "biểu đồ đoạn thẳng",
+    "ipa": "/laɪn ɡræf/",
+    "grade": 9,
+    "chapter": "Chương VII: Tần số và tần số tương đối",
+    "example_en": "A line graph shows how frequencies change over time.",
+    "example_vi": "Biểu đồ đoạn thẳng thể hiện sự thay đổi tần số theo thời gian."
+  },
+  {
+    "term_en": "data set",
+    "term_vi": "mẫu số liệu",
+    "ipa": "/ˈdeɪtə sɛt/",
+    "grade": 9,
+    "chapter": "Chương VII: Tần số và tần số tương đối",
+    "example_en": "Find the maximum and minimum values in the data set.",
+    "example_vi": "Tìm giá trị lớn nhất và nhỏ nhất trong mẫu số liệu."
+  },
+  {
+    "term_en": "random experiment",
+    "term_vi": "phép thử ngẫu nhiên",
+    "ipa": "/ˈrændəm ɪkˈspɛrɪmənt/",
+    "grade": 9,
+    "chapter": "Chương VIII: Xác suất của biến cố trong một số mô hình xác suất đơn giản",
+    "example_en": "Tossing a fair coin is a random experiment.",
+    "example_vi": "Tung một đồng xu cân đối là một phép thử ngẫu nhiên."
+  },
+  {
+    "term_en": "sample space",
+    "term_vi": "không gian mẫu",
+    "ipa": "/ˈsæmpəl speɪs/",
+    "grade": 9,
+    "chapter": "Chương VIII: Xác suất của biến cố trong một số mô hình xác suất đơn giản",
+    "example_en": "For a die roll, the sample space is $\\Omega = \\{1, 2, 3, 4, 5, 6\\}$.",
+    "example_vi": "Khi gieo xúc xắc, không gian mẫu là $\\Omega = \\{1, 2, 3, 4, 5, 6\\}$."
+  },
+  {
+    "term_en": "outcome",
+    "term_vi": "kết quả có thể",
+    "ipa": "/ˈaʊtkʌm/",
+    "grade": 9,
+    "chapter": "Chương VIII: Xác suất của biến cố trong một số mô hình xác suất đơn giản",
+    "example_en": "Each roll has $6$ equally likely outcomes.",
+    "example_vi": "Mỗi lần gieo có $6$ kết quả có thể đồng khả năng."
+  },
+  {
+    "term_en": "event",
+    "term_vi": "biến cố",
+    "ipa": "/ɪˈvɛnt/",
+    "grade": 9,
+    "chapter": "Chương VIII: Xác suất của biến cố trong một số mô hình xác suất đơn giản",
+    "example_en": "Let $A$ be the event of getting an even number.",
+    "example_vi": "Gọi $A$ là biến cố xuất hiện mặt chẵn."
+  },
+  {
+    "term_en": "favorable outcome",
+    "term_vi": "kết quả thuận lợi",
+    "ipa": "/ˈfeɪvərəbəl ˈaʊtkʌm/",
+    "grade": 9,
+    "chapter": "Chương VIII: Xác suất của biến cố trong một số mô hình xác suất đơn giản",
+    "example_en": "There are $3$ favorable outcomes for an even number: $\\{2, 4, 6\\}$.",
+    "example_vi": "Có $3$ kết quả thuận lợi cho mặt chẵn: $\\{2, 4, 6\\}$."
+  },
+  {
+    "term_en": "probability",
+    "term_vi": "xác suất",
+    "ipa": "/ˌprɑːbəˈbɪlɪti/",
+    "grade": 9,
+    "chapter": "Chương VIII: Xác suất của biến cố trong một số mô hình xác suất đơn giản",
+    "example_en": "The probability of event $A$ is $P(A) = \\frac{n(A)}{n(\\Omega)}$.",
+    "example_vi": "Xác suất của biến cố $A$ là $P(A) = \\frac{n(A)}{n(\\Omega)}$."
+  },
+  {
+    "term_en": "equally likely",
+    "term_vi": "đồng khả năng",
+    "ipa": "/ˈiːkwəli ˈlaɪkli/",
+    "grade": 9,
+    "chapter": "Chương VIII: Xác suất của biến cố trong một số mô hình xác suất đơn giản",
+    "example_en": "All faces of a fair die are equally likely.",
+    "example_vi": "Mọi mặt của xúc xắc cân đối đều đồng khả năng."
+  },
+  {
+    "term_en": "certain event",
+    "term_vi": "biến cố chắc chắn",
+    "ipa": "/ˈsɜːrtən ɪˈvɛnt/",
+    "grade": 9,
+    "chapter": "Chương VIII: Xác suất của biến cố trong một số mô hình xác suất đơn giản",
+    "example_en": "A certain event has probability $P = 1$.",
+    "example_vi": "Biến cố chắc chắn có xác suất $P = 1$."
+  },
+  {
+    "term_en": "impossible event",
+    "term_vi": "biến cố không thể",
+    "ipa": "/ɪmˈpɑːsəbəl ɪˈvɛnt/",
+    "grade": 9,
+    "chapter": "Chương VIII: Xác suất của biến cố trong một số mô hình xác suất đơn giản",
+    "example_en": "An impossible event has probability $P = 0$.",
+    "example_vi": "Biến cố không thể có xác suất $P = 0$."
+  },
+  {
+    "term_en": "fair coin",
+    "term_vi": "đồng xu cân đối",
+    "ipa": "/fɛr kɔɪn/",
+    "grade": 9,
+    "chapter": "Chương VIII: Xác suất của biến cố trong một số mô hình xác suất đơn giản",
+    "example_en": "When tossing a fair coin, $P(\\text{Head}) = \\frac{1}{2}$.",
+    "example_vi": "Khi tung đồng xu cân đối, $P(\\text{Sấp}) = \\frac{1}{2}$."
+  },
+  {
+    "term_en": "inscribed angle",
+    "term_vi": "góc nội tiếp",
+    "ipa": "/ɪnˈskraɪbd ˈæŋɡəl/",
+    "grade": 9,
+    "chapter": "Chương IX: Đường tròn ngoại tiếp và đường tròn nội tiếp",
+    "example_en": "An inscribed angle equals half the intercepted arc.",
+    "example_vi": "Góc nội tiếp bằng nửa số đo cung bị chắn."
+  },
+  {
+    "term_en": "intercepted arc",
+    "term_vi": "cung bị chắn",
+    "ipa": "/ˌɪntərˈsɛptɪd ɑːrk/",
+    "grade": 9,
+    "chapter": "Chương IX: Đường tròn ngoại tiếp và đường tròn nội tiếp",
+    "example_en": "Both angles share the same intercepted arc $BC$.",
+    "example_vi": "Hai góc cùng chắn một cung bị chắn $BC$."
+  },
+  {
+    "term_en": "cyclic quadrilateral",
+    "term_vi": "tứ giác nội tiếp",
+    "ipa": "/ˈsaɪklɪk ˌkwɑːdrɪˈlætərəl/",
+    "grade": 9,
+    "chapter": "Chương IX: Đường tròn ngoại tiếp và đường tròn nội tiếp",
+    "example_en": "Opposite angles of a cyclic quadrilateral sum to $180^\\circ$.",
+    "example_vi": "Hai góc đối của tứ giác nội tiếp có tổng bằng $180^\\circ$."
+  },
+  {
+    "term_en": "circumcircle",
+    "term_vi": "đường tròn ngoại tiếp",
+    "ipa": "/ˈsɜːrkəmsɜːrkəl/",
+    "grade": 9,
+    "chapter": "Chương IX: Đường tròn ngoại tiếp và đường tròn nội tiếp",
+    "example_en": "Every triangle has a unique circumcircle passing through its 3 vertices.",
+    "example_vi": "Mọi tam giác đều có một đường tròn ngoại tiếp đi qua 3 đỉnh."
+  },
+  {
+    "term_en": "incircle",
+    "term_vi": "đường tròn nội tiếp",
+    "ipa": "/ˈɪnsɜːrkəl/",
+    "grade": 9,
+    "chapter": "Chương IX: Đường tròn ngoại tiếp và đường tròn nội tiếp",
+    "example_en": "The incircle is tangent to all three sides of the triangle.",
+    "example_vi": "Đường tròn nội tiếp tiếp xúc với cả ba cạnh của tam giác."
+  },
+  {
+    "term_en": "circumcenter",
+    "term_vi": "tâm đường tròn ngoại tiếp",
+    "ipa": "/ˈsɜːrkəmsɛntər/",
+    "grade": 9,
+    "chapter": "Chương IX: Đường tròn ngoại tiếp và đường tròn nội tiếp",
+    "example_en": "The circumcenter is the intersection of the perpendicular bisectors.",
+    "example_vi": "Tâm đường tròn ngoại tiếp là giao điểm ba đường trung trực."
+  },
+  {
+    "term_en": "incenter",
+    "term_vi": "tâm đường tròn nội tiếp",
+    "ipa": "/ˈɪnsɛntər/",
+    "grade": 9,
+    "chapter": "Chương IX: Đường tròn ngoại tiếp và đường tròn nội tiếp",
+    "example_en": "The incenter is the intersection of the angle bisectors.",
+    "example_vi": "Tâm đường tròn nội tiếp là giao điểm ba đường phân giác trong."
+  },
+  {
+    "term_en": "regular polygon",
+    "term_vi": "đa giác đều",
+    "ipa": "/ˈrɛɡjələr ˈpɑːlɪɡɑːn/",
+    "grade": 9,
+    "chapter": "Chương IX: Đường tròn ngoại tiếp và đường tròn nội tiếp",
+    "example_en": "An equilateral triangle and a square are regular polygons.",
+    "example_vi": "Tam giác đều và hình vuông là các đa giác đều."
+  },
+  {
+    "term_en": "equilateral triangle",
+    "term_vi": "tam giác đều",
+    "ipa": "/ˌiːkwɪˈlætərəl ˈtraɪæŋɡəl/",
+    "grade": 9,
+    "chapter": "Chương IX: Đường tròn ngoại tiếp và đường tròn nội tiếp",
+    "example_en": "In an equilateral triangle, all angles equal $60^\\circ$.",
+    "example_vi": "Trong tam giác đều, cả ba góc đều bằng $60^\\circ$."
+  },
+  {
+    "term_en": "supplementary angles",
+    "term_vi": "hai góc bù nhau",
+    "ipa": "/ˌsʌplɪˈmɛntəri ˈæŋɡəlz/",
+    "grade": 9,
+    "chapter": "Chương IX: Đường tròn ngoại tiếp và đường tròn nội tiếp",
+    "example_en": "In cyclic quadrilateral $ABCD$, $\\widehat{A}$ and $\\widehat{C}$ are supplementary angles ($180^\\circ$).",
+    "example_vi": "Trong tứ giác nội tiếp $ABCD$, $\\widehat{A}$ và $\\widehat{C}$ là hai góc bù nhau ($180^\\circ$)."
+  },
+  {
+    "term_en": "cylinder",
+    "term_vi": "hình trụ",
+    "ipa": "/ˈsɪlɪndər/",
+    "grade": 9,
+    "chapter": "Chương X: Một số hình khối trong thực tiễn",
+    "example_en": "The volume of a cylinder is $V = \\pi R^2 h$.",
+    "example_vi": "Thể tích của hình trụ là $V = \\pi R^2 h$."
+  },
+  {
+    "term_en": "cone",
+    "term_vi": "hình nón",
+    "ipa": "/koʊn/",
+    "grade": 9,
+    "chapter": "Chương X: Một số hình khối trong thực tiễn",
+    "example_en": "The volume of a cone is $V = \\frac{1}{3} \\pi R^2 h$.",
+    "example_vi": "Thể tích của hình nón là $V = \\frac{1}{3} \\pi R^2 h$."
+  },
+  {
+    "term_en": "sphere",
+    "term_vi": "hình cầu",
+    "ipa": "/sfɪr/",
+    "grade": 9,
+    "chapter": "Chương X: Một số hình khối trong thực tiễn",
+    "example_en": "A sphere of radius $R$ has volume $V = \\frac{4}{3} \\pi R^3$.",
+    "example_vi": "Hình cầu bán kính $R$ có thể tích $V = \\frac{4}{3} \\pi R^3$."
+  },
+  {
+    "term_en": "lateral surface area",
+    "term_vi": "diện tích xung quanh",
+    "ipa": "/ˈlætərəl ˈsɜːrfɪs ˈɛriə/",
+    "grade": 9,
+    "chapter": "Chương X: Một số hình khối trong thực tiễn",
+    "example_en": "The lateral surface area of a cylinder is $S_{xq} = 2\\pi R h$.",
+    "example_vi": "Diện tích xung quanh hình trụ là $S_{xq} = 2\\pi R h$."
+  },
+  {
+    "term_en": "total surface area",
+    "term_vi": "diện tích toàn phần",
+    "ipa": "/ˈtoʊtəl ˈsɜːrfɪs ˈɛriə/",
+    "grade": 9,
+    "chapter": "Chương X: Một số hình khối trong thực tiễn",
+    "example_en": "Find the total surface area $S_{tp} = S_{xq} + 2S_{\\text{đáy}}$.",
+    "example_vi": "Tính diện tích toàn phần $S_{tp} = S_{xq} + 2S_{\\text{đáy}}$."
+  },
+  {
+    "term_en": "volume",
+    "term_vi": "thể tích",
+    "ipa": "/ˈvɑːljuːm/",
+    "grade": 9,
+    "chapter": "Chương X: Một số hình khối trong thực tiễn",
+    "example_en": "Calculate the volume in cubic centimeters ($\\text{cm}^3$).",
+    "example_vi": "Tính thể tích theo đơn vị xăng-ti-mét khối ($\\text{cm}^3$)."
+  },
+  {
+    "term_en": "slant height",
+    "term_vi": "đường sinh",
+    "ipa": "/slænt haɪt/",
+    "grade": 9,
+    "chapter": "Chương X: Một số hình khối trong thực tiễn",
+    "example_en": "For a cone, the slant height $l$ satisfies $l^2 = R^2 + h^2$.",
+    "example_vi": "Với hình nón, đường sinh $l$ thỏa mãn $l^2 = R^2 + h^2$."
+  },
+  {
+    "term_en": "height",
+    "term_vi": "chiều cao",
+    "ipa": "/haɪt/",
+    "grade": 9,
+    "chapter": "Chương X: Một số hình khối trong thực tiễn",
+    "example_en": "Let $h = 10\\text{ cm}$ be the height of the cylinder.",
+    "example_vi": "Cho chiều cao của hình trụ là $h = 10\\text{ cm}$."
+  },
+  {
+    "term_en": "base radius",
+    "term_vi": "bán kính đáy",
+    "ipa": "/beɪs ˈreɪdiəs/",
+    "grade": 9,
+    "chapter": "Chương X: Một số hình khối trong thực tiễn",
+    "example_en": "The cone has base radius $R = 3\\text{ cm}$.",
+    "example_vi": "Hình nón có bán kính đáy $R = 3\\text{ cm}$."
+  },
+  {
+    "term_en": "surface area of a sphere",
+    "term_vi": "diện tích mặt cầu",
+    "ipa": "/ˈsɜːrfɪs ˈɛriə əv ə sfɪr/",
+    "grade": 9,
+    "chapter": "Chương X: Một số hình khối trong thực tiễn",
+    "example_en": "The surface area of a sphere is $S = 4\\pi R^2$.",
+    "example_vi": "Diện tích mặt cầu là $S = 4\\pi R^2$."
+  }
+]
