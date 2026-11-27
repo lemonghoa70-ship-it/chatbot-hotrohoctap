@@ -616,7 +616,8 @@ export async function handleRequest(req, res) {
     // Mặc định chỉ trả {"status":"ok"} hoặc {"status":"degraded"}, KHÔNG gọi Gemini.
     // Khi có ?admin=MẬT_KHẨU (khớp ADMIN_PASSWORD): trả chi tiết key × mô hình + 20 lỗi gần nhất; thêm &test=1 mới gọi thử "1+1 bằng mấy".
     if (req.method === 'GET' && pathname === '/api/health') {
-      const adminParam = parsedUrl.searchParams.get('admin');
+      const adminParam = parsedUrl.query?.admin !== undefined ? String(parsedUrl.query.admin) : null;
+      const testParam = parsedUrl.query?.test !== undefined ? String(parsedUrl.query.test) : null;
       const expectedAdminPw = process.env.ADMIN_PASSWORD || '';
       const hasKeys = keys.length > 0;
       const now = Date.now();
@@ -633,7 +634,7 @@ export async function handleRequest(req, res) {
       }
 
       let testCall = null;
-      if (parsedUrl.searchParams.get('test') === '1') {
+      if (testParam === '1') {
         try {
           const reply = await callGeminiChat({
             message: '1+1 bằng mấy',
