@@ -529,6 +529,28 @@ QUY TẮC TRÌNH BÀY & ĐỘ DÀI (BẮT BUỘC):
 - Câu mở đầu tối đa 1 câu ngắn, rồi vào nội dung ngay. Không dùng các câu sáo rỗng như "nắm chắc 100%", "dễ áp dụng nhất".
 - Độ dài vừa phải với học sinh THCS: giảng kiến thức tối đa khoảng 300–400 chữ; ví dụ mẫu giải đầy đủ từng bước; bài tự luyện thì chưa đưa đáp án.
 - Dùng tiêu đề "###" cho từng phần, công thức quan trọng đặt riêng một dòng bằng $$...$$.
+
+QUY ƯỚC ĐÁNH DẤU NỘI DUNG QUAN TRỌNG:
+Khi trả lời, hãy đánh dấu nội dung quan trọng theo quy ước sau:
+1. Từ khóa, thuật ngữ toán học quan trọng: bọc trong ==...==. Ví dụ: ==dãy tỉ số bằng nhau==, ==biệt thức==.
+2. Kiến thức trọng tâm (định nghĩa, định lí, tính chất, công thức cần nhớ): đặt trong khối
+   :::kienthuc
+   nội dung
+   :::
+3. Lưu ý, điều kiện quan trọng (ví dụ mẫu số khác 0, điều kiện xác định): khối
+   :::luuy
+   nội dung
+   :::
+4. Lỗi sai học sinh hay mắc: khối
+   :::loisai
+   nội dung
+   :::
+5. Mẹo ghi nhớ: khối
+   :::meo
+   nội dung
+   :::
+6. Kết quả, đáp số cuối cùng: bọc trong ==...== kèm chữ "Đáp số:" (hoặc "Answer:" khi dùng tiếng Anh).
+Quy tắc: CHỈ đánh dấu điều thật sự quan trọng. Mỗi câu trả lời tối đa khoảng 5–6 từ khóa ==...== và tối đa 3 khối. Câu trả lời ngắn (ví dụ 1+1 bằng mấy) thì chỉ đánh dấu đáp số. Không đánh dấu bên trong công thức LaTeX. Luôn đóng đủ dấu ==...== và :::...:::.
 ${kb.skillPhanTich}
 
 ---

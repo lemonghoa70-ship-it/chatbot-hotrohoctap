@@ -204,6 +204,36 @@
     .ai-prose th, .ai-prose td { border: 1px solid #cbd5e1; padding: 0.35rem 0.5rem; text-align: left; }
     .ai-prose th { background-color: #f1f5f9; font-weight: 600; }
     .ai-prose blockquote { border-left: 3px solid var(--grade-accent); padding-left: 0.75rem; color: #334155; margin: 0.45rem 0; }
+    .math-highlight {
+      background-color: #FEF08A;
+      color: #1E293B;
+      font-weight: 600;
+      border-radius: 4px;
+      padding: 2px 4px;
+    }
+    .callout-box {
+      border-radius: 12px;
+      border-left-width: 4px;
+      border-left-style: solid;
+      padding: 0.75rem 0.9rem;
+      margin: 0.65rem 0;
+      max-width: 100%;
+      overflow-x: auto;
+    }
+    .callout-kienthuc { background-color: #EFF6FF; border-left-color: var(--grade-accent, #2563EB); }
+    .callout-luuy { background-color: #FFFBEB; border-left-color: #F59E0B; }
+    .callout-loisai { background-color: #FFF7ED; border-left-color: #EA580C; }
+    .callout-meo { background-color: #F0FDF4; border-left-color: #16A34A; }
+    .glossary-term-chip {
+      border-bottom: 1.5px dotted var(--grade-accent, #2563EB);
+      color: var(--grade-accent-text, #1E3A8A);
+      cursor: pointer;
+      border-radius: 3px;
+      padding: 0 2px;
+    }
+    .glossary-term-chip:hover {
+      background-color: var(--grade-accent-soft, #EFF6FF);
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col overflow-x-hidden">
@@ -2463,26 +2493,85 @@
       showToast('Đã làm mới khung hỏi đáp.');
     }
 
-    // 5. ĐỊNH DẠNG MARKDOWN (MARKED + DOMPURIFY) + KATEX
+    function renderMarkdownChunk(protectedText) {
+      // Đánh dấu ==từ khóa== (ngoài công thức đã bảo vệ bằng @@MATH_...@@)
+      const withHighlights = protectedText.replace(/==([^=\n]+?)==/g, '<mark class="math-highlight">$1</mark>');
+      let html = '';
+      if (typeof marked !== 'undefined' && typeof marked.parse === 'function') {
+        html = marked.parse(withHighlights, { gfm: true, breaks: true });
+      } else {
+        html = escapeHtml(withHighlights)
+          .replace(/&lt;mark class="math-highlight"&gt;([\s\S]*?)&lt;\/mark&gt;/g, '<mark class="math-highlight">$1</mark>')
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/`([^`]+)`/g, '<code class="px-1 py-0.5 rounded bg-slate-100 text-blue-700 text-xs font-mono">$1</code>')
+          .replace(/\n/g, '<br>');
+      }
+      if (typeof DOMPurify !== 'undefined' && typeof DOMPurify.sanitize === 'function') {
+        html = DOMPurify.sanitize(html, {
+          USE_PROFILES: { html: true },
+          ADD_TAGS: ['mark'],
+          FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed'],
+          FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus']
+        });
+      }
+      return html;
+    }
+
+    function getCalloutMeta(type) {
+      const map = {
+        kienthuc: { icon: '📘', vi: 'Kiến thức trọng tâm', en: 'Key knowledge', cls: 'callout-kienthuc', titleCls: 'text-blue-900' },
+        luuy: { icon: '⚠️', vi: 'Lưu ý', en: 'Note', cls: 'callout-luuy', titleCls: 'text-amber-900' },
+        loisai: { icon: '❌', vi: 'Lỗi thường gặp', en: 'Common mistake', cls: 'callout-loisai', titleCls: 'text-orange-900' },
+        meo: { icon: '💡', vi: 'Mẹo ghi nhớ', en: 'Memory tip', cls: 'callout-meo', titleCls: 'text-emerald-900' }
+      };
+      const meta = map[type] || map.kienthuc;
+      let title = meta.vi;
+      if (currentLang === 'en') title = meta.en;
+      else if (currentLang === 'bilingual') title = `${meta.en} / ${meta.vi}`;
+      return { ...meta, title };
+    }
+
+    // 5. ĐỊNH DẠNG MARKDOWN (MARKED + DOMPURIFY) + CALLOUT + HIGHLIGHT + KATEX
     function formatMathAndMarkdown(text, isStreaming = false) {
       if (!text) return '';
       let working = String(text);
       let unclosedTail = '';
 
       if (isStreaming) {
-        // Nếu đang stream và công thức ở cuối chưa đóng, tách phần chưa đóng ra thành chữ thường để KaTeX không báo lỗi đỏ
+        // 1) Nếu có khối ::: chưa đóng ở cuối khi đang streaming, tạm tách ra thành chữ thường
+        const openBlockRegex = /(^|\n):::(kienthuc|luuy|loisai|meo)\b/g;
+        let lastOpenMatch = null;
+        let m;
+        while ((m = openBlockRegex.exec(working)) !== null) lastOpenMatch = m;
+        if (lastOpenMatch) {
+          const afterOpen = working.slice(lastOpenMatch.index + lastOpenMatch[0].length);
+          if (!/(^|\n):::\s*(\n|$)/.test(afterOpen)) {
+            unclosedTail = working.slice(lastOpenMatch.index).replace(/(^|\n):::(kienthuc|luuy|loisai|meo)\s*/g, '$1');
+            working = working.slice(0, lastOpenMatch.index);
+          }
+        }
+        // 2) Nếu có công thức $$ hoặc $ chưa đóng ở cuối khi đang streaming
         const lastDD = working.lastIndexOf('$$');
         if (lastDD !== -1 && (working.split('$$').length - 1) % 2 === 1) {
-          unclosedTail = working.slice(lastDD);
+          unclosedTail = working.slice(lastDD) + unclosedTail;
           working = working.slice(0, lastDD);
         } else {
           const dollarCount = (working.replace(/\$\$/g, '').match(/\$/g) || []).length;
           if (dollarCount % 2 === 1) {
             const lastSingle = working.lastIndexOf('$');
             if (lastSingle !== -1) {
-              unclosedTail = working.slice(lastSingle);
+              unclosedTail = working.slice(lastSingle) + unclosedTail;
               working = working.slice(0, lastSingle);
             }
+          }
+        }
+        // 3) Nếu có == chưa đóng ở cuối khi đang streaming
+        const eqCount = (working.match(/==/g) || []).length;
+        if (eqCount % 2 === 1) {
+          const lastEq = working.lastIndexOf('==');
+          if (lastEq !== -1) {
+            unclosedTail = working.slice(lastEq).replace(/^==/, '') + unclosedTail;
+            working = working.slice(0, lastEq);
           }
         }
       }
@@ -2493,26 +2582,51 @@
         return `@@MATH_${mathBlocks.length - 1}@@`;
       });
 
-      let html = '';
-      if (typeof marked !== 'undefined' && typeof marked.parse === 'function') {
-        html = marked.parse(protectedText, { gfm: true, breaks: true });
-      } else {
-        html = escapeHtml(protectedText)
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/`([^`]+)`/g, '<code class="px-1 py-0.5 rounded bg-slate-100 text-blue-700 text-xs font-mono">$1</code>')
-          .replace(/\n/g, '<br>');
-      }
+      const calloutBlocks = [];
+      protectedText = protectedText.replace(/(?:^|\n):::(kienthuc|luuy|loisai|meo)[ \t]*\r?\n([\s\S]*?)\r?\n:::[ \t]*(?=\r?\n|$)/g, (_, type, inner) => {
+        const meta = getCalloutMeta(type);
+        const restoredRaw = inner.replace(/@@MATH_(\d+)@@/g, (__, idx) => mathBlocks[Number(idx)]).trim();
+        const innerHtml = renderMarkdownChunk(inner.trim());
+        const copyLabel = currentLang === 'vi' ? '📋 Chép vào vở' : '📋 Copy';
+        const copyBtn = type === 'kienthuc'
+          ? `<button type="button" data-copy-callout="${encodeURIComponent(restoredRaw)}" class="copy-callout-btn shrink-0 px-2 py-0.5 rounded-lg bg-white/90 hover:bg-white border border-blue-200 text-[11px] font-semibold text-blue-800 transition">${copyLabel}</button>`
+          : '';
+        const boxHtml = `
+          <div class="callout-box ${meta.cls}">
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+              <div class="text-xs sm:text-sm font-bold ${meta.titleCls} flex items-center gap-1.5">
+                <span>${meta.icon}</span><span>${escapeHtml(meta.title)}</span>
+              </div>
+              ${copyBtn}
+            </div>
+            <div class="text-xs sm:text-sm text-slate-800 space-y-1">${innerHtml}</div>
+          </div>
+        `;
+        calloutBlocks.push(boxHtml);
+        return `\n\n@@CALLOUT_${calloutBlocks.length - 1}@@\n\n`;
+      });
 
-      if (typeof DOMPurify !== 'undefined' && typeof DOMPurify.sanitize === 'function') {
-        html = DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
-      }
-
+      let html = renderMarkdownChunk(protectedText);
+      html = html.replace(/<p>\s*@@CALLOUT_(\d+)@@\s*<\/p>/g, (_, idx) => calloutBlocks[Number(idx)]);
+      html = html.replace(/@@CALLOUT_(\d+)@@/g, (_, idx) => calloutBlocks[Number(idx)]);
       html = html.replace(/@@MATH_(\d+)@@/g, (_, idx) => mathBlocks[Number(idx)]);
       if (unclosedTail) {
-        html += `<span class="text-slate-600 font-mono text-xs">${escapeHtml(unclosedTail)}</span>`;
+        html += `<span class="text-slate-700">${escapeHtml(unclosedTail)}</span>`;
       }
       return html;
     }
+
+    document.addEventListener('click', (ev) => {
+      const btn = ev.target.closest('.copy-callout-btn');
+      if (!btn) return;
+      const raw = decodeURIComponent(btn.getAttribute('data-copy-callout') || '');
+      if (!raw) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(raw).then(() => {
+          showToast(currentLang === 'vi' ? 'Đã chép kiến thức vào bộ nhớ tạm để dán vào vở!' : 'Copied key knowledge!');
+        }).catch(() => {});
+      }
+    });
 
     function renderMathInContainer(el) {
       if (!el) return;
@@ -3488,26 +3602,37 @@
       if (item) speakEnglishTerm(item.term_en);
     }
 
-    // Gạch chân chấm các thuật ngữ xuất hiện trong đề bài / lời giải khi dùng chế độ English hoặc Song ngữ
+    // Gạch chân chấm các thuật ngữ trong từ điển (ở cả 3 chế độ ngôn ngữ, mỗi thuật ngữ chỉ đánh dấu lần đầu tiên)
     function annotateGlossaryTerms(rootEl) {
       const sourceTerms = glossaryTerms.length ? glossaryTerms : fallbackGlossaryTerms;
-      if (!rootEl || currentLang === 'vi' || !sourceTerms.length) return;
+      if (!rootEl || !sourceTerms.length) return;
       if (rootEl.id === 'glossary-cards-container' || rootEl.closest('#view-glossary')) return;
 
-      const sortedTerms = [...sourceTerms]
-        .filter(t => t.term_en && t.term_en.length >= 4)
-        .sort((a, b) => b.term_en.length - a.term_en.length);
-      if (!sortedTerms.length) return;
+      const candidates = [];
+      const termLookup = new Map();
+      sourceTerms.forEach(item => {
+        if (item.term_en && item.term_en.length >= 4) {
+          candidates.push(item.term_en);
+          termLookup.set(item.term_en.toLowerCase(), item);
+        }
+        if (currentLang === 'vi' && item.term_vi && item.term_vi.length >= 4) {
+          candidates.push(item.term_vi);
+          termLookup.set(item.term_vi.toLowerCase(), item);
+        }
+      });
 
-      const escapedList = sortedTerms.map(t => t.term_en.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-      const regex = new RegExp(`\\b(${escapedList.join('|')})\\b`, 'gi');
+      const uniqueSorted = [...new Set(candidates)].sort((a, b) => b.length - a.length);
+      if (!uniqueSorted.length) return;
+
+      const escapedList = uniqueSorted.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+      const regex = new RegExp(`(?<![\\p{L}\\p{N}])(${escapedList.join('|')})(?![\\p{L}\\p{N}])`, 'giu');
 
       const walker = document.createTreeWalker(rootEl, NodeFilter.SHOW_TEXT, {
         acceptNode(node) {
           if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
           const p = node.parentElement;
           if (!p) return NodeFilter.FILTER_REJECT;
-          if (p.closest('.katex, button, script, style, textarea, input, .bilingual-vi, .glossary-term-chip')) {
+          if (p.closest('.katex, button, script, style, textarea, input, .bilingual-vi, .glossary-term-chip, .math-highlight')) {
             return NodeFilter.FILTER_REJECT;
           }
           return NodeFilter.FILTER_ACCEPT;
@@ -3518,6 +3643,7 @@
       let n;
       while ((n = walker.nextNode())) nodesToProcess.push(n);
 
+      const seenInContainer = new Set();
       nodesToProcess.forEach(textNode => {
         const text = textNode.nodeValue;
         regex.lastIndex = 0;
@@ -3527,24 +3653,27 @@
         const frag = document.createDocumentFragment();
         let lastIdx = 0;
         let match;
+        let replacedAny = false;
         while ((match = regex.exec(text)) !== null) {
-          if (match.index > lastIdx) {
-            frag.appendChild(document.createTextNode(text.slice(lastIdx, match.index)));
-          }
           const matchedText = match[0];
-          const foundIdx = sourceTerms.findIndex(t => t.term_en.toLowerCase() === matchedText.toLowerCase());
-          if (foundIdx >= 0) {
-            const matchedItem = sourceTerms[foundIdx];
+          const matchedItem = termLookup.get(matchedText.toLowerCase());
+          const canonicalKey = matchedItem ? matchedItem.term_en.toLowerCase() : matchedText.toLowerCase();
+
+          if (matchedItem && !seenInContainer.has(canonicalKey)) {
+            if (match.index > lastIdx) {
+              frag.appendChild(document.createTextNode(text.slice(lastIdx, match.index)));
+            }
+            seenInContainer.add(canonicalKey);
             const span = document.createElement('span');
-            span.className = 'glossary-term-chip border-b border-dotted border-blue-600 text-blue-800 cursor-pointer hover:bg-blue-50 rounded-xs px-0.5';
+            span.className = 'glossary-term-chip';
             span.textContent = matchedText;
             span.onclick = (ev) => showGlossaryPopoverItem(ev, matchedItem);
             frag.appendChild(span);
-          } else {
-            frag.appendChild(document.createTextNode(matchedText));
+            lastIdx = regex.lastIndex;
+            replacedAny = true;
           }
-          lastIdx = regex.lastIndex;
         }
+        if (!replacedAny) return;
         if (lastIdx < text.length) {
           frag.appendChild(document.createTextNode(text.slice(lastIdx)));
         }
