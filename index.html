@@ -119,7 +119,7 @@
           <div class="inline-flex items-center bg-sky-100/70 p-0.5 rounded-xl border border-sky-200" role="group" aria-label="Language mode">
             <button type="button" onclick="setLanguageMode('vi')" id="lang-btn-vi" class="lang-pill-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition">Tiếng Việt</button>
             <button type="button" onclick="setLanguageMode('en')" id="lang-btn-en" class="lang-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">English</button>
-            <button type="button" onclick="setLanguageMode('bilingual')" id="lang-btn-bilingual" class="lang-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Song ngữ</button>
+            <button type="button" onclick="setLanguageMode('bilingual')" id="lang-btn-bilingual" data-i18n="langBilingualLabel" class="lang-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Song ngữ</button>
           </div>
         </div>
 
@@ -205,17 +205,17 @@
         <div class="pt-3 border-t border-blue-100">
           <div data-i18n="quickSampleTitle" class="px-2 mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">THỬ NHANH BÀI LÀM MẪU</div>
           <div class="space-y-1">
-            <button type="button" onclick="loadSampleCase('sample1')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-700 hover:bg-blue-50 hover:text-blue-800 transition flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
-              <span data-i18n="sample1Label" class="truncate">Bài 1: Quên ĐKXĐ phân thức</span>
+            <button type="button" onclick="loadSampleCase('sample1')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-700 hover:bg-blue-50 hover:text-blue-800 transition flex items-start gap-2">
+              <span class="w-2 h-2 rounded-full bg-rose-500 shrink-0 mt-1.5"></span>
+              <span data-i18n="sample1Label" class="leading-snug">Bài 1: Quên ĐKXĐ phân thức</span>
             </button>
-            <button type="button" onclick="loadSampleCase('sample2')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-700 hover:bg-blue-50 hover:text-blue-800 transition flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
-              <span data-i18n="sample2Label" class="truncate">Bài 2: Nhầm dấu căn thức</span>
+            <button type="button" onclick="loadSampleCase('sample2')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-700 hover:bg-blue-50 hover:text-blue-800 transition flex items-start gap-2">
+              <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0 mt-1.5"></span>
+              <span data-i18n="sample2Label" class="leading-snug">Bài 2: Nhầm dấu căn thức</span>
             </button>
-            <button type="button" onclick="loadSampleCase('sample3')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-700 hover:bg-blue-50 hover:text-blue-800 transition flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-              <span data-i18n="sample3Label" class="truncate">Bài 3: Giải hệ PT (Đạt 10đ)</span>
+            <button type="button" onclick="loadSampleCase('sample3')" class="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-700 hover:bg-blue-50 hover:text-blue-800 transition flex items-start gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0 mt-1.5"></span>
+              <span data-i18n="sample3Label" class="leading-snug">Bài 3: Giải hệ PT (Đạt 10đ)</span>
             </button>
           </div>
         </div>
@@ -342,7 +342,7 @@
               </div>
               <div id="welcome-teacher-qa" class="flex-1 text-xs sm:text-sm text-slate-800 space-y-1.5 leading-relaxed">
                 <p><strong>Học sinh:</strong> Cô ơi, làm sao rút gọn $\sqrt{a^2}$ và giải phương trình $ax^2 + bx + c = 0$ ạ?</p>
-                <p><strong>Cô AI:</strong> Rất đơn giản! Em áp dụng hằng đẳng thức $\sqrt{a^2} = |a|$. Với phương trình bậc hai $ax^2 + bx + c = 0 \ (a \neq 0)$, ta tính $\Delta = b^2 - 4ac$ rồi xét dấu của $\Delta$ nhé! Em có thể gõ câu hỏi hoặc tải ảnh bài làm lên để Cô kiểm tra cùng em.</p>
+                <p><strong>Cô AI:</strong> Câu hỏi hay đấy! Em áp dụng hằng đẳng thức $\sqrt{a^2} = |a|$. Với phương trình bậc hai $ax^2 + bx + c = 0 \ (a \neq 0)$, ta tính $\Delta = b^2 - 4ac$ rồi xét dấu của $\Delta$ nhé! Em có thể gõ câu hỏi hoặc tải ảnh bài làm lên để Cô kiểm tra cùng em.</p>
               </div>
             </div>
 
@@ -1149,7 +1149,7 @@
       if (practiceTitle) {
         practiceTitle.textContent = currentLang === 'vi'
           ? `Tự luyện Toán ${selectedGrade} theo cấu trúc Công văn 7991`
-          : `Grade ${selectedGrade} Math Practice Tests (Circular 7991)`;
+          : `Grade ${selectedGrade} Math Practice Tests (Official Letter 7991)`;
       }
       setTeacherGender(teacherGender);
       renderTheoryByGrade(currentCurriculum);
@@ -1197,7 +1197,7 @@
       if (practiceTitle) {
         practiceTitle.textContent = currentLang === 'vi'
           ? `Tự luyện Toán ${selectedGrade} theo cấu trúc Công văn 7991`
-          : `Grade ${selectedGrade} Math Practice Tests (Circular 7991)`;
+          : `Grade ${selectedGrade} Math Practice Tests (Official Letter 7991)`;
       }
 
       const subtitle = document.getElementById('hero-teacher-subtitle');
@@ -1506,14 +1506,8 @@
     const LOCAL_KEY_TEACHER_GENDER = 'trogiang_teacher_gender_v1';
     let teacherGender = localStorage.getItem(LOCAL_KEY_TEACHER_GENDER) || 'co';
 
-    function getTeacherShort() {
-      if (currentLang === 'vi') return teacherGender === 'thay' ? 'Thầy' : 'Cô';
-      return teacherGender === 'thay' ? 'Mr.' : 'Ms.';
-    }
-    function getTeacherName() {
-      if (currentLang === 'vi') return teacherGender === 'thay' ? 'Thầy AI' : 'Cô AI';
-      return teacherGender === 'thay' ? 'Mr. AI' : 'Ms. AI';
-    }
+    function getTeacherShort() { return teacherGender === 'thay' ? 'Thầy' : 'Cô'; }
+    function getTeacherName() { return teacherGender === 'thay' ? 'Thầy AI' : 'Cô AI'; }
 
     function setTeacherGender(gender) {
       teacherGender = gender === 'thay' ? 'thay' : 'co';
@@ -1522,8 +1516,8 @@
       const btnCo = document.getElementById('teacher-btn-co');
       const btnThay = document.getElementById('teacher-btn-thay');
       if (btnCo && btnThay) {
-        btnCo.textContent = currentLang === 'vi' ? '👩‍🏫 Cô AI' : '👩‍🏫 Ms. AI';
-        btnThay.textContent = currentLang === 'vi' ? '👨‍🏫 Thầy AI' : '👨‍🏫 Mr. AI';
+        btnCo.textContent = '👩‍🏫 Cô AI';
+        btnThay.textContent = '👨‍🏫 Thầy AI';
         if (teacherGender === 'co') {
           btnCo.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition flex items-center gap-1';
           btnThay.className = 'px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition flex items-center gap-1';
@@ -1582,11 +1576,11 @@
         const name = getTeacherName();
         const viQa = `
           <p><strong>Học sinh:</strong> ${viShort} ơi, làm sao rút gọn $\\sqrt{a^2}$ và giải phương trình $ax^2 + bx + c = 0$ ạ?</p>
-          <p><strong>${viName}:</strong> Rất đơn giản! Em áp dụng hằng đẳng thức $\\sqrt{a^2} = |a|$. Với phương trình bậc hai $ax^2 + bx + c = 0 \\ (a \\neq 0)$, ta tính $\\Delta = b^2 - 4ac$ rồi xét dấu của $\\Delta$ nhé! Em có thể gõ câu hỏi hoặc tải ảnh bài làm lên để ${viShort} kiểm tra cùng em.</p>
+          <p><strong>${viName}:</strong> Câu hỏi hay đấy! Em áp dụng hằng đẳng thức $\\sqrt{a^2} = |a|$. Với phương trình bậc hai $ax^2 + bx + c = 0 \\ (a \\neq 0)$, ta tính $\\Delta = b^2 - 4ac$ rồi xét dấu của $\\Delta$ nhé! Em có thể gõ câu hỏi hoặc tải ảnh bài làm lên để ${viShort} kiểm tra cùng em.</p>
         `;
         const enQa = `
           <p><strong>Student:</strong> Teacher, how do I simplify $\\sqrt{a^2}$ and solve $ax^2 + bx + c = 0$?</p>
-          <p><strong>${name}:</strong> Very simple! Use the identity $\\sqrt{a^2} = |a|$. For the quadratic equation $ax^2 + bx + c = 0 \\ (a \\neq 0)$, find the discriminant $\\Delta = b^2 - 4ac$ and check its sign! You can type a question or upload a photo of your work.</p>
+          <p><strong>${name}:</strong> Good question! Use the identity $\\sqrt{a^2} = |a|$. For the quadratic equation $ax^2 + bx + c = 0 \\ (a \\neq 0)$, find the discriminant $\\Delta = b^2 - 4ac$ and check its sign! You can type a question or upload a photo of your work.</p>
         `;
         qaBox.innerHTML = renderBilingualBlock(enQa, viQa);
         renderMathInContainer(qaBox);
