@@ -90,29 +90,14 @@
         </div>
       </div>
 
-      <!-- Giữa/Phải: Bộ chọn Lớp 6|7|8|9 + 3 Chế độ Ngôn ngữ + Hồ sơ + Hệ thống -->
+      <!-- Phải: Hồ sơ + Trạng thái + Hệ thống -->
       <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-        <!-- Bộ chọn Ngôn ngữ: Tiếng Việt | English | Song ngữ -->
-        <div class="hidden md:inline-flex items-center bg-sky-50/90 p-0.5 rounded-xl border border-sky-200" role="group" aria-label="Language mode">
-          <button type="button" onclick="setLanguageMode('vi')" id="lang-btn-vi" class="lang-pill-btn px-2 py-1 text-[11px] font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition">Tiếng Việt</button>
-          <button type="button" onclick="setLanguageMode('en')" id="lang-btn-en" class="lang-pill-btn px-2 py-1 text-[11px] font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">English</button>
-          <button type="button" onclick="setLanguageMode('bilingual')" id="lang-btn-bilingual" class="lang-pill-btn px-2 py-1 text-[11px] font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Song ngữ</button>
-        </div>
-
-        <!-- Bộ chọn lớp THCS -->
-        <div class="hidden sm:inline-flex items-center bg-blue-50/80 p-0.5 rounded-xl border border-blue-200/80 shrink-0 whitespace-nowrap" role="group" aria-label="Chọn lớp">
-          <button type="button" onclick="setSelectedGrade(6)" id="grade-btn-6" class="grade-pill-btn px-2 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Lớp 6</button>
-          <button type="button" onclick="setSelectedGrade(7)" id="grade-btn-7" class="grade-pill-btn px-2 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Lớp 7</button>
-          <button type="button" onclick="setSelectedGrade(8)" id="grade-btn-8" class="grade-pill-btn px-2 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Lớp 8</button>
-          <button type="button" onclick="setSelectedGrade(9)" id="grade-btn-9" class="grade-pill-btn px-2 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition">Lớp 9</button>
-        </div>
-
         <button type="button" id="student-header-btn" onclick="openStudentRegisterModal()" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-900 text-xs font-semibold flex items-center gap-1.5 transition" title="Thông tin học sinh">
           <span>👤</span>
           <span id="student-header-label" data-i18n="btnRegisterStudent">Đăng ký học sinh</span>
         </button>
 
-        <div id="api-status-badge" class="hidden xl:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-800">
+        <div id="api-status-badge" class="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-800">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           <span>Đang kết nối...</span>
         </div>
@@ -125,18 +110,29 @@
         </button>
       </div>
     </div>
-    <!-- Bộ chọn lớp & ngôn ngữ trên màn hình nhỏ (< md) -->
-    <div class="md:hidden px-4 pb-2.5 flex flex-col sm:flex-row items-center justify-center gap-1.5">
-      <div class="inline-flex items-center bg-sky-50/90 p-0.5 rounded-xl border border-sky-200 w-full sm:w-auto justify-between">
-        <button type="button" onclick="setLanguageMode('vi')" id="lang-mob-vi" class="lang-mob-btn flex-1 px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition">Tiếng Việt</button>
-        <button type="button" onclick="setLanguageMode('en')" id="lang-mob-en" class="lang-mob-btn flex-1 px-2.5 py-1 text-[11px] font-medium rounded-lg text-slate-600 transition">English</button>
-        <button type="button" onclick="setLanguageMode('bilingual')" id="lang-mob-bilingual" class="lang-mob-btn flex-1 px-2.5 py-1 text-[11px] font-medium rounded-lg text-slate-600 transition">Song ngữ</button>
-      </div>
-      <div class="sm:hidden inline-flex items-center bg-blue-50/80 p-0.5 rounded-xl border border-blue-200/80 w-full justify-between">
-        <button type="button" onclick="setSelectedGrade(6)" id="grade-mob-6" class="grade-mob-btn flex-1 py-1 text-xs font-medium rounded-lg text-slate-600 transition">Lớp 6</button>
-        <button type="button" onclick="setSelectedGrade(7)" id="grade-mob-7" class="grade-mob-btn flex-1 py-1 text-xs font-medium rounded-lg text-slate-600 transition">Lớp 7</button>
-        <button type="button" onclick="setSelectedGrade(8)" id="grade-mob-8" class="grade-mob-btn flex-1 py-1 text-xs font-medium rounded-lg text-slate-600 transition">Lớp 8</button>
-        <button type="button" onclick="setSelectedGrade(9)" id="grade-mob-9" class="grade-mob-btn flex-1 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition">Lớp 9</button>
+    <!-- Thanh chuyển Lớp & Ngôn ngữ (luôn hiển thị rõ trên mọi màn hình) -->
+    <div class="bg-slate-50/90 border-t border-blue-100/80">
+      <div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between gap-2">
+        <!-- Bộ chọn Ngôn ngữ: Tiếng Việt | English | Song ngữ -->
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] font-semibold text-slate-500 hidden sm:inline">🌐 Ngôn ngữ:</span>
+          <div class="inline-flex items-center bg-sky-100/70 p-0.5 rounded-xl border border-sky-200" role="group" aria-label="Language mode">
+            <button type="button" onclick="setLanguageMode('vi')" id="lang-btn-vi" class="lang-pill-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition">Tiếng Việt</button>
+            <button type="button" onclick="setLanguageMode('en')" id="lang-btn-en" class="lang-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">English</button>
+            <button type="button" onclick="setLanguageMode('bilingual')" id="lang-btn-bilingual" class="lang-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Song ngữ</button>
+          </div>
+        </div>
+
+        <!-- Bộ chọn lớp THCS -->
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] font-semibold text-slate-500 hidden sm:inline">🎓 Chọn lớp:</span>
+          <div class="inline-flex items-center bg-blue-100/60 p-0.5 rounded-xl border border-blue-200/80 shrink-0 whitespace-nowrap" role="group" aria-label="Chọn lớp">
+            <button type="button" onclick="setSelectedGrade(6)" id="grade-btn-6" class="grade-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Lớp 6</button>
+            <button type="button" onclick="setSelectedGrade(7)" id="grade-btn-7" class="grade-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Lớp 7</button>
+            <button type="button" onclick="setSelectedGrade(8)" id="grade-btn-8" class="grade-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Lớp 8</button>
+            <button type="button" onclick="setSelectedGrade(9)" id="grade-btn-9" class="grade-pill-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition">Lớp 9</button>
+          </div>
+        </div>
       </div>
     </div>
   </header>
