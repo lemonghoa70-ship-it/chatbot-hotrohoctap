@@ -36,6 +36,22 @@ export const PORT = parseInt(process.env.PORT || '5000', 10);
 
 // Quản lý danh sách API Key & Tự động xoay vòng khi chạm hạn mức
 let currentKeyIndex = 0;
+let lastGeminiHealthy = true;
+const geminiErrorLogs = [];
+
+function recordGeminiError({ endpoint, status, keyIndex, message }) {
+  lastGeminiHealthy = false;
+  const entry = {
+    timestamp: new Date().toISOString(),
+    endpoint,
+    status: status || 'NETWORK',
+    keyIndex: keyIndex != null ? keyIndex + 1 : null,
+    message: String(message || '').slice(0, 300),
+  };
+  geminiErrorLogs.unshift(entry);
+  if (geminiErrorLogs.length > 30) geminiErrorLogs.length = 30;
+  console.error(`[Gemini Error] ${entry.timestamp} | ${endpoint} | Status=${entry.status} | Key #${entry.keyIndex || '?'} | ${entry.message}`);
+}
 
 export function getApiKeys() {
   const raw = process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || '';
@@ -93,7 +109,14 @@ ${kb.persona}
 ${kb.skillOcr}
 
 ## [PHẦN 4: KỸ NĂNG PHÂN TÍCH LỖI VÀ DẪN DẮT GDPT 2018]
-NGUYÊN TẮC KHÍCH LỆ TÂM LÝ HỌC SINH: Khi học sinh hỏi bài hoặc gặp khó khăn, TUYỆT ĐỐI KHÔNG dùng các từ/cụm từ mang tính xem nhẹ như "đơn giản", "rất đơn giản", "dễ", "quá dễ", "very simple", "simple", "easy" để tránh làm học sinh tự ti hoặc nản lòng. Hãy luôn khích lệ (ví dụ: "Câu hỏi hay đấy!", "Good question!").
+NGUYÊN TẮC KHÍCH LỆ TÂM LÝ HỌC SINH: Khi học sinh hỏi bài hoặc gặp khó khăn, TUYỆT ĐỐI KHÔNG dùng các từ/cụm từ mang tính xem nhẹ như "đơn giản", "rất đơn giản", "dễ", "quá dễ", "very simple", "simple", "easy" để tránh làm học sinh tự ti hoặc nản lòng. Hãy luôn khích lệ tự nhiên.
+
+NGUYÊN TẮC TRẢ LỜI ĐÚNG TRỌNG TÂM & KHÔNG LẶP LẠI:
+- Đọc kỹ câu hỏi của học sinh, xác định đúng mục đích học sinh cần: (1) Giải bài tập, (2) Giải thích kiến thức, (3) Mẹo ghi nhớ, (4) Ra đề luyện tập, hay (5) Chấm bài. Trả lời ĐÚNG yêu cầu đó.
+- Khi học sinh yêu cầu **ra đề tự luyện theo Công văn 7991**: ra một đề ngắn đúng kiến thức lớp đang chọn gồm đủ 3 phần: Phần I (Trắc nghiệm nhiều lựa chọn), Phần II (Đúng/Sai), Phần III (Tự luận / Trả lời ngắn). KHÔNG đưa đáp án ngay; nhắc học sinh làm bài rồi gửi lại để Thầy/Cô chấm.
+- Khi học sinh **hỏi kiến thức hoặc mẹo ghi nhớ** (ví dụ: tỉ số lượng giác sin, cos, tan, cot): giải thích ngắn gọn, trình bày công thức bằng LaTeX, cho 1 ví dụ minh họa rõ ràng và nêu mẹo ghi nhớ dễ thuộc.
+- Khi học sinh **hỏi cách giải một bài toán cụ thể**: dùng phương pháp gợi ý 3 mức (gợi ý từng bước, không đưa ngay toàn bộ lời giải nếu học sinh chưa hỏi xem lời giải đầy đủ).
+- TUYỆT ĐỐI KHÔNG dùng câu trả lời chung chung lặp lại máy móc, và KHÔNG mở đầu mọi câu trả lời bằng cùng một câu khen giống nhau (như "Em hỏi câu này rất hay!"). Hãy vào thẳng vấn đề hoặc thay đổi cách mở đầu tự nhiên theo ngữ cảnh.
 ${kb.skillPhanTich}
 
 ---
@@ -345,7 +368,7 @@ status, ocr_summary, good_points, first_error_step, error_reason, hint_level_1, 
 
   const model = getActiveModel();
   let lastError = null;
-  const maxAttempts = Math.min(keys.length, 5);
+  const maxAttempts = keys.length;
   const startIndex = currentKeyIndex;
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -387,8 +410,8 @@ status, ocr_summary, good_points, first_error_step, error_reason, hint_level_1, 
       if (!resp.ok) {
         const errText = await resp.text();
         const errStatus = resp.status;
-        console.warn(`[Gemini API Attempt ${attempt + 1}/${maxAttempts} Failed] Status: ${errStatus} Key #${keyIndex + 1}: ${keyToUse.slice(0, 14)}...`);
-        lastError = new Error(`Gemini API Error ${errStatus}: ${errText}`);
+        recordGeminiError({ endpoint: '/api/grade', status: errStatus, keyIndex, message: errText });
+        lastError = new Error(`Gemini API Error ${errStatus} (Key #${keyIndex + 1}): ${errText}`);
         currentKeyIndex = (keyIndex + 1) % keys.length;
         continue;
       }
@@ -401,9 +424,12 @@ status, ocr_summary, good_points, first_error_step, error_reason, hint_level_1, 
 
       // Ghi nhận key index chạy thành công để ưu tiên cho lần gọi tiếp theo
       currentKeyIndex = keyIndex;
+      lastGeminiHealthy = true;
+      currentKeyIndex = keyIndex;
       return JSON.parse(rawText);
     } catch (err) {
       lastError = err;
+      recordGeminiError({ endpoint: '/api/chat', status: err.status || 'EXCEPTION', keyIndex, message: err.message });
       currentKeyIndex = (keyIndex + 1) % keys.length;
     }
   }
@@ -448,7 +474,7 @@ NGỮ CẢNH BÀI TOÁN VỪA CHẤM CỦA HỌC SINH:
 
   const model = getActiveModel();
   let lastError = null;
-  const maxAttempts = Math.min(keys.length, 5);
+  const maxAttempts = keys.length;
   const startIndex = currentKeyIndex;
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -473,19 +499,21 @@ NGỮ CẢNH BÀI TOÁN VỪA CHẤM CỦA HỌC SINH:
       if (!resp.ok) {
         const errText = await resp.text();
         const errStatus = resp.status;
-        console.warn(`[Gemini Chat Attempt ${attempt + 1}/${maxAttempts} Failed] Status: ${errStatus} Key #${keyIndex + 1}: ${keyToUse.slice(0, 14)}...`);
-        lastError = new Error(`Gemini API Chat Error ${errStatus}: ${errText}`);
+        recordGeminiError({ endpoint: '/api/chat', status: errStatus, keyIndex, message: errText });
+        lastError = new Error(`Gemini API Chat Error ${errStatus} (Key #${keyIndex + 1}): ${errText}`);
         currentKeyIndex = (keyIndex + 1) % keys.length;
         continue;
       }
 
       const data = await resp.json();
       currentKeyIndex = keyIndex;
+      lastGeminiHealthy = true;
       const rawReply = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Cô chưa nghe rõ, em hãy nhắn lại giúp Cô nhé!';
       const words = rawReply.trim().split(/\s+/);
       return words.length > 2000 ? words.slice(0, 2000).join(' ') + '...' : rawReply;
     } catch (err) {
       lastError = err;
+      recordGeminiError({ endpoint: '/api/chat', status: err.status || 'EXCEPTION', keyIndex, message: err.message });
       currentKeyIndex = (keyIndex + 1) % keys.length;
     }
   }
@@ -621,6 +649,8 @@ export async function handleRequest(req, res) {
         model: activeModel,
         keys_count: keys.length,
         gemini_configured: keys.length > 0,
+        gemini_available: keys.length > 0 && lastGeminiHealthy,
+        recent_errors: geminiErrorLogs.slice(0, 10),
         port: PORT,
       });
     }
@@ -839,25 +869,26 @@ export async function handleRequest(req, res) {
           });
           return sendJson(res, 200, { ...result, source: 'gemini_api' });
         } catch (geminiError) {
-          console.warn('[Gemini API Warning]', geminiError.message);
-          const useEn = body.lang === 'en' || body.lang === 'bilingual';
-          const fallback = (useEn ? SAMPLE_MOCKS_EN[body.sample_id || 'sample1'] : SAMPLE_MOCKS[body.sample_id || 'sample1']) || SAMPLE_MOCKS.sample1;
-          return sendJson(res, 200, {
-            ...fallback,
-            source: 'fallback_mock',
-            warning: geminiError.message,
+          return sendJson(res, 503, {
+            ok: false,
+            error: 'GEMINI_UNAVAILABLE',
+            message_vi: 'Thầy/Cô AI đang bận, em thử lại sau ít phút nhé!',
+            message_en: 'The AI teacher is busy, please try again in a few minutes!',
+            detail: geminiError.message,
+            recent_errors: geminiErrorLogs.slice(0, 5),
           });
         }
       }
 
-      // Không có API key hoặc ảnh: trả về mẫu mô phỏng chuẩn 9 trường
-      const useEn = body.lang === 'en' || body.lang === 'bilingual';
-      const mockPool = useEn ? SAMPLE_MOCKS_EN : SAMPLE_MOCKS;
-      const fallbackResult = (body.sample_id && mockPool[body.sample_id]) || mockPool.sample1 || SAMPLE_MOCKS.sample1;
-      return sendJson(res, 200, {
-        ...fallbackResult,
-        source: 'simulation',
-        note_echo: body.student_note,
+      // Không có API key hoặc thiếu ảnh
+      recordGeminiError({ endpoint: '/api/grade', status: 'MISSING_KEY', keyIndex: null, message: 'Chưa cấu hình GEMINI_API_KEY trên server.' });
+      return sendJson(res, 503, {
+        ok: false,
+        error: 'GEMINI_UNAVAILABLE',
+        message_vi: 'Thầy/Cô AI đang bận, em thử lại sau ít phút nhé!',
+        message_en: 'The AI teacher is busy, please try again in a few minutes!',
+        detail: 'Chưa cấu hình GEMINI_API_KEY hoặc thiếu ảnh bài làm.',
+        recent_errors: geminiErrorLogs.slice(0, 5),
       });
     }
 
@@ -882,25 +913,26 @@ export async function handleRequest(req, res) {
           });
           return sendJson(res, 200, { reply, source: 'gemini_api' });
         } catch (err) {
-          console.warn('[Gemini Chat Warning]', err.message);
+          return sendJson(res, 503, {
+            ok: false,
+            error: 'GEMINI_UNAVAILABLE',
+            message_vi: 'Thầy/Cô AI đang bận, em thử lại sau ít phút nhé!',
+            message_en: 'The AI teacher is busy, please try again in a few minutes!',
+            detail: err.message,
+            recent_errors: geminiErrorLogs.slice(0, 5),
+          });
         }
       }
 
-      // Phản hồi mô phỏng sư phạm chuẩn
-      let reply = 'Em hỏi câu này rất hay! ';
-      const q = userMessage.toLowerCase();
-      if (q.includes('đổi dấu') || q.includes('điều kiện') || q.includes('tại sao')) {
-        reply +=
-          'Trong toán học THCS, khi nhân hoặc chia một số âm với một số âm thì kết quả luôn mang dấu **dương**: $(-a) \\cdot (-b) = ab$. Đồng thời với mẫu thức thì luôn cần điều kiện khác 0 để phân thức có nghĩa em nhé!';
-      } else if (q.includes('tương tự') || q.includes('luyện lại')) {
-        reply +=
-          'Thầy/Cô tặng em một bài tương tự để làm chủ dạng này nè: **Giải phương trình $\\frac{x^2 - 1}{x + 1} = 4x - 7$**. Em làm ra vở rồi gửi Thầy/Cô xem nhé!';
-      } else {
-        reply +=
-          'Em hãy lưu ý luôn bám sát 3 bước: (1) Đặt điều kiện, (2) Biến đổi cẩn thận dấu ngoặc, và (3) Thử lại nghiệm. Em có thắc mắc cụ thể bước nào nữa không?';
-      }
-
-      return sendJson(res, 200, { reply, source: 'simulation' });
+      recordGeminiError({ endpoint: '/api/chat', status: 'MISSING_KEY', keyIndex: null, message: 'Chưa cấu hình GEMINI_API_KEY trên server.' });
+      return sendJson(res, 503, {
+        ok: false,
+        error: 'GEMINI_UNAVAILABLE',
+        message_vi: 'Thầy/Cô AI đang bận, em thử lại sau ít phút nhé!',
+        message_en: 'The AI teacher is busy, please try again in a few minutes!',
+        detail: 'Chưa cấu hình GEMINI_API_KEY trên server.',
+        recent_errors: geminiErrorLogs.slice(0, 5),
+      });
     }
 
     // PHỤC VỤ STATIC FILES CHO FRONTEND (hỗ trợ cả thư mục gốc và public/)

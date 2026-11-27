@@ -869,6 +869,15 @@
                 </label>
               </li>
             </ul>
+            <div class="pt-3 border-t border-slate-100">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs font-bold text-slate-800">Nhật ký lỗi Gemini API (gần nhất)</span>
+                <button type="button" onclick="refreshSystemHealth()" class="text-[11px] font-semibold text-blue-600 hover:underline">Làm mới</button>
+              </div>
+              <div id="admin-gemini-errors" class="text-[11px] text-slate-500 bg-slate-50 border border-slate-200 rounded-xl p-2.5 max-h-36 overflow-y-auto space-y-1">
+                <div>Chưa ghi nhận lỗi nào.</div>
+              </div>
+            </div>
           </div>
 
           <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-xs space-y-3">
@@ -1271,28 +1280,62 @@
       requestAnimationFrame(step);
     }
 
-    fetch('/api/health')
-      .then(r => r.json())
-      .then(data => {
-        const badge = document.getElementById('api-status-badge');
-        if (data.status === 'ok') {
-          if (badge) badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-300"></span><span>Online</span>`;
-          const adminInfo = document.getElementById('admin-model-info');
-          if (adminInfo) {
-            const keyInfo = data.gemini_configured ? `${data.keys_count || 1} keys` : 'Demo';
-            adminInfo.textContent = `${data.model} (${keyInfo})`;
+    function updateApiStatusBadge(state) {
+      const badge = document.getElementById('api-status-badge');
+      if (!badge) return;
+      if (state === 'online') {
+        badge.className = 'hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-200/40 text-xs font-semibold text-white';
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-300"></span><span>Online</span>`;
+      } else if (state === 'busy') {
+        badge.className = 'hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/25 border border-amber-200/60 text-xs font-semibold text-white';
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-300"></span><span>${currentLang === 'vi' ? 'Bận' : 'Busy'}</span>`;
+      } else {
+        badge.className = 'hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-500/25 border border-rose-200/60 text-xs font-semibold text-white';
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-300"></span><span>Offline</span>`;
+      }
+    }
+
+    function renderAdminGeminiErrors(errors = []) {
+      const box = document.getElementById('admin-gemini-errors');
+      if (!box) return;
+      if (!errors || !errors.length) {
+        box.innerHTML = `<div class="text-emerald-700 font-medium">✓ Chưa ghi nhận lỗi Gemini API nào.</div>`;
+        return;
+      }
+      box.innerHTML = errors.map(e => {
+        const timeStr = e.timestamp ? new Date(e.timestamp).toLocaleTimeString('vi-VN') : '';
+        return `<div class="p-1.5 rounded-lg bg-white border border-rose-100 text-rose-800"><strong>[${escapeHtml(String(e.status))}]</strong> ${escapeHtml(timeStr)} · Key #${escapeHtml(String(e.keyIndex || '?'))} (${escapeHtml(e.endpoint || '')}): ${escapeHtml(String(e.message || '').slice(0, 140))}</div>`;
+      }).join('');
+    }
+
+    function refreshSystemHealth() {
+      fetch('/api/health')
+        .then(r => r.json())
+        .then(data => {
+          if (data.status === 'ok') {
+            if (!data.gemini_configured) {
+              updateApiStatusBadge('offline');
+            } else if (!data.gemini_available) {
+              updateApiStatusBadge('busy');
+            } else {
+              updateApiStatusBadge('online');
+            }
+            const adminInfo = document.getElementById('admin-model-info');
+            if (adminInfo) {
+              const keyInfo = data.gemini_configured ? `${data.keys_count || 1} keys` : 'Chưa cấu hình key';
+              adminInfo.textContent = `${data.model} (${keyInfo})`;
+            }
+            renderAdminGeminiErrors(data.recent_errors || []);
           }
-        }
-      })
-      .catch(() => {
-        const badge = document.getElementById('api-status-badge');
-        if (badge) {
-          badge.className = 'hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-xs font-semibold text-amber-800';
-          badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span><span>Offline</span>`;
-        }
-        const adminInfo = document.getElementById('admin-model-info');
-        if (adminInfo) adminInfo.textContent = 'Offline';
-      });
+        })
+        .catch(() => {
+          updateApiStatusBadge('offline');
+          const adminInfo = document.getElementById('admin-model-info');
+          if (adminInfo) adminInfo.textContent = 'Offline';
+        });
+    }
+
+    refreshSystemHealth();
 
     // 1B. HỆ THỐNG 3 CHẾ ĐỘ NGÔN NGỮ (vi | en | bilingual)
     const LOCAL_KEY_LANG_MODE = 'trogiang_lang_mode_v1';
@@ -1907,90 +1950,139 @@
       }
     }
 
-    async function handleComposerSubmit() {
-      if (isLoading) return;
-      const text = composerInput.value.trim();
-      const hasImage = !!currentImageSrc;
-      if (!text && !hasImage) return;
-      if (!requireStudentRegistered(() => handleComposerSubmit())) return;
+      let lastRetryAction = null;
 
-      const sentImage = currentImageSrc;
-      const sentMime = currentMimeType;
-      const sentSampleId = currentSampleId;
-      const userDisplay = text || `${getTeacherShort()} kiểm tra bài làm trong ảnh giúp em nhé!`;
-
-      renderUserMessageDOM(userDisplay, sentImage);
-      composerInput.value = '';
-      composerInput.style.height = 'auto';
-      clearImage();
-
-      isLoading = true;
-      document.getElementById('send-btn').disabled = true;
-      setThinking(true, hasImage ? `${getTeacherName()} đang đọc ảnh bài làm & chuẩn hóa LaTeX...` : `${getTeacherName()} đang suy nghĩ câu trả lời...`);
-
-      const apiKeyOverride = localStorage.getItem(LOCAL_STORAGE_KEY_API_KEY) || '';
-
-      try {
-        if (hasImage) {
-          const res = await fetch('/api/grade', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              image: sentImage,
-              mime_type: sentMime,
-              sample_id: sentSampleId,
-              student_note: text,
-              mode: feedbackMode,
-              grade: `Toán ${selectedGrade}`,
-              lang: currentLang,
-              teacher_gender: teacherGender,
-              api_key: apiKeyOverride || undefined
-            })
-          });
-          const data = await res.json();
-          lastGradingResult = data;
-          chatConversationHistory.push({ role: 'user', content: `[Gửi ảnh] ${userDisplay}` });
-          chatConversationHistory.push({ role: 'model', content: `Đề: ${data.ocr_summary}\nLỗi: ${data.first_error_step} - ${data.error_reason}` });
-          setThinking(false);
-          renderGradingResponseDOM(data, data.source);
-          recordStudentActivity('grade_image', `Chấm ảnh bài làm: ${userDisplay.slice(0, 60)}`);
-        } else {
-          const res = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              message: userDisplay,
-              history: chatConversationHistory,
-              context: lastGradingResult || {},
-              grade: `Toán ${selectedGrade}`,
-              lang: currentLang,
-              wrong_attempts: consecutiveWrongAttempts,
-              teacher_gender: teacherGender,
-              api_key: apiKeyOverride || undefined
-            })
-          });
-          const data = await res.json();
-          const reply = data.reply || `${getTeacherShort()} chưa nghe rõ, em nhắn lại giúp ${getTeacherShort()} nhé!`;
-          if (/not quite|incorrect|try again|wrong|chưa đúng|sai rồi|check again/i.test(reply)) {
-            consecutiveWrongAttempts += 1;
-          } else {
-            consecutiveWrongAttempts = 0;
-          }
-          chatConversationHistory.push({ role: 'user', content: userDisplay });
-          chatConversationHistory.push({ role: 'model', content: reply });
-          setThinking(false);
-          renderAiTextMessageDOM(reply, data.source);
-          recordStudentActivity('chat_question', `Hỏi ${getTeacherName()}: ${userDisplay.slice(0, 60)}`);
-        }
-      } catch (err) {
-        console.error(err);
-        setThinking(false);
-        renderAiTextMessageDOM('Kết nối tạm thời bị gián đoạn, em hãy thử gửi lại nhé!', 'error');
-      } finally {
-        isLoading = false;
-        document.getElementById('send-btn').disabled = false;
+      function renderAiBusyMessageDOM(customMsg, retryFn) {
+        if (retryFn) lastRetryAction = retryFn;
+        const stream = document.getElementById('messages-stream');
+        const div = document.createElement('div');
+        div.className = 'flex items-start gap-3 animate-msg';
+        const fallbackMsg = currentLang === 'vi'
+          ? 'Thầy/Cô AI đang bận, em thử lại sau ít phút nhé!'
+          : 'The AI teacher is busy, please try again in a few minutes!';
+        const retryLabel = currentLang === 'vi' ? '🔄 Thử lại' : '🔄 Retry';
+        const avatarRingClass = teacherGender === 'co' ? 'border-pink-400 bg-pink-50' : 'border-blue-300 bg-blue-100';
+        div.innerHTML = `
+          <div class="w-8 h-8 rounded-full overflow-hidden border-2 ${avatarRingClass} shrink-0 mt-0.5 flex items-center justify-center">
+            <img src="${getTeacherAvatarSrc()}" alt="${escapeHtml(getTeacherAlt())}" class="w-full h-full rounded-full object-cover" onerror="this.style.display='none';this.nextElementSibling.classList.remove('hidden');" />
+            ${getTeacherFallbackSvg(teacherGender, 'w-7 h-7 hidden')}
+          </div>
+          <div class="flex-1 bg-orange-50 border border-orange-300 rounded-2xl rounded-tl-sm p-3.5 text-xs sm:text-sm text-orange-950 space-y-2">
+            <div class="font-medium">${escapeHtml(customMsg || fallbackMsg)}</div>
+            <button type="button" onclick="if (lastRetryAction) lastRetryAction();" class="btn-bounce px-3 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold transition">${retryLabel}</button>
+          </div>
+        `;
+        stream.appendChild(div);
+        scrollToBottom();
       }
-    }
+
+      async function sendAiRequestPayload({ hasImage, sentImage, sentMime, sentSampleId, text, userDisplay }) {
+        isLoading = true;
+        document.getElementById('send-btn').disabled = true;
+        setThinking(true, hasImage ? `${getTeacherName()} đang đọc ảnh bài làm & chuẩn hóa LaTeX...` : `${getTeacherName()} đang suy nghĩ câu trả lời...`);
+        const apiKeyOverride = localStorage.getItem(LOCAL_STORAGE_KEY_API_KEY) || '';
+        const retryClosure = () => sendAiRequestPayload({ hasImage, sentImage, sentMime, sentSampleId, text, userDisplay });
+
+        try {
+          if (hasImage) {
+            const res = await fetch('/api/grade', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                image: sentImage,
+                mime_type: sentMime,
+                sample_id: sentSampleId,
+                student_note: text,
+                mode: feedbackMode,
+                grade: `Toán ${selectedGrade}`,
+                lang: currentLang,
+                teacher_gender: teacherGender,
+                api_key: apiKeyOverride || undefined
+              })
+            });
+            const data = await res.json();
+            if (!res.ok || data.error === 'GEMINI_UNAVAILABLE') {
+              updateApiStatusBadge('busy');
+              if (data.recent_errors) renderAdminGeminiErrors(data.recent_errors);
+              setThinking(false);
+              const msg = currentLang === 'vi' ? data.message_vi : data.message_en;
+              renderAiBusyMessageDOM(msg, retryClosure);
+              return;
+            }
+            updateApiStatusBadge('online');
+            lastGradingResult = data;
+            chatConversationHistory.push({ role: 'user', content: `[Gửi ảnh] ${userDisplay}` });
+            chatConversationHistory.push({ role: 'model', content: `Đề: ${data.ocr_summary}\nLỗi: ${data.first_error_step} - ${data.error_reason}` });
+            setThinking(false);
+            renderGradingResponseDOM(data, data.source);
+            recordStudentActivity('grade_image', `Chấm ảnh bài làm: ${userDisplay.slice(0, 60)}`);
+          } else {
+            const res = await fetch('/api/chat', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                message: userDisplay,
+                history: chatConversationHistory,
+                context: lastGradingResult || {},
+                grade: `Toán ${selectedGrade}`,
+                lang: currentLang,
+                wrong_attempts: consecutiveWrongAttempts,
+                teacher_gender: teacherGender,
+                api_key: apiKeyOverride || undefined
+              })
+            });
+            const data = await res.json();
+            if (!res.ok || data.error === 'GEMINI_UNAVAILABLE') {
+              updateApiStatusBadge('busy');
+              if (data.recent_errors) renderAdminGeminiErrors(data.recent_errors);
+              setThinking(false);
+              const msg = currentLang === 'vi' ? data.message_vi : data.message_en;
+              renderAiBusyMessageDOM(msg, retryClosure);
+              return;
+            }
+            updateApiStatusBadge('online');
+            const reply = data.reply || '';
+            if (/not quite|incorrect|try again|wrong|chưa đúng|sai rồi|check again/i.test(reply)) {
+              consecutiveWrongAttempts += 1;
+            } else {
+              consecutiveWrongAttempts = 0;
+            }
+            chatConversationHistory.push({ role: 'user', content: userDisplay });
+            chatConversationHistory.push({ role: 'model', content: reply });
+            setThinking(false);
+            renderAiTextMessageDOM(reply, data.source);
+            recordStudentActivity('chat_question', `Hỏi ${getTeacherName()}: ${userDisplay.slice(0, 60)}`);
+          }
+        } catch (err) {
+          console.error(err);
+          updateApiStatusBadge('offline');
+          setThinking(false);
+          renderAiBusyMessageDOM(null, retryClosure);
+        } finally {
+          isLoading = false;
+          document.getElementById('send-btn').disabled = false;
+        }
+      }
+
+      async function handleComposerSubmit() {
+        if (isLoading) return;
+        const text = composerInput.value.trim();
+        const hasImage = !!currentImageSrc;
+        if (!text && !hasImage) return;
+        if (!requireStudentRegistered(() => handleComposerSubmit())) return;
+
+        const sentImage = currentImageSrc;
+        const sentMime = currentMimeType;
+        const sentSampleId = currentSampleId;
+        const userDisplay = text || `${getTeacherShort()} kiểm tra bài làm trong ảnh giúp em nhé!`;
+
+        renderUserMessageDOM(userDisplay, sentImage);
+        composerInput.value = '';
+        composerInput.style.height = 'auto';
+        clearImage();
+
+        await sendAiRequestPayload({ hasImage, sentImage, sentMime, sentSampleId, text, userDisplay });
+      }
 
     function setThinking(active, statusText) {
       const box = document.getElementById('thinking-indicator');
@@ -2070,7 +2162,16 @@
           })
         });
         const data = await res.json();
-        const reply = data.reply || `${getTeacherShort()} gợi ý bằng tiếng Việt cho em nhé!`;
+        if (!res.ok || data.error === 'GEMINI_UNAVAILABLE') {
+          updateApiStatusBadge('busy');
+          if (data.recent_errors) renderAdminGeminiErrors(data.recent_errors);
+          setThinking(false);
+          const msg = currentLang === 'vi' ? data.message_vi : data.message_en;
+          renderAiBusyMessageDOM(msg, () => askVietnameseHint());
+          return;
+        }
+        updateApiStatusBadge('online');
+        const reply = data.reply || '';
         chatConversationHistory.push({ role: 'user', content: userMsg });
         chatConversationHistory.push({ role: 'model', content: reply });
         setThinking(false);
