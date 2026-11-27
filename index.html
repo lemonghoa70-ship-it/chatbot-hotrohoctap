@@ -2022,10 +2022,11 @@
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 message: userDisplay,
-                history: chatConversationHistory,
+                history: chatConversationHistory.slice(-20),
                 context: lastGradingResult || {},
                 grade: `Toán ${selectedGrade}`,
                 lang: currentLang,
+                mode: feedbackMode,
                 wrong_attempts: consecutiveWrongAttempts,
                 teacher_gender: teacherGender,
                 api_key: apiKeyOverride || undefined

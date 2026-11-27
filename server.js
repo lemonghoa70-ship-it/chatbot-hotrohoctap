@@ -54,11 +54,14 @@ function recordGeminiError({ endpoint, status, keyIndex, message }) {
 }
 
 export function getApiKeys() {
-  const raw = process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || '';
-  return raw
-    .split(/[;,]/)
-    .map((k) => k.trim())
-    .filter((k) => k.length > 10);
+  const parts = [];
+  const mainRaw = process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || '';
+  if (mainRaw) parts.push(...mainRaw.split(/[;,]/));
+  for (let i = 2; i <= 5; i++) {
+    const k = process.env[`GEMINI_API_KEY_${i}`];
+    if (k) parts.push(k);
+  }
+  return [...new Set(parts.map((k) => k.trim()).filter((k) => k.length > 10))];
 }
 
 export function rotateApiKey() {
@@ -112,11 +115,15 @@ ${kb.skillOcr}
 NGUYÊN TẮC KHÍCH LỆ TÂM LÝ HỌC SINH: Khi học sinh hỏi bài hoặc gặp khó khăn, TUYỆT ĐỐI KHÔNG dùng các từ/cụm từ mang tính xem nhẹ như "đơn giản", "rất đơn giản", "dễ", "quá dễ", "very simple", "simple", "easy" để tránh làm học sinh tự ti hoặc nản lòng. Hãy luôn khích lệ tự nhiên.
 
 NGUYÊN TẮC TRẢ LỜI ĐÚNG TRỌNG TÂM & KHÔNG LẶP LẠI:
-- Đọc kỹ câu hỏi của học sinh, xác định đúng mục đích học sinh cần: (1) Giải bài tập, (2) Giải thích kiến thức, (3) Mẹo ghi nhớ, (4) Ra đề luyện tập, hay (5) Chấm bài. Trả lời ĐÚNG yêu cầu đó.
-- Khi học sinh yêu cầu **ra đề tự luyện theo Công văn 7991**: ra một đề ngắn đúng kiến thức lớp đang chọn gồm đủ 3 phần: Phần I (Trắc nghiệm nhiều lựa chọn), Phần II (Đúng/Sai), Phần III (Tự luận / Trả lời ngắn). KHÔNG đưa đáp án ngay; nhắc học sinh làm bài rồi gửi lại để Thầy/Cô chấm.
-- Khi học sinh **hỏi kiến thức hoặc mẹo ghi nhớ** (ví dụ: tỉ số lượng giác sin, cos, tan, cot): giải thích ngắn gọn, trình bày công thức bằng LaTeX, cho 1 ví dụ minh họa rõ ràng và nêu mẹo ghi nhớ dễ thuộc.
-- Khi học sinh **hỏi cách giải một bài toán cụ thể**: dùng phương pháp gợi ý 3 mức (gợi ý từng bước, không đưa ngay toàn bộ lời giải nếu học sinh chưa hỏi xem lời giải đầy đủ).
-- TUYỆT ĐỐI KHÔNG dùng câu trả lời chung chung lặp lại máy móc, và KHÔNG mở đầu mọi câu trả lời bằng cùng một câu khen giống nhau (như "Em hỏi câu này rất hay!"). Hãy vào thẳng vấn đề hoặc thay đổi cách mở đầu tự nhiên theo ngữ cảnh.
+- Đọc kỹ câu hỏi và trả lời ĐÚNG TRỌNG TÂM điều học sinh hỏi. Không trả lời chung chung, không lặp lại cùng một câu mở đầu.
+- Câu hỏi tính toán đơn giản (ví dụ 1+1, căn bậc hai của 9): trả lời ngay kết quả và giải thích ngắn 1–2 câu.
+- Bài tập cần giải (ví dụ Tìm x biết 2x = 4): hướng dẫn theo gợi ý từng bước, đặt câu hỏi gợi mở để học sinh tự làm; nếu học sinh đã thử hoặc hỏi đáp án để kiểm tra thì đưa đáp án kèm lời giải ngắn.
+- Câu hỏi kiến thức, công thức: giải thích ngắn, có ví dụ, có mẹo ghi nhớ.
+- Yêu cầu ra đề theo Công văn 7991: ra đề ngắn gồm trắc nghiệm nhiều lựa chọn, đúng/sai, trả lời ngắn hoặc tự luận, đúng kiến thức lớp đang chọn; chưa đưa đáp án, chờ học sinh làm xong mới chấm.
+- Chỉ dùng kiến thức trong chương trình lớp đang chọn và các lớp dưới.
+- Công thức toán viết bằng LaTeX ($...$ hoặc $$...$$).
+- Không dùng các từ 'đơn giản', 'dễ', 'very simple', 'easy' khi học sinh hỏi bài.
+- Câu hỏi không liên quan đến học tập: nhẹ nhàng hướng học sinh quay lại môn Toán.
 ${kb.skillPhanTich}
 
 ---
@@ -191,121 +198,6 @@ export const GRADING_RESPONSE_SCHEMA = {
   ],
 };
 
-// 4. MẪU DỮ LIỆU DỰ PHÒNG CHẤT LƯỢNG CAO (FALLBACK KHI CHƯA CÓ API KEY HOẶC TEST)
-export const SAMPLE_MOCKS = {
-  sample1: {
-    status: 'SUCCESS',
-    ocr_summary: 'Đề bài: Giải phương trình chứa ẩn ở mẫu $$\\frac{x^2 - 4}{x - 2} = 3x + 1$$\nCác bước bài làm:\n• Dòng 1: $\\frac{(x - 2)(x + 2)}{x - 2} = 3x + 1$\n• Dòng 2: $\\Rightarrow x + 2 = 3x + 1$\n• Dòng 3: $\\Rightarrow 3x - x = 2 - 1 \\Rightarrow 2x = 1 \\Rightarrow x = \\frac{1}{2}$\n• Dòng 4: Cho $x - 2 = 0 \\Rightarrow x = 2$, kết luận $S = \\left\\{\\frac{1}{2};\\, 2\\right\\}$',
-    good_points: [
-      'Phân tích tử thức thành nhân tử rất chính xác bằng hằng đẳng thức hiệu hai bình phương: $x^2 - 4 = (x - 2)(x + 2)$.',
-      'Rút gọn nhân tử chung $(x - 2)$ và giải phương trình bậc nhất tìm được $x = \\frac{1}{2}$ chuẩn xác.',
-    ],
-    first_error_step: 'Ngay từ đầu bài & Dòng 4',
-    error_reason:
-      'Phương trình có chứa ẩn ở mẫu thức $(x - 2)$ nhưng bài làm chưa đặt ĐKXĐ $x - 2 \\neq 0 \\Leftrightarrow x \\neq 2$. Ở Dòng 4 em lại giải thêm $x - 2 = 0 \\Rightarrow x = 2$: đây là giá trị làm mẫu thức bằng 0 (phép chia vô nghĩa) nên không thể là nghiệm.',
-    hint_level_1:
-      'Một phân thức $\\frac{A}{B}$ chỉ xác định khi mẫu thức $B$ như thế nào? Em hãy kiểm tra xem mẫu $(x - 2)$ cần điều kiện gì của $x$ nhé!',
-    hint_level_2:
-      'Điều kiện xác định bắt buộc là $x \\neq 2$. Khi đã rút gọn được $x + 2 = 3x + 1$, ta chỉ giải ra $x = \\frac{1}{2}$. Giá trị $x = 2$ làm mẫu bằng 0 nên bị loại, không lấy làm nghiệm!',
-    full_solution:
-      '**Lời giải chuẩn (Toán 9):**\n\n• **Điều kiện xác định:** $x - 2 \\neq 0 \\Leftrightarrow x \\neq 2$.\n\n• **Biến đổi phương trình:**\n$$\\frac{(x - 2)(x + 2)}{x - 2} = 3x + 1 \\Leftrightarrow x + 2 = 3x + 1 \\quad (\\text{do } x \\neq 2)$$\n$$2x = 1 \\Leftrightarrow x = \\frac{1}{2} \\quad (\\text{thỏa mãn ĐKXĐ})$$\n\n• **Kết luận:** Vậy phương trình có nghiệm duy nhất $x = \\frac{1}{2}$.',
-    similar_exercise:
-      '**Bài tập tương tự:** Giải phương trình $\\frac{x^2 - 9}{x + 3} = 2x - 5$.\n*(Gợi ý: Nhớ đặt ĐKXĐ $x + 3 \\neq 0$ ngay dòng đầu tiên nhé!)*',
-  },
-  sample2: {
-    status: 'SUCCESS',
-    ocr_summary: 'Đề bài: Rút gọn biểu thức chứa căn bậc hai $$A = \\sqrt{(3 - \\sqrt{5})^2} - \\sqrt{(2 - \\sqrt{5})^2}$$\nCác bước bài làm:\n• Dòng 1: $A = |3 - \\sqrt{5}| - |2 - \\sqrt{5}|$\n• Dòng 2: $A = (3 - \\sqrt{5}) - (\\sqrt{5} - 2)$\n• Dòng 3: $A = 3 - \\sqrt{5} - \\sqrt{5} - 2$\n• Dòng 4: $A = 1 - 2\\sqrt{5}$',
-    good_points: [
-      'Áp dụng rất tốt hằng đẳng thức $\\sqrt{A^2} = |A|$ ở Dòng 1.',
-      'So sánh đúng $3 > \\sqrt{5}$ và $2 < \\sqrt{5}$ để phá dấu giá trị tuyệt đối chuẩn xác ở Dòng 2.',
-    ],
-    first_error_step: 'Dòng 3 (bước phá ngoặc)',
-    error_reason:
-      'Ở Dòng 2 em viết đúng $-(\\sqrt{5} - 2)$. Nhưng khi phá dấu ngoặc có dấu trừ đằng trước ở Dòng 3, em mới đổi dấu $+\\sqrt{5}$ thành $-\\sqrt{5}$ mà quên đổi dấu $-2$ thành $+2$, dẫn đến viết nhầm thành $-2$.',
-    hint_level_1:
-      'Khi bỏ dấu ngoặc mà đằng trước có dấu trừ: $-(a - b) = -a + b$. Em hãy kiểm tra lại dấu của số 2 ở Dòng 3 nhé!',
-    hint_level_2:
-      'Biểu thức đúng khi bỏ ngoặc là: $-(\\sqrt{5} - 2) = -\\sqrt{5} + 2$. Khi đó phần số nguyên thu gọn sẽ là $3 + 2 = 5$ thay vì $3 - 2 = 1$.',
-    full_solution:
-      '**Lời giải chuẩn (Toán 9):**\n$$A = \\sqrt{(3 - \\sqrt{5})^2} - \\sqrt{(2 - \\sqrt{5})^2} = |3 - \\sqrt{5}| - |2 - \\sqrt{5}|$$\nVì $3 = \\sqrt{9} > \\sqrt{5}$ và $2 = \\sqrt{4} < \\sqrt{5}$ nên:\n$$A = (3 - \\sqrt{5}) - (\\sqrt{5} - 2) = 3 - \\sqrt{5} - \\sqrt{5} + 2 = 5 - 2\\sqrt{5}$$\n**Kết luận:** $A = 5 - 2\\sqrt{5}$.',
-    similar_exercise:
-      '**Bài tập tương tự:** Rút gọn biểu thức $B = \\sqrt{(4 - \\sqrt{7})^2} - \\sqrt{(2 - \\sqrt{7})^2}$.',
-  },
-  sample3: {
-    status: 'SUCCESS',
-    ocr_summary: 'Đề bài: Giải hệ phương trình bậc nhất hai ẩn $$\\begin{cases} 2x + y = 5 \\\\ 3x - y = 5 \\end{cases}$$\nCác bước bài làm:\n• Dòng 1: Cộng từng vế: $(2x + 3x) + (y - y) = 5 + 5$\n• Dòng 2: $\\Leftrightarrow 5x = 10 \\Leftrightarrow x = 2$\n• Dòng 3: Thay $x = 2$ vào phương trình đầu: $2 \\cdot 2 + y = 5 \\Leftrightarrow y = 1$\n• Dòng 4: Kết luận $(x;\\, y) = (2;\\, 1)$',
-    good_points: [
-      'Chính xác hoàn toàn 100%! Em nhận xét hệ số của $y$ đối nhau ($+1$ và $-1$) nên chọn phương pháp cộng đại số là tối ưu nhất.',
-      'Các bước tìm $x = 2$, thế tìm $y = 1$ và kết luận cặp nghiệm $(x; y) = (2; 1)$ đều đạt chuẩn thi vào 10.',
-    ],
-    first_error_step: 'Không có lỗi (Bài làm đạt điểm tối đa)',
-    error_reason: 'Toàn bộ các bước biến đổi và tính toán số học đều chính xác tuyệt đối.',
-    hint_level_1: 'Bài làm của em hoàn hảo! Em có thể thử thay lại $(x; y) = (2; 1)$ vào phương trình thứ hai để tự kiểm tra.',
-    hint_level_2: 'Em có thể luyện tập giải lại bài này bằng phương pháp thế để nâng cao tốc độ làm bài.',
-    full_solution:
-      '**Lời giải chuẩn:**\nCộng từng vế hai phương trình của hệ:\n$$5x = 10 \\Leftrightarrow x = 2$$\nThay $x = 2$ vào phương trình thứ nhất:\n$$2 \\cdot 2 + y = 5 \\Leftrightarrow 4 + y = 5 \\Leftrightarrow y = 1$$\nVậy hệ phương trình có nghiệm duy nhất $(x;\\, y) = (2;\\, 1)$.',
-    similar_exercise:
-      '**Bài tập tương tự:** Giải hệ phương trình $\\begin{cases} 2x + 3y = 8 \\\\ 4x - y = 2 \\end{cases}$.',
-  },
-};
-
-export const SAMPLE_MOCKS_EN = {
-  sample1: {
-    status: 'SUCCESS',
-    ocr_summary: 'Problem: Solve the rational equation $$\\frac{x^2 - 4}{x - 2} = 3x + 1$$\nStudent steps:\n• Line 1: $\\frac{(x - 2)(x + 2)}{x - 2} = 3x + 1$\n• Line 2: $\\Rightarrow x + 2 = 3x + 1$\n• Line 3: $\\Rightarrow 3x - x = 2 - 1 \\Rightarrow 2x = 1 \\Rightarrow x = \\frac{1}{2}$\n• Line 4: Set $x - 2 = 0 \\Rightarrow x = 2$, conclude $S = \\left\\{\\frac{1}{2};\\, 2\\right\\}$',
-    good_points: [
-      'Great job factoring the numerator using the difference of squares: $x^2 - 4 = (x - 2)(x + 2)$.',
-      'You simplified $(x - 2)$ and solved the linear equation to get $x = \\frac{1}{2}$ accurately.',
-    ],
-    first_error_step: 'Start of the problem & Line 4',
-    error_reason:
-      'The equation has $(x - 2)$ in the denominator, so you must state the domain condition $x - 2 \\neq 0 \\Leftrightarrow x \\neq 2$. In Line 4, $x = 2$ makes the denominator zero (undefined), so it cannot be a solution.',
-    hint_level_1:
-      'A fraction $\\frac{A}{B}$ is only defined when the denominator $B$ is not zero. What condition do we need for $x - 2$?',
-    hint_level_2:
-      'The domain condition is $x \\neq 2$. After simplifying to $x + 2 = 3x + 1$, we only get $x = \\frac{1}{2}$. We must reject $x = 2$.',
-    full_solution:
-      '**Standard Solution (Grade 9):**\n\n• **Domain condition:** $x - 2 \\neq 0 \\Leftrightarrow x \\neq 2$.\n\n• **Solve:**\n$$\\frac{(x - 2)(x + 2)}{x - 2} = 3x + 1 \\Leftrightarrow x + 2 = 3x + 1 \\quad (x \\neq 2)$$\n$$2x = 1 \\Leftrightarrow x = \\frac{1}{2} \\quad (\\text{valid})$$\n\n• **Answer:** The only solution is $x = \\frac{1}{2}$.',
-    similar_exercise:
-      '**Similar Exercise:** Solve $\\frac{x^2 - 9}{x + 3} = 2x - 5$.\n*(Hint: Remember to write the domain condition $x + 3 \\neq 0$ first!)*',
-  },
-  sample2: {
-    status: 'SUCCESS',
-    ocr_summary: 'Problem: Simplify $$A = \\sqrt{(3 - \\sqrt{5})^2} - \\sqrt{(2 - \\sqrt{5})^2}$$\nStudent steps:\n• Line 1: $A = |3 - \\sqrt{5}| - |2 - \\sqrt{5}|$\n• Line 2: $A = (3 - \\sqrt{5}) - (\\sqrt{5} - 2)$\n• Line 3: $A = 3 - \\sqrt{5} - \\sqrt{5} - 2$\n• Line 4: $A = 1 - 2\\sqrt{5}$',
-    good_points: [
-      'Great use of the identity $\\sqrt{A^2} = |A|$ in Line 1.',
-      'Correctly compared $3 > \\sqrt{5}$ and $2 < \\sqrt{5}$ to remove the absolute values in Line 2.',
-    ],
-    first_error_step: 'Line 3 (removing parentheses)',
-    error_reason:
-      'In Line 2 you wrote $-(\\sqrt{5} - 2)$. When removing parentheses with a minus sign in front, you forgot to change $-2$ to $+2$, writing $-2$ instead.',
-    hint_level_1:
-      'Remember the sign rule: $-(a - b) = -a + b$. Please check the sign of $2$ in Line 3!',
-    hint_level_2:
-      'Removing parentheses gives $-(\\sqrt{5} - 2) = -\\sqrt{5} + 2$. So the integer part becomes $3 + 2 = 5$, not $3 - 2 = 1$.',
-    full_solution:
-      '**Standard Solution (Grade 9):**\n$$A = |3 - \\sqrt{5}| - |2 - \\sqrt{5}| = (3 - \\sqrt{5}) - (\\sqrt{5} - 2)$$\n$$A = 3 - \\sqrt{5} - \\sqrt{5} + 2 = 5 - 2\\sqrt{5}$$\n**Answer:** $A = 5 - 2\\sqrt{5}$.',
-    similar_exercise:
-      '**Similar Exercise:** Simplify $B = \\sqrt{(4 - \\sqrt{7})^2} - \\sqrt{(2 - \\sqrt{7})^2}$.',
-  },
-  sample3: {
-    status: 'SUCCESS',
-    ocr_summary: 'Problem: Solve the system $$\\begin{cases} 2x + y = 5 \\\\ 3x - y = 5 \\end{cases}$$\nStudent steps:\n• Line 1: Add equations: $(2x + 3x) + (y - y) = 5 + 5$\n• Line 2: $\\Leftrightarrow 5x = 10 \\Leftrightarrow x = 2$\n• Line 3: Substitute $x = 2$: $2 \\cdot 2 + y = 5 \\Leftrightarrow y = 1$\n• Line 4: Answer $(x;\\, y) = (2;\\, 1)$',
-    good_points: [
-      '100% correct! Choosing the elimination method because $y$ has opposite coefficients ($+1$ and $-1$) is very smart.',
-      'All steps for finding $x = 2$, $y = 1$, and writing the ordered pair $(2; 1)$ are clear and accurate.',
-    ],
-    first_error_step: 'No errors (Full score!)',
-    error_reason: 'All algebraic steps and calculations are completely correct.',
-    hint_level_1: 'Excellent work! Try substituting $(x; y) = (2; 1)$ back into the second equation to double-check.',
-    hint_level_2: 'You can also try solving this system using the substitution method for extra practice.',
-    full_solution:
-      '**Standard Solution:**\nAdd the two equations:\n$$5x = 10 \\Leftrightarrow x = 2$$\nSubstitute $x = 2$ into the first equation:\n$$2 \\cdot 2 + y = 5 \\Leftrightarrow y = 1$$\nThe unique solution is $(x;\\, y) = (2;\\, 1)$.',
-    similar_exercise:
-      '**Similar Exercise:** Solve $\\begin{cases} 2x + 3y = 8 \\\\ 4x - y = 2 \\end{cases}$.',
-  },
-};
-
 // Helper xây dựng chỉ dẫn sư phạm tiếng Anh A2-B1 và cơ chế chuyển gợi ý tiếng Việt
 function buildEnglishPedagogyRules({ grade = 'Toán 9', pronoun = 'Cô', wrongAttempts = 0, forceVietnameseHint = false, studentMessage = '' } = {}) {
   const isLowerGrade = /6|7/.test(String(grade));
@@ -374,7 +266,7 @@ status, ocr_summary, good_points, first_error_step, error_reason, hint_level_1, 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     const keyIndex = (startIndex + attempt) % keys.length;
     const keyToUse = keys[keyIndex];
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${keyToUse}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
     const requestBody = {
       system_instruction: { parts: [{ text: sysInstruction }] },
@@ -403,7 +295,10 @@ status, ocr_summary, good_points, first_error_step, error_reason, hint_level_1, 
     try {
       const resp = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': keyToUse,
+        },
         body: JSON.stringify(requestBody),
       });
 
@@ -438,20 +333,24 @@ status, ocr_summary, good_points, first_error_step, error_reason, hint_level_1, 
 }
 
 // 6. HÀM GỌI GEMINI CHAT TIẾP THEO NGỮ CẢNH (HỖ TRỢ KEY ROTATION VÀ FAILOVER)
-export async function callGeminiChat({ message, history = [], context = {}, grade = 'Toán 9', lang = 'vi', wrongAttempts = 0, forceVietnameseHint = false, teacherGender = 'co', apiKey }) {
+export async function callGeminiChat({ message, history = [], context = {}, grade = 'Toán 9', lang = 'vi', mode = 'tutor', wrongAttempts = 0, forceVietnameseHint = false, teacherGender = 'co', apiKey }) {
   const keys = apiKey ? [apiKey] : getApiKeys();
   if (keys.length === 0) {
     throw new Error('MISSING_API_KEY');
   }
 
   const pronoun = teacherGender === 'thay' ? 'Thầy' : 'Cô';
+  const teacherName = teacherGender === 'thay' ? 'Thầy AI' : 'Cô AI';
   const useEnglish = lang === 'en' || lang === 'bilingual';
   const englishRules = useEnglish
     ? '\n\n' + buildEnglishPedagogyRules({ grade, pronoun, wrongAttempts, forceVietnameseHint, studentMessage: message })
     : '';
+  const modeRule = mode === 'quick'
+    ? 'Chế độ hiện tại: Chấm nhanh / Trả lời nhanh — trình bày ngắn gọn, rõ đáp số và lời giải.'
+    : 'Chế độ hiện tại: Gia sư — hướng dẫn từng bước, đặt câu hỏi gợi mở (trừ câu tính toán đơn giản hoặc khi học sinh hỏi đáp án để kiểm tra).';
   const sysInstruction =
     buildSystemInstruction() +
-    `\n\nBỐI CẢNH LỚP HỌC HIỆN TẠI: Học sinh đang học chương trình ${grade} (SGK Kết nối tri thức với cuộc sống). Hãy giảng đúng kiến thức và mức độ của ${grade}, tuyệt đối không dùng kiến thức lớp trên.\nXưng hô bắt buộc trong cuộc trò chuyện này: Giáo viên AI xưng "${pronoun}" và gọi học sinh là "em".` +
+    `\n\nBạn là ${teacherName}, giáo viên Toán THCS thân thiện, dạy theo SGK Toán ${grade} bộ Kết nối tri thức. Xưng "${pronoun}", gọi học sinh là "em".\n${modeRule}` +
     englishRules;
   const contextText = `
 NGỮ CẢNH BÀI TOÁN VỪA CHẤM CỦA HỌC SINH:
@@ -480,12 +379,15 @@ NGỮ CẢNH BÀI TOÁN VỪA CHẤM CỦA HỌC SINH:
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     const keyIndex = (startIndex + attempt) % keys.length;
     const keyToUse = keys[keyIndex];
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${keyToUse}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
     try {
       const resp = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': keyToUse,
+        },
         body: JSON.stringify({
           system_instruction: { parts: [{ text: `${sysInstruction}\n\n${contextText}` }] },
           contents,
@@ -841,18 +743,6 @@ export async function handleRequest(req, res) {
     if (req.method === 'POST' && (pathname === '/api/grade' || pathname === '/api/analyze')) {
       const body = await readRequestBody(req);
 
-      // Nhận diện bài mẫu nếu có
-      if (body.sample_id && SAMPLE_MOCKS[body.sample_id]) {
-        const viMock = SAMPLE_MOCKS[body.sample_id];
-        const enMock = SAMPLE_MOCKS_EN[body.sample_id] || viMock;
-        const useEn = body.lang === 'en' || body.lang === 'bilingual';
-        return sendJson(res, 200, {
-          ...(useEn ? enMock : viMock),
-          vi: viMock,
-          source: 'sample_mock',
-        });
-      }
-
       // Thử gọi Gemini Multimodal API thực tế nếu có API Key và ảnh
       const effectiveKey = body.api_key || (keys.length > 0 ? keys[0] : null);
       if (effectiveKey && body.image) {
@@ -906,6 +796,7 @@ export async function handleRequest(req, res) {
             context: body.context || {},
             grade: body.grade || 'Toán 9',
             lang: body.lang || 'vi',
+            mode: body.mode || 'tutor',
             wrongAttempts: Number(body.wrong_attempts || 0),
             forceVietnameseHint: Boolean(body.force_vi_hint),
             teacherGender: body.teacher_gender || 'co',
