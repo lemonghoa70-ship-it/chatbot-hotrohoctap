@@ -15,6 +15,7 @@ import {
   recordFailedAttempt,
   clearFailedAttempts,
   getPublicAuthConfig,
+  getSecurityStatus,
   setAllowSelfRegister,
   loginStudent,
   loginAdmin,
@@ -1062,7 +1063,12 @@ export async function handleRequest(req, res) {
       }
       if (req.method === 'GET' && pathname === '/api/admin/cloud-students') {
         const [students, cfg] = await Promise.all([adminListStudents(), getPublicAuthConfig()]);
-        return sendJson(res, 200, { ok: true, students, allow_self_register: cfg.allow_self_register });
+        return sendJson(res, 200, {
+          ok: true,
+          students,
+          allow_self_register: cfg.allow_self_register,
+          security: getSecurityStatus(),
+        });
       }
       if (req.method === 'POST' && pathname === '/api/admin/cloud-students/create') {
         const body = await readRequestBody(req);

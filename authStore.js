@@ -17,6 +17,14 @@ export function isSupabaseConfigured() {
   );
 }
 
+export function getSecurityStatus() {
+  return {
+    supabaseConfigured: isSupabaseConfigured(),
+    usingDefaultAdminPassword: !process.env.ADMIN_PASSWORD,
+    isProduction: Boolean(process.env.VERCEL || process.env.NODE_ENV === 'production'),
+  };
+}
+
 export function normalizeVietnameseName(rawName) {
   const nfc = String(rawName || '').normalize('NFC').trim().replace(/\s+/g, ' ');
   const lookup = nfc.toLowerCase();
@@ -554,12 +562,26 @@ export async function adminUpdateStudent(userId, patch) {
     cleanPatch.class_name = String(cleanPatch.class_name).normalize('NFC').trim();
   }
   if (isSupabaseConfigured()) {
-    await supaFetch(`/rest/v1/profiles?id=eq.${userId}`, { method: 'PATCH', body: cleanPatch });
-    return { ok: true };
+    const r = await supaFetch(`/rest/v1/profiles?id=eq.${userId}`, { method: 'PATCH', body: cleanPatch });
+    if (!r.ok && String(r.data?.message || r.data?.code || '').includes('23505')) {
+      return { ok: false, status: 409, message: 'Lớp này đã có học sinh trùng họ tên.' };
+    }
+    return { ok: r.ok };
   }
   const store = readLocalCloud();
   const user = (store.profiles || []).find((p) => p.id === userId);
   if (!user) return { ok: false };
+  const nextLookup = cleanPatch.ho_ten_chuan_hoa || user.ho_ten_chuan_hoa || normalizeVietnameseName(user.full_name).lookup;
+  const nextClass = cleanPatch.class_name || user.class_name;
+  const dup = (store.profiles || []).find((p) =>
+    p.id !== userId &&
+    p.role !== 'admin' &&
+    (p.ho_ten_chuan_hoa || normalizeVietnameseName(p.full_name).lookup) === nextLookup &&
+    p.class_name === nextClass
+  );
+  if (dup) {
+    return { ok: false, status: 409, message: 'Lớp này đã có học sinh trùng họ tên.' };
+  }
   Object.assign(user, cleanPatch);
   writeLocalCloud(store);
   return { ok: true };
