@@ -179,6 +179,66 @@ function normalizeContents(history = [], userText, inlineImage = null) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+function extractNonThoughtText(candidate) {
+  return (candidate?.content?.parts || [])
+    .filter((p) => !p.thought)
+    .map((p) => p.text || '')
+    .join('');
+}
+
+function buildGenerationConfig(baseConfig, includeThinking = true) {
+  const cfg = { ...baseConfig, maxOutputTokens: 8192 };
+  if (includeThinking) {
+    cfg.thinkingConfig = { thinkingBudget: 512 };
+  }
+  return cfg;
+}
+
+async function executeGeminiSingleCall({ endpointName, model, keyToUse, keyIndex, systemInstructionText, contents, generationConfig }) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+  let useThinking = true;
+
+  for (let pass = 0; pass < 2; pass++) {
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': keyToUse,
+      },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: systemInstructionText }] },
+        contents,
+        generationConfig: buildGenerationConfig(generationConfig, useThinking),
+      }),
+    });
+
+    if (!resp.ok) {
+      const errText = await resp.text();
+      if (resp.status === 400 && useThinking && /thinking/i.test(errText)) {
+        useThinking = false;
+        continue; // Mô hình không hỗ trợ thinkingConfig -> bỏ qua tham số này
+      }
+      const err = new Error(`Gemini ${resp.status} (${model}, Key #${keyIndex + 1}): ${errText}`);
+      err.status = resp.status;
+      err.errText = errText;
+      throw err;
+    }
+
+    const data = await resp.json();
+    const candidate = data?.candidates?.[0];
+    const text = extractNonThoughtText(candidate).trim();
+    if (!text) {
+      const reason = candidate?.finishReason || data?.promptFeedback?.blockReason || 'EMPTY_RESPONSE';
+      throw new Error(`Gemini trả về rỗng hoặc bị chặn (${reason})`);
+    }
+    return {
+      text,
+      finishReason: candidate?.finishReason || 'STOP',
+      usageMetadata: data?.usageMetadata || null,
+    };
+  }
+}
+
 async function executeGeminiWithRotation({ endpointName, keys, systemInstructionText, contents, generationConfig }) {
   const modelChain = await getModelFallbackChain(keys);
   const startKey = requestCounter % keys.length;
@@ -187,7 +247,6 @@ async function executeGeminiWithRotation({ endpointName, keys, systemInstruction
 
   for (const model of modelChain) {
     if (deadModels.has(model)) continue;
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
     for (let offset = 0; offset < keys.length; offset++) {
       const keyIndex = (startKey + offset) % keys.length;
@@ -200,58 +259,217 @@ async function executeGeminiWithRotation({ endpointName, keys, systemInstruction
 
       while (true) {
         try {
-          const resp = await fetch(url, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-goog-api-key': keyToUse,
-            },
-            body: JSON.stringify({
-              systemInstruction: { parts: [{ text: systemInstructionText }] },
-              contents,
-              generationConfig,
-            }),
+          const first = await executeGeminiSingleCall({
+            endpointName,
+            model,
+            keyToUse,
+            keyIndex,
+            systemInstructionText,
+            contents,
+            generationConfig,
           });
 
-          if (!resp.ok) {
-            const errText = await resp.text();
-            const status = resp.status;
-            recordGeminiError({ endpoint: endpointName, status, keyIndex, model, message: errText });
-            lastError = new Error(`Gemini ${status} (${model}, Key #${keyIndex + 1}): ${errText}`);
+          let fullText = first.text;
+          let finalReason = first.finishReason;
+          let continuations = 0;
 
-            if (status === 404) {
-              deadModels.add(model);
-              break; // Chuyển sang mô hình tiếp theo
-            }
-            if (status === 400 || status === 403) {
-              keyBadCooldowns.set(keyIndex, Date.now() + 10 * 60 * 1000); // Bỏ qua key sai 10 phút
-              break; // Thử key tiếp theo
-            }
-            if (status === 429) {
-              pairCooldowns.set(`${keyIndex}:${model}`, Date.now() + 60 * 1000); // Khóa cặp (key, model) 60s
-              break; // Thử key tiếp theo
-            }
-            if (status === 503 && retried503 < 2) {
-              const waitMs = retried503 === 0 ? 2000 : 4000;
-              retried503 += 1;
-              await sleep(waitMs);
-              continue;
-            }
-            break; // Chuyển key/mô hình tiếp theo
+          // Nếu bị MAX_TOKENS: tự động nối tiếp tối đa 2 lần
+          while (finalReason === 'MAX_TOKENS' && continuations < 2 && !generationConfig?.responseSchema) {
+            continuations += 1;
+            const contContents = [
+              ...contents,
+              { role: 'model', parts: [{ text: fullText }] },
+              { role: 'user', parts: [{ text: 'Viết tiếp chính xác từ chỗ đang dừng, không lặp lại phần trước.' }] },
+            ];
+            const nextPart = await executeGeminiSingleCall({
+              endpointName,
+              model,
+              keyToUse,
+              keyIndex,
+              systemInstructionText,
+              contents: contContents,
+              generationConfig,
+            });
+            fullText += nextPart.text;
+            finalReason = nextPart.finishReason;
           }
 
-          const data = await resp.json();
-          const candidate = data?.candidates?.[0];
-          const text = (candidate?.content?.parts || []).map((p) => p.text || '').join('').trim();
-          if (!text) {
-            const reason = candidate?.finishReason || data?.promptFeedback?.blockReason || 'EMPTY_RESPONSE';
-            throw new Error(`Gemini trả về rỗng hoặc bị chặn (${reason})`);
+          recordKeyModelOk(keyIndex, model);
+          return { text: fullText, finishReason: finalReason, model, keyIndex: keyIndex + 1, usageMetadata: first.usageMetadata };
+        } catch (err) {
+          const status = err.status || 'EXCEPTION';
+          recordGeminiError({ endpoint: endpointName, status, keyIndex, model, message: err.errText || err.message });
+          lastError = err;
+
+          if (status === 404) {
+            deadModels.add(model);
+            break;
+          }
+          if (status === 400 || status === 403) {
+            keyBadCooldowns.set(keyIndex, Date.now() + 10 * 60 * 1000);
+            break;
+          }
+          if (status === 429) {
+            pairCooldowns.set(`${keyIndex}:${model}`, Date.now() + 60 * 1000);
+            break;
+          }
+          if (status === 503 && retried503 < 2) {
+            const waitMs = retried503 === 0 ? 2000 : 4000;
+            retried503 += 1;
+            await sleep(waitMs);
+            continue;
+          }
+          break;
+        }
+      }
+      if (deadModels.has(model)) break;
+    }
+  }
+
+  throw lastError || new Error('Tất cả API key và mô hình Gemini đều đang bận hoặc hết hạn mức.');
+}
+
+async function streamGeminiSseCall({ model, keyToUse, systemInstructionText, contents, generationConfig, onDelta }) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`;
+  let useThinking = true;
+
+  for (let pass = 0; pass < 2; pass++) {
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': keyToUse,
+      },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: systemInstructionText }] },
+        contents,
+        generationConfig: buildGenerationConfig(generationConfig, useThinking),
+      }),
+    });
+
+    if (!resp.ok) {
+      const errText = await resp.text();
+      if (resp.status === 400 && useThinking && /thinking/i.test(errText)) {
+        useThinking = false;
+        continue;
+      }
+      const err = new Error(`Gemini Stream ${resp.status} (${model}): ${errText}`);
+      err.status = resp.status;
+      err.errText = errText;
+      throw err;
+    }
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let buffer = '';
+    let collected = '';
+    let finishReason = 'STOP';
+    let usageMetadata = null;
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+      for (const rawLine of lines) {
+        const line = rawLine.trim();
+        if (!line.startsWith('data:')) continue;
+        const jsonStr = line.slice(5).trim();
+        if (!jsonStr || jsonStr === '[DONE]') continue;
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const candidate = parsed?.candidates?.[0];
+          if (candidate?.finishReason) finishReason = candidate.finishReason;
+          if (parsed?.usageMetadata) usageMetadata = parsed.usageMetadata;
+          const chunkText = extractNonThoughtText(candidate);
+          if (chunkText) {
+            collected += chunkText;
+            onDelta(chunkText);
+          }
+        } catch {}
+      }
+    }
+    return { text: collected, finishReason, usageMetadata };
+  }
+}
+
+async function executeGeminiStreamWithRotation({ endpointName, keys, systemInstructionText, contents, generationConfig, onDelta }) {
+  const modelChain = await getModelFallbackChain(keys);
+  const startKey = requestCounter % keys.length;
+  requestCounter = (requestCounter + 1) % 1000000;
+  let lastError = null;
+
+  for (const model of modelChain) {
+    if (deadModels.has(model)) continue;
+
+    for (let offset = 0; offset < keys.length; offset++) {
+      const keyIndex = (startKey + offset) % keys.length;
+      const now = Date.now();
+      if ((keyBadCooldowns.get(keyIndex) || 0) > now) continue;
+      if ((pairCooldowns.get(`${keyIndex}:${model}`) || 0) > now) continue;
+
+      const keyToUse = keys[keyIndex];
+      let retried503 = 0;
+
+      while (true) {
+        let emittedAny = false;
+        try {
+          const first = await streamGeminiSseCall({
+            model,
+            keyToUse,
+            systemInstructionText,
+            contents,
+            generationConfig,
+            onDelta: (d) => { emittedAny = true; onDelta(d); },
+          });
+
+          let fullText = first.text;
+          let finalReason = first.finishReason;
+          let continuations = 0;
+
+          while (finalReason === 'MAX_TOKENS' && continuations < 2) {
+            continuations += 1;
+            const contContents = [
+              ...contents,
+              { role: 'model', parts: [{ text: fullText }] },
+              { role: 'user', parts: [{ text: 'Viết tiếp chính xác từ chỗ đang dừng, không lặp lại phần trước.' }] },
+            ];
+            const nextPart = await streamGeminiSseCall({
+              model,
+              keyToUse,
+              systemInstructionText,
+              contents: contContents,
+              generationConfig,
+              onDelta,
+            });
+            fullText += nextPart.text;
+            finalReason = nextPart.finishReason;
+          }
+
+          if (!fullText.trim()) {
+            throw new Error('Gemini stream trả về rỗng');
           }
           recordKeyModelOk(keyIndex, model);
-          return { text, model, keyIndex: keyIndex + 1 };
+          return { text: fullText, finishReason: finalReason, model, keyIndex: keyIndex + 1, usageMetadata: first.usageMetadata };
         } catch (err) {
-          recordGeminiError({ endpoint: endpointName, status: err.status || 'EXCEPTION', keyIndex, model, message: err.message });
+          const status = err.status || 'EXCEPTION';
+          recordGeminiError({ endpoint: endpointName, status, keyIndex, model, message: err.errText || err.message });
           lastError = err;
+          if (emittedAny) {
+            // Đã stream một phần ra client -> ném lỗi để client hiện nút Viết tiếp
+            err.partialStreamed = true;
+            throw err;
+          }
+          if (status === 404) { deadModels.add(model); break; }
+          if (status === 400 || status === 403) { keyBadCooldowns.set(keyIndex, Date.now() + 10 * 60 * 1000); break; }
+          if (status === 429) { pairCooldowns.set(`${keyIndex}:${model}`, Date.now() + 60 * 1000); break; }
+          if (status === 503 && retried503 < 2) {
+            const waitMs = retried503 === 0 ? 2000 : 4000;
+            retried503 += 1;
+            await sleep(waitMs);
+            continue;
+          }
           break;
         }
       }
@@ -303,6 +521,12 @@ NGUYÊN TẮC TRẢ LỜI ĐÚNG TRỌNG TÂM & KHÔNG LẶP LẠI:
 - Công thức toán viết bằng LaTeX ($...$ hoặc $$...$$).
 - Không dùng các từ 'đơn giản', 'dễ', 'very simple', 'easy' khi học sinh hỏi bài.
 - Câu hỏi không liên quan đến học tập: nhẹ nhàng hướng học sinh quay lại môn Toán.
+
+QUY TẮC TRÌNH BÀY & ĐỘ DÀI (BẮT BUỘC):
+- Trả lời ĐẦY ĐỦ trong MỘT lần, không chia nhỏ, không hứa "thầy/cô sẽ gửi" rồi dừng lại.
+- Câu mở đầu tối đa 1 câu ngắn, rồi vào nội dung ngay. Không dùng các câu sáo rỗng như "nắm chắc 100%", "dễ áp dụng nhất".
+- Độ dài vừa phải với học sinh THCS: giảng kiến thức tối đa khoảng 300–400 chữ; ví dụ mẫu giải đầy đủ từng bước; bài tự luyện thì chưa đưa đáp án.
+- Dùng tiêu đề "###" cho từng phần, công thức quan trọng đặt riêng một dòng bằng $$...$$.
 ${kb.skillPhanTich}
 
 ---
@@ -454,12 +678,7 @@ status, ocr_summary, good_points, first_error_step, error_reason, hint_level_1, 
 }
 
 // 6. HÀM GỌI GEMINI CHAT TIẾP THEO NGỮ CẢNH (XOAY VÒNG KEY & MÔ HÌNH DỰ PHÒNG)
-export async function callGeminiChat({ message, history = [], context = {}, grade = 'Toán 9', lang = 'vi', mode = 'tutor', wrongAttempts = 0, forceVietnameseHint = false, teacherGender = 'co', apiKey }) {
-  const keys = apiKey ? [apiKey] : getApiKeys();
-  if (keys.length === 0) {
-    throw new Error('MISSING_API_KEY');
-  }
-
+function buildChatPromptPayload({ message, history = [], context = {}, grade = 'Toán 9', lang = 'vi', mode = 'tutor', wrongAttempts = 0, forceVietnameseHint = false, teacherGender = 'co' }) {
   const pronoun = teacherGender === 'thay' ? 'Thầy' : 'Cô';
   const teacherName = teacherGender === 'thay' ? 'Thầy AI' : 'Cô AI';
   const useEnglish = lang === 'en' || lang === 'bilingual';
@@ -476,19 +695,42 @@ export async function callGeminiChat({ message, history = [], context = {}, grad
   const contextText = context && (context.ocr_summary || context.first_error_step)
     ? `\n\nNGỮ CẢNH BÀI TOÁN VỪA CHẤM:\n- Đề & Bài làm: ${context.ocr_summary || ''}\n- Dòng sai: ${context.first_error_step || ''}\n- Nguyên nhân: ${context.error_reason || ''}`
     : '';
+  return {
+    systemInstructionText: `${sysInstruction}${contextText}`,
+    contents: normalizeContents(history.slice(-12), message),
+  };
+}
 
-  const contents = normalizeContents(history.slice(-12), message);
-  const { text } = await executeGeminiWithRotation({
+export async function callGeminiChatWithMeta(opts) {
+  const keys = opts.apiKey ? [opts.apiKey] : getApiKeys();
+  if (keys.length === 0) throw new Error('MISSING_API_KEY');
+  const { systemInstructionText, contents } = buildChatPromptPayload(opts);
+  return await executeGeminiWithRotation({
     endpointName: '/api/chat',
     keys,
-    systemInstructionText: `${sysInstruction}${contextText}`,
+    systemInstructionText,
     contents,
-    generationConfig: {
-      temperature: 0.35,
-      maxOutputTokens: 1024,
-    },
+    generationConfig: { temperature: 0.35, maxOutputTokens: 8192 },
   });
-  return text;
+}
+
+export async function callGeminiChat(opts) {
+  const res = await callGeminiChatWithMeta(opts);
+  return res.text;
+}
+
+export async function callGeminiChatStream(opts, onDelta) {
+  const keys = opts.apiKey ? [opts.apiKey] : getApiKeys();
+  if (keys.length === 0) throw new Error('MISSING_API_KEY');
+  const { systemInstructionText, contents } = buildChatPromptPayload(opts);
+  return await executeGeminiStreamWithRotation({
+    endpointName: '/api/chat',
+    keys,
+    systemInstructionText,
+    contents,
+    generationConfig: { temperature: 0.35, maxOutputTokens: 8192 },
+    onDelta,
+  });
 }
 
 // 6B. QUẢN LÝ HỒ SƠ HỌC SINH & ĐỀ TỰ LUYỆN HTML (MỤC 3)
@@ -909,20 +1151,47 @@ export async function handleRequest(req, res) {
       const effectiveKey = body.api_key || (keys.length > 0 ? keys[0] : null);
 
       if (effectiveKey) {
-        try {
-          const reply = await callGeminiChat({
-            message: userMessage,
-            history: body.history || [],
-            context: body.context || {},
-            grade: body.grade || 'Toán 9',
-            lang: body.lang || 'vi',
-            mode: body.mode || 'tutor',
-            wrongAttempts: Number(body.wrong_attempts || 0),
-            forceVietnameseHint: Boolean(body.force_vi_hint),
-            teacherGender: body.teacher_gender || 'co',
-            apiKey: body.api_key,
+        const chatOpts = {
+          message: userMessage,
+          history: body.history || [],
+          context: body.context || {},
+          grade: body.grade || 'Toán 9',
+          lang: body.lang || 'vi',
+          mode: body.mode || 'tutor',
+          wrongAttempts: Number(body.wrong_attempts || 0),
+          forceVietnameseHint: Boolean(body.force_vi_hint),
+          teacherGender: body.teacher_gender || 'co',
+          apiKey: body.api_key,
+        };
+
+        if (body.stream) {
+          res.writeHead(200, {
+            'Content-Type': 'text/event-stream; charset=utf-8',
+            'Cache-Control': 'no-cache, no-transform',
+            Connection: 'keep-alive',
+            'Access-Control-Allow-Origin': '*',
           });
-          return sendJson(res, 200, { reply, source: 'gemini_api' });
+          try {
+            const meta = await callGeminiChatStream(chatOpts, (delta) => {
+              res.write(`data: ${JSON.stringify({ delta })}\n\n`);
+            });
+            res.write(`data: ${JSON.stringify({ done: true, finishReason: meta.finishReason, model: meta.model, usageMetadata: meta.usageMetadata, source: 'gemini_api' })}\n\n`);
+            return res.end();
+          } catch (err) {
+            res.write(`data: ${JSON.stringify({ error: 'GEMINI_UNAVAILABLE', partial: Boolean(err.partialStreamed), message_vi: 'Thầy/Cô AI đang bận, em thử lại sau ít phút nhé!', message_en: 'The AI teacher is busy, please try again in a few minutes!', detail: err.message })}\n\n`);
+            return res.end();
+          }
+        }
+
+        try {
+          const meta = await callGeminiChatWithMeta(chatOpts);
+          return sendJson(res, 200, {
+            reply: meta.text,
+            finishReason: meta.finishReason,
+            model: meta.model,
+            usageMetadata: meta.usageMetadata,
+            source: 'gemini_api',
+          });
         } catch (err) {
           return sendJson(res, 503, {
             ok: false,
