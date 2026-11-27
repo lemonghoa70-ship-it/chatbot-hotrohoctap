@@ -59,7 +59,7 @@
     .ai-prose strong { font-weight: 600; color: #0f172a; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col overflow-x-hidden">
 
   <!-- MOBILE SIDEBAR BACKDROP -->
   <div id="sidebar-backdrop" onclick="toggleSidebar(false)" class="fixed inset-0 bg-slate-900/40 backdrop-blur-[1px] z-30 hidden lg:hidden"></div>
@@ -67,10 +67,10 @@
   <!-- ========================================== -->
   <!-- HEADER: LOGO MŨ TỐT NGHIỆP & TÊN HỆ THỐNG  -->
   <!-- ========================================== -->
-  <header class="bg-white/95 backdrop-blur-sm border-b border-blue-100 sticky top-0 z-30 shadow-xs">
-    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+  <header class="bg-white/95 backdrop-blur-sm border-b border-blue-100 sticky top-0 z-30 shadow-xs w-full">
+    <div class="max-w-[1440px] w-full mx-auto px-3 sm:px-6 min-h-16 py-2 flex flex-wrap items-center justify-between gap-2">
       <!-- Trái: Menu mobile + Logo mũ tốt nghiệp + Tên trường -->
-      <div class="flex items-center gap-3 min-w-0">
+      <div class="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
         <button type="button" onclick="toggleSidebar(true)" class="lg:hidden p-2 -ml-2 rounded-xl text-blue-700 hover:bg-blue-50">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -91,10 +91,10 @@
       </div>
 
       <!-- Phải: Hồ sơ + Trạng thái + Hệ thống -->
-      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-        <button type="button" id="student-header-btn" onclick="openStudentRegisterModal()" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-900 text-xs font-semibold flex items-center gap-1.5 transition" title="Thông tin học sinh">
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 max-w-full">
+        <button type="button" id="student-header-btn" onclick="openStudentRegisterModal()" class="px-2 sm:px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-900 text-xs font-semibold flex items-center gap-1.5 transition min-w-0" title="Thông tin học sinh">
           <span>👤</span>
-          <span id="student-header-label" data-i18n="btnRegisterStudent">Đăng ký học sinh</span>
+          <span id="student-header-label" data-i18n="btnRegisterStudent" class="truncate max-w-[110px] sm:max-w-[180px]">Đăng ký học sinh</span>
         </button>
 
         <div id="api-status-badge" class="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-800">
@@ -231,7 +231,7 @@
     <!-- ========================================== -->
     <!-- KHU VỰC DASHBOARD TRUNG TÂM                -->
     <!-- ========================================== -->
-    <main class="flex-1 min-w-0 p-4 sm:p-6 space-y-5 overflow-y-auto">
+    <main class="flex-1 min-w-0 w-full p-3 sm:p-6 space-y-5 overflow-y-auto overflow-x-hidden">
 
       <!-- 1. HÀNG THẺ THỐNG KÊ PHÍA TRÊN + BIỂU ĐỒ HIỆN ĐẠI -->
       <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -292,7 +292,7 @@
           </div>
         </div>
       </section>
-      <div class="-mt-3 flex justify-end">
+      <div class="-mt-3 flex justify-end w-full pr-0.5">
         <span data-i18n="demoDataNote" class="text-[11px] italic text-slate-400">Dữ liệu minh họa</span>
       </div>
 
@@ -2688,15 +2688,25 @@
     let flashcardIndex = 0;
     let isFlashcardFlipped = false;
 
+    let fallbackGlossaryTerms = [];
+
     async function loadGlossaryForGrade(gradeNum) {
       try {
         const res = await fetch(`/glossary/glossary_${gradeNum}.json`);
         glossaryTerms = res.ok ? await res.json() : [];
+        if (gradeNum === 9 && glossaryTerms.length) {
+          fallbackGlossaryTerms = glossaryTerms;
+        } else if (!fallbackGlossaryTerms.length) {
+          const r9 = await fetch('/glossary/glossary_9.json');
+          if (r9.ok) fallbackGlossaryTerms = await r9.json();
+        }
       } catch {
         glossaryTerms = [];
       }
       populateGlossaryChapters();
       renderGlossaryView();
+      annotateGlossaryTerms(document.getElementById('welcome-teacher-qa'));
+      annotateGlossaryTerms(document.getElementById('messages-stream'));
     }
 
     function populateGlossaryChapters() {
@@ -2859,13 +2869,13 @@
 
     // Gạch chân chấm các thuật ngữ xuất hiện trong đề bài / lời giải khi dùng chế độ English hoặc Song ngữ
     function annotateGlossaryTerms(rootEl) {
-      if (!rootEl || currentLang === 'vi' || !glossaryTerms.length) return;
+      const sourceTerms = glossaryTerms.length ? glossaryTerms : fallbackGlossaryTerms;
+      if (!rootEl || currentLang === 'vi' || !sourceTerms.length) return;
       if (rootEl.id === 'glossary-cards-container' || rootEl.closest('#view-glossary')) return;
 
-      const sortedTerms = [...glossaryTerms]
+      const sortedTerms = [...sourceTerms]
         .filter(t => t.term_en && t.term_en.length >= 4)
-        .sort((a, b) => b.term_en.length - a.term_en.length)
-        .slice(0, 60);
+        .sort((a, b) => b.term_en.length - a.term_en.length);
       if (!sortedTerms.length) return;
 
       const escapedList = sortedTerms.map(t => t.term_en.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
@@ -2901,12 +2911,13 @@
             frag.appendChild(document.createTextNode(text.slice(lastIdx, match.index)));
           }
           const matchedText = match[0];
-          const foundIdx = glossaryTerms.findIndex(t => t.term_en.toLowerCase() === matchedText.toLowerCase());
+          const foundIdx = sourceTerms.findIndex(t => t.term_en.toLowerCase() === matchedText.toLowerCase());
           if (foundIdx >= 0) {
+            const matchedItem = sourceTerms[foundIdx];
             const span = document.createElement('span');
             span.className = 'glossary-term-chip border-b border-dotted border-blue-600 text-blue-800 cursor-pointer hover:bg-blue-50 rounded-xs px-0.5';
             span.textContent = matchedText;
-            span.onclick = (ev) => showGlossaryPopover(ev, foundIdx);
+            span.onclick = (ev) => showGlossaryPopoverItem(ev, matchedItem);
             frag.appendChild(span);
           } else {
             frag.appendChild(document.createTextNode(matchedText));
@@ -2921,8 +2932,12 @@
     }
 
     function showGlossaryPopover(event, termIdx) {
+      const sourceTerms = glossaryTerms.length ? glossaryTerms : fallbackGlossaryTerms;
+      showGlossaryPopoverItem(event, sourceTerms[termIdx]);
+    }
+
+    function showGlossaryPopoverItem(event, item) {
       event.stopPropagation();
-      const item = glossaryTerms[termIdx];
       const pop = document.getElementById('glossary-popover');
       if (!item || !pop) return;
 
