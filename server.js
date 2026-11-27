@@ -13,19 +13,24 @@ import crypto from 'crypto';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 1. TỰ ĐỘNG ĐỌC BIẾN MÔI TRƯỜNG TỪ .env
+// 1. TỰ ĐỘNG ĐỌC BIẾN MÔI TRƯỜNG TỪ .env VÀ .env.local (.env.local ưu tiên hơn)
 export function loadEnv() {
-  const envPath = path.join(__dirname, '.env');
-  if (fs.existsSync(envPath)) {
-    const lines = fs.readFileSync(envPath, 'utf-8').split('\n');
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith('#')) continue;
-      const idx = trimmed.indexOf('=');
-      if (idx !== -1) {
-        const key = trimmed.slice(0, idx).trim();
-        const val = trimmed.slice(idx + 1).trim();
-        process.env[key] = val;
+  for (const fname of ['.env', '.env.local']) {
+    const envPath = path.join(__dirname, fname);
+    if (fs.existsSync(envPath)) {
+      const lines = fs.readFileSync(envPath, 'utf-8').split('\n');
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('#')) continue;
+        const idx = trimmed.indexOf('=');
+        if (idx !== -1) {
+          const key = trimmed.slice(0, idx).trim();
+          let val = trimmed.slice(idx + 1).trim();
+          if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+            val = val.slice(1, -1);
+          }
+          process.env[key] = val;
+        }
       }
     }
   }
@@ -34,54 +39,228 @@ loadEnv();
 
 export const PORT = parseInt(process.env.PORT || '5000', 10);
 
-// Quản lý danh sách API Key & Tự động xoay vòng khi chạm hạn mức
-let currentKeyIndex = 0;
-let lastGeminiHealthy = true;
+// Quản lý danh sách API Key, xoay vòng đều theo từng câu hỏi, và theo dõi trạng thái key × mô hình
+let requestCounter = 0;
+let lastUsedModel = process.env.GEMINI_MODEL || '';
 const geminiErrorLogs = [];
+const pairCooldowns = new Map();     // `${keyIndex}:${model}` -> expiryMs (429 -> 60s)
+const keyBadCooldowns = new Map();   // keyIndex -> expiryMs (400/403 -> 10m)
+const deadModels = new Set();        // models that returned 404
+const keyModelStatus = new Map();    // `${keyIndex}:${model}` -> { keyIndex, model, status, updatedAt }
 
-function recordGeminiError({ endpoint, status, keyIndex, message }) {
-  lastGeminiHealthy = false;
+let cachedModelsList = null;
+let cachedModelsAt = 0;
+const MODELS_CACHE_TTL_MS = 60 * 60 * 1000; // 1 giờ
+
+function recordGeminiError({ endpoint, status, keyIndex, model, message }) {
   const entry = {
     timestamp: new Date().toISOString(),
     endpoint,
     status: status || 'NETWORK',
     keyIndex: keyIndex != null ? keyIndex + 1 : null,
+    model: model || null,
     message: String(message || '').slice(0, 300),
   };
   geminiErrorLogs.unshift(entry);
-  if (geminiErrorLogs.length > 30) geminiErrorLogs.length = 30;
-  console.error(`[Gemini Error] ${entry.timestamp} | ${endpoint} | Status=${entry.status} | Key #${entry.keyIndex || '?'} | ${entry.message}`);
+  if (geminiErrorLogs.length > 20) geminiErrorLogs.length = 20;
+  if (keyIndex != null && model) {
+    keyModelStatus.set(`${keyIndex}:${model}`, {
+      key: `Key #${keyIndex + 1}`,
+      model,
+      status: String(status),
+      updatedAt: entry.timestamp,
+    });
+  }
+  console.error(`[Gemini Error] ${entry.timestamp} | ${endpoint} | Model=${model || '?'} | Status=${entry.status} | Key #${entry.keyIndex || '?'} | ${entry.message}`);
+}
+
+function recordKeyModelOk(keyIndex, model) {
+  lastUsedModel = model;
+  keyModelStatus.set(`${keyIndex}:${model}`, {
+    key: `Key #${keyIndex + 1}`,
+    model,
+    status: 'OK',
+    updatedAt: new Date().toISOString(),
+  });
 }
 
 export function getApiKeys() {
   const parts = [];
   const mainRaw = process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || '';
   if (mainRaw) parts.push(...mainRaw.split(/[;,]/));
-  for (let i = 2; i <= 5; i++) {
+  for (let i = 2; i <= 10; i++) {
     const k = process.env[`GEMINI_API_KEY_${i}`];
     if (k) parts.push(k);
   }
   return [...new Set(parts.map((k) => k.trim()).filter((k) => k.length > 10))];
 }
 
-export function rotateApiKey() {
-  const keys = getApiKeys();
-  if (keys.length > 1) {
-    currentKeyIndex = (currentKeyIndex + 1) % keys.length;
-    console.log(`[API Key Rotation] Tự động chuyển sang key index #${currentKeyIndex + 1}/${keys.length} (${keys[currentKeyIndex].slice(0, 14)}...)`);
-  }
-}
-
 export function getActiveModel() {
-  let model = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
-  // Nếu model là 2.5-flash hoặc cũ hơn đã bị Google đóng với user mới, tự động fallback sang gemini-3.5-flash
-  if (model.includes('2.5') || model.includes('2.0') || model.includes('1.5')) {
-    model = 'gemini-3.5-flash';
-  }
-  return model;
+  return lastUsedModel || process.env.GEMINI_MODEL || 'gemini-flash-latest';
 }
 
-export const GEMINI_MODEL = getActiveModel();
+async function fetchAvailableFlashModels(keys) {
+  const now = Date.now();
+  if (cachedModelsList && now - cachedModelsAt < MODELS_CACHE_TTL_MS) {
+    return cachedModelsList;
+  }
+  for (let i = 0; i < keys.length; i++) {
+    if ((keyBadCooldowns.get(i) || 0) > now) continue;
+    try {
+      const resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models', {
+        method: 'GET',
+        headers: { 'x-goog-api-key': keys[i] },
+      });
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      const models = (data.models || [])
+        .filter((m) => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent'))
+        .map((m) => String(m.name || '').replace(/^models\//, ''))
+        .filter((name) => /flash/i.test(name) && !/image|audio|tts|thinking|exp|preview/i.test(name));
+
+      const regularFlash = models.filter((n) => !/lite/i.test(n)).sort().reverse();
+      const liteFlash = models.filter((n) => /lite/i.test(n)).sort().reverse();
+      const ordered = [...new Set([...regularFlash, ...liteFlash])];
+      if (ordered.length > 0) {
+        cachedModelsList = ordered;
+        cachedModelsAt = now;
+        return ordered;
+      }
+    } catch {}
+  }
+  return cachedModelsList || [];
+}
+
+async function getModelFallbackChain(keys) {
+  const discovered = await fetchAvailableFlashModels(keys);
+  const envModel = (process.env.GEMINI_MODEL || '').trim();
+  const chain = [];
+  if (envModel) chain.push(envModel);
+  for (const m of discovered) {
+    if (!chain.includes(m)) chain.push(m);
+  }
+  if (chain.length === 0) {
+    chain.push('gemini-flash-latest', 'gemini-flash-lite-latest');
+  }
+  return chain.filter((m) => !deadModels.has(m));
+}
+
+function normalizeContents(history = [], userText, inlineImage = null) {
+  const merged = [];
+  for (const h of history) {
+    const role = h.role === 'model' ? 'model' : 'user';
+    const text = String(h.content || h.text || '').trim();
+    if (!text) continue;
+    if (merged.length === 0 && role !== 'user') continue; // Lượt đầu bắt buộc là user
+    if (merged.length > 0 && merged[merged.length - 1].role === role) {
+      merged[merged.length - 1].parts[0].text += '\n' + text;
+    } else {
+      merged.push({ role, parts: [{ text }] });
+    }
+  }
+  const cleanUserText = String(userText || '').trim();
+  const userParts = [];
+  if (cleanUserText) userParts.push({ text: cleanUserText });
+  if (inlineImage && inlineImage.data) {
+    userParts.push({ inlineData: { mimeType: inlineImage.mimeType || 'image/png', data: inlineImage.data } });
+  }
+  if (userParts.length === 0) userParts.push({ text: 'Xin hỗ trợ bài toán này.' });
+
+  if (merged.length > 0 && merged[merged.length - 1].role === 'user' && !inlineImage) {
+    merged[merged.length - 1].parts[0].text += '\n' + cleanUserText;
+  } else if (merged.length > 0 && merged[merged.length - 1].role === 'user' && inlineImage) {
+    merged.push({ role: 'model', parts: [{ text: 'Đã nhận thông tin.' }] });
+    merged.push({ role: 'user', parts: userParts });
+  } else {
+    merged.push({ role: 'user', parts: userParts });
+  }
+  return merged;
+}
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function executeGeminiWithRotation({ endpointName, keys, systemInstructionText, contents, generationConfig }) {
+  const modelChain = await getModelFallbackChain(keys);
+  const startKey = requestCounter % keys.length;
+  requestCounter = (requestCounter + 1) % 1000000;
+  let lastError = null;
+
+  for (const model of modelChain) {
+    if (deadModels.has(model)) continue;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+
+    for (let offset = 0; offset < keys.length; offset++) {
+      const keyIndex = (startKey + offset) % keys.length;
+      const now = Date.now();
+      if ((keyBadCooldowns.get(keyIndex) || 0) > now) continue;
+      if ((pairCooldowns.get(`${keyIndex}:${model}`) || 0) > now) continue;
+
+      const keyToUse = keys[keyIndex];
+      let retried503 = 0;
+
+      while (true) {
+        try {
+          const resp = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-goog-api-key': keyToUse,
+            },
+            body: JSON.stringify({
+              systemInstruction: { parts: [{ text: systemInstructionText }] },
+              contents,
+              generationConfig,
+            }),
+          });
+
+          if (!resp.ok) {
+            const errText = await resp.text();
+            const status = resp.status;
+            recordGeminiError({ endpoint: endpointName, status, keyIndex, model, message: errText });
+            lastError = new Error(`Gemini ${status} (${model}, Key #${keyIndex + 1}): ${errText}`);
+
+            if (status === 404) {
+              deadModels.add(model);
+              break; // Chuyển sang mô hình tiếp theo
+            }
+            if (status === 400 || status === 403) {
+              keyBadCooldowns.set(keyIndex, Date.now() + 10 * 60 * 1000); // Bỏ qua key sai 10 phút
+              break; // Thử key tiếp theo
+            }
+            if (status === 429) {
+              pairCooldowns.set(`${keyIndex}:${model}`, Date.now() + 60 * 1000); // Khóa cặp (key, model) 60s
+              break; // Thử key tiếp theo
+            }
+            if (status === 503 && retried503 < 2) {
+              const waitMs = retried503 === 0 ? 2000 : 4000;
+              retried503 += 1;
+              await sleep(waitMs);
+              continue;
+            }
+            break; // Chuyển key/mô hình tiếp theo
+          }
+
+          const data = await resp.json();
+          const candidate = data?.candidates?.[0];
+          const text = (candidate?.content?.parts || []).map((p) => p.text || '').join('').trim();
+          if (!text) {
+            const reason = candidate?.finishReason || data?.promptFeedback?.blockReason || 'EMPTY_RESPONSE';
+            throw new Error(`Gemini trả về rỗng hoặc bị chặn (${reason})`);
+          }
+          recordKeyModelOk(keyIndex, model);
+          return { text, model, keyIndex: keyIndex + 1 };
+        } catch (err) {
+          recordGeminiError({ endpoint: endpointName, status: err.status || 'EXCEPTION', keyIndex, model, message: err.message });
+          lastError = err;
+          break;
+        }
+      }
+      if (deadModels.has(model)) break;
+    }
+  }
+
+  throw lastError || new Error('Tất cả API key và mô hình Gemini đều đang bận hoặc hết hạn mức.');
+}
 
 // 2. NẠP HỆ THỐNG TRI THỨC TỪ src/ai-config
 export function loadKnowledgeBase() {
@@ -258,81 +437,23 @@ Bắt buộc trả về JSON chính xác theo đúng 9 trường quy định tro
 status, ocr_summary, good_points, first_error_step, error_reason, hint_level_1, hint_level_2, full_solution, similar_exercise.
 `.trim();
 
-  const model = getActiveModel();
-  let lastError = null;
-  const maxAttempts = keys.length;
-  const startIndex = currentKeyIndex;
-
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const keyIndex = (startIndex + attempt) % keys.length;
-    const keyToUse = keys[keyIndex];
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
-
-    const requestBody = {
-      system_instruction: { parts: [{ text: sysInstruction }] },
-      contents: [
-        {
-          role: 'user',
-          parts: [
-            { text: userPrompt },
-            {
-              inline_data: {
-                mime_type: mimeType,
-                data: cleanBase64,
-              },
-            },
-          ],
-        },
-      ],
-      generationConfig: {
-        temperature: 0.2, // Chuẩn xác toán học
-        maxOutputTokens: 2800, // Giới hạn độ dài <= 2000 từ
-        responseMimeType: 'application/json',
-        responseSchema: GRADING_RESPONSE_SCHEMA,
-      },
-    };
-
-    try {
-      const resp = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': keyToUse,
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!resp.ok) {
-        const errText = await resp.text();
-        const errStatus = resp.status;
-        recordGeminiError({ endpoint: '/api/grade', status: errStatus, keyIndex, message: errText });
-        lastError = new Error(`Gemini API Error ${errStatus} (Key #${keyIndex + 1}): ${errText}`);
-        currentKeyIndex = (keyIndex + 1) % keys.length;
-        continue;
-      }
-
-      const data = await resp.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!rawText) {
-        throw new Error('Gemini API trả về nội dung rỗng');
-      }
-
-      // Ghi nhận key index chạy thành công để ưu tiên cho lần gọi tiếp theo
-      currentKeyIndex = keyIndex;
-      lastGeminiHealthy = true;
-      currentKeyIndex = keyIndex;
-      return JSON.parse(rawText);
-    } catch (err) {
-      lastError = err;
-      recordGeminiError({ endpoint: '/api/chat', status: err.status || 'EXCEPTION', keyIndex, message: err.message });
-      currentKeyIndex = (keyIndex + 1) % keys.length;
-    }
-  }
-
-  throw lastError || new Error('Không thể kết nối đến Gemini API sau nhiều lần thử.');
+  const contents = normalizeContents([], userPrompt, { mimeType, data: cleanBase64 });
+  const { text } = await executeGeminiWithRotation({
+    endpointName: '/api/grade',
+    keys,
+    systemInstructionText: sysInstruction,
+    contents,
+    generationConfig: {
+      temperature: 0.2,
+      maxOutputTokens: 1024,
+      responseMimeType: 'application/json',
+      responseSchema: GRADING_RESPONSE_SCHEMA,
+    },
+  });
+  return JSON.parse(text);
 }
 
-// 6. HÀM GỌI GEMINI CHAT TIẾP THEO NGỮ CẢNH (HỖ TRỢ KEY ROTATION VÀ FAILOVER)
+// 6. HÀM GỌI GEMINI CHAT TIẾP THEO NGỮ CẢNH (XOAY VÒNG KEY & MÔ HÌNH DỰ PHÒNG)
 export async function callGeminiChat({ message, history = [], context = {}, grade = 'Toán 9', lang = 'vi', mode = 'tutor', wrongAttempts = 0, forceVietnameseHint = false, teacherGender = 'co', apiKey }) {
   const keys = apiKey ? [apiKey] : getApiKeys();
   if (keys.length === 0) {
@@ -352,75 +473,22 @@ export async function callGeminiChat({ message, history = [], context = {}, grad
     buildSystemInstruction() +
     `\n\nBạn là ${teacherName}, giáo viên Toán THCS thân thiện, dạy theo SGK Toán ${grade} bộ Kết nối tri thức. Xưng "${pronoun}", gọi học sinh là "em".\n${modeRule}` +
     englishRules;
-  const contextText = `
-NGỮ CẢNH BÀI TOÁN VỪA CHẤM CỦA HỌC SINH:
-- Đề bài & Bài làm: ${context.ocr_summary || 'Chưa có'}
-- Dòng sai: ${context.first_error_step || 'Không có'}
-- Nguyên nhân sai: ${context.error_reason || 'Không có'}
-- Lời giải đúng: ${context.full_solution || 'Chưa có'}
-`.trim();
+  const contextText = context && (context.ocr_summary || context.first_error_step)
+    ? `\n\nNGỮ CẢNH BÀI TOÁN VỪA CHẤM:\n- Đề & Bài làm: ${context.ocr_summary || ''}\n- Dòng sai: ${context.first_error_step || ''}\n- Nguyên nhân: ${context.error_reason || ''}`
+    : '';
 
-  const contents = [
-    ...history.map((h) => ({
-      role: h.role === 'user' ? 'user' : 'model',
-      parts: [{ text: h.content || h.text || '' }],
-    })),
-    {
-      role: 'user',
-      parts: [{ text: message }],
+  const contents = normalizeContents(history.slice(-12), message);
+  const { text } = await executeGeminiWithRotation({
+    endpointName: '/api/chat',
+    keys,
+    systemInstructionText: `${sysInstruction}${contextText}`,
+    contents,
+    generationConfig: {
+      temperature: 0.35,
+      maxOutputTokens: 1024,
     },
-  ];
-
-  const model = getActiveModel();
-  let lastError = null;
-  const maxAttempts = keys.length;
-  const startIndex = currentKeyIndex;
-
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const keyIndex = (startIndex + attempt) % keys.length;
-    const keyToUse = keys[keyIndex];
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
-
-    try {
-      const resp = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': keyToUse,
-        },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: `${sysInstruction}\n\n${contextText}` }] },
-          contents,
-          generationConfig: {
-            temperature: 0.35, // Ngắn gọn, chính xác, sư phạm
-            maxOutputTokens: 2800, // Giới hạn tối đa 2000 từ
-          },
-        }),
-      });
-
-      if (!resp.ok) {
-        const errText = await resp.text();
-        const errStatus = resp.status;
-        recordGeminiError({ endpoint: '/api/chat', status: errStatus, keyIndex, message: errText });
-        lastError = new Error(`Gemini API Chat Error ${errStatus} (Key #${keyIndex + 1}): ${errText}`);
-        currentKeyIndex = (keyIndex + 1) % keys.length;
-        continue;
-      }
-
-      const data = await resp.json();
-      currentKeyIndex = keyIndex;
-      lastGeminiHealthy = true;
-      const rawReply = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Cô chưa nghe rõ, em hãy nhắn lại giúp Cô nhé!';
-      const words = rawReply.trim().split(/\s+/);
-      return words.length > 2000 ? words.slice(0, 2000).join(' ') + '...' : rawReply;
-    } catch (err) {
-      lastError = err;
-      recordGeminiError({ endpoint: '/api/chat', status: err.status || 'EXCEPTION', keyIndex, message: err.message });
-      currentKeyIndex = (keyIndex + 1) % keys.length;
-    }
-  }
-
-  throw lastError || new Error('Không thể kết nối đến Gemini Chat API sau nhiều lần thử.');
+  });
+  return text;
 }
 
 // 6B. QUẢN LÝ HỒ SƠ HỌC SINH & ĐỀ TỰ LUYỆN HTML (MỤC 3)
@@ -545,15 +613,66 @@ export async function handleRequest(req, res) {
     const activeModel = getActiveModel();
 
     // API: GET /api/health
+    // Mặc định chỉ trả {"status":"ok"} hoặc {"status":"degraded"}, KHÔNG gọi Gemini.
+    // Khi có ?admin=MẬT_KHẨU (khớp ADMIN_PASSWORD): trả chi tiết key × mô hình + 20 lỗi gần nhất; thêm &test=1 mới gọi thử "1+1 bằng mấy".
     if (req.method === 'GET' && pathname === '/api/health') {
+      const adminParam = parsedUrl.searchParams.get('admin');
+      const expectedAdminPw = process.env.ADMIN_PASSWORD || '';
+      const hasKeys = keys.length > 0;
+      const now = Date.now();
+      const anyKeyReady = keys.some((_, idx) => (keyBadCooldowns.get(idx) || 0) <= now);
+
+      if (adminParam === null) {
+        return sendJson(res, 200, {
+          status: hasKeys && anyKeyReady ? 'ok' : 'degraded',
+        });
+      }
+
+      if (!expectedAdminPw || adminParam !== expectedAdminPw) {
+        return sendJson(res, 403, { error: 'UNAUTHORIZED_ADMIN', message: 'Sai mật khẩu quản trị hoặc chưa cấu hình ADMIN_PASSWORD.' });
+      }
+
+      let testCall = null;
+      if (parsedUrl.searchParams.get('test') === '1') {
+        try {
+          const reply = await callGeminiChat({
+            message: '1+1 bằng mấy',
+            history: [],
+            grade: 'Toán 6',
+            lang: 'vi',
+            mode: 'quick',
+            teacherGender: 'co',
+          });
+          testCall = { ok: true, reply, model: getActiveModel() };
+        } catch (err) {
+          testCall = { ok: false, error: err.message };
+        }
+      }
+
+      const modelChain = await getModelFallbackChain(keys);
+      const statusMatrix = [];
+      for (let i = 0; i < keys.length; i++) {
+        for (const m of modelChain.slice(0, 4)) {
+          const rec = keyModelStatus.get(`${i}:${m}`);
+          const isBad = (keyBadCooldowns.get(i) || 0) > now;
+          const is429 = (pairCooldowns.get(`${i}:${m}`) || 0) > now;
+          statusMatrix.push({
+            key: `Key #${i + 1}`,
+            model: m,
+            status: isBad ? '400/403 (cooldown)' : is429 ? '429 (cooldown)' : (rec ? rec.status : 'READY'),
+            updatedAt: rec ? rec.updatedAt : null,
+          });
+        }
+      }
+
       return sendJson(res, 200, {
-        status: 'ok',
-        model: activeModel,
+        status: hasKeys && anyKeyReady ? 'ok' : 'degraded',
         keys_count: keys.length,
-        gemini_configured: keys.length > 0,
-        gemini_available: keys.length > 0 && lastGeminiHealthy,
-        recent_errors: geminiErrorLogs.slice(0, 10),
-        port: PORT,
+        active_model: getActiveModel(),
+        model_chain: modelChain,
+        key_model_status: statusMatrix,
+        recent_errors: geminiErrorLogs.slice(0, 20),
+        test_call: testCall,
       });
     }
 

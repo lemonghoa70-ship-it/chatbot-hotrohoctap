@@ -869,10 +869,13 @@
                 </label>
               </li>
             </ul>
-            <div class="pt-3 border-t border-slate-100">
-              <div class="flex items-center justify-between mb-1.5">
-                <span class="text-xs font-bold text-slate-800">Nhật ký lỗi Gemini API (gần nhất)</span>
-                <button type="button" onclick="refreshSystemHealth()" class="text-[11px] font-semibold text-blue-600 hover:underline">Làm mới</button>
+            <div class="pt-3 border-t border-slate-100 space-y-2">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="text-xs font-bold text-slate-800">Trạng thái Key × Mô hình & Lỗi Gemini API</span>
+                <button type="button" onclick="testGeminiConnectionAdmin()" id="admin-test-conn-btn" class="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-semibold transition">🔌 Kiểm tra kết nối</button>
+              </div>
+              <div id="admin-key-model-table" class="text-[11px] text-slate-600 bg-slate-50 border border-slate-200 rounded-xl p-2.5 max-h-40 overflow-y-auto">
+                <div>Bấm "🔌 Kiểm tra kết nối" (nhập ADMIN_PASSWORD) để xem bảng trạng thái từng key × mô hình và gọi thử "1+1 bằng mấy".</div>
               </div>
               <div id="admin-gemini-errors" class="text-[11px] text-slate-500 bg-slate-50 border border-slate-200 rounded-xl p-2.5 max-h-36 overflow-y-auto space-y-1">
                 <div>Chưa ghi nhận lỗi nào.</div>
@@ -1308,30 +1311,54 @@
       }).join('');
     }
 
+    async function testGeminiConnectionAdmin() {
+      const pw = document.getElementById('admin-password')?.value || window.prompt('Nhập mật khẩu quản trị (ADMIN_PASSWORD) để kiểm tra kết nối:');
+      if (!pw) return;
+      const btn = document.getElementById('admin-test-conn-btn');
+      const tableBox = document.getElementById('admin-key-model-table');
+      if (btn) { btn.disabled = true; btn.textContent = 'Đang kiểm tra...'; }
+      try {
+        const res = await fetch(`/api/health?admin=${encodeURIComponent(pw)}&test=1`);
+        const data = await res.json();
+        if (!res.ok) {
+          if (tableBox) tableBox.innerHTML = `<div class="text-rose-700 font-semibold">${escapeHtml(data.message || 'Không xác thực được mật khẩu quản trị.')}</div>`;
+          return;
+        }
+        const adminInfo = document.getElementById('admin-model-info');
+        if (adminInfo) adminInfo.textContent = `${data.active_model || 'auto'} (${data.keys_count || 0} keys)`;
+        renderAdminGeminiErrors(data.recent_errors || []);
+        const rows = (data.key_model_status || []).map(r => {
+          const cls = r.status === 'OK' ? 'text-emerald-700 font-semibold' : r.status === 'READY' ? 'text-slate-600' : 'text-rose-700 font-semibold';
+          return `<tr class="border-t border-slate-200"><td class="py-1 pr-2">${escapeHtml(r.key)}</td><td class="py-1 pr-2 font-mono">${escapeHtml(r.model)}</td><td class="py-1 ${cls}">${escapeHtml(r.status)}</td></tr>`;
+        }).join('');
+        const testSummary = data.test_call
+          ? (data.test_call.ok
+            ? `<div class="mt-2 p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900">✓ Test "1+1 bằng mấy" (${escapeHtml(data.test_call.model)}): ${escapeHtml(String(data.test_call.reply || '').slice(0, 120))}</div>`
+            : `<div class="mt-2 p-2 rounded-lg bg-rose-50 border border-rose-200 text-rose-800">✗ Test thất bại: ${escapeHtml(data.test_call.error || '')}</div>`)
+          : '';
+        if (tableBox) {
+          tableBox.innerHTML = `
+            <div class="font-semibold text-slate-800 mb-1">Số key: ${data.keys_count} · Mô hình đang dùng: ${escapeHtml(data.active_model || '')}</div>
+            <table class="w-full text-left border-collapse"><thead><tr class="text-slate-500"><th>Key</th><th>Mô hình</th><th>Trạng thái</th></tr></thead><tbody>${rows}</tbody></table>
+            ${testSummary}
+          `;
+        }
+        updateApiStatusBadge(data.status === 'ok' ? 'online' : 'offline');
+      } catch (err) {
+        if (tableBox) tableBox.innerHTML = `<div class="text-rose-700">Lỗi kết nối: ${escapeHtml(err.message)}</div>`;
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = '🔌 Kiểm tra kết nối'; }
+      }
+    }
+
     function refreshSystemHealth() {
       fetch('/api/health')
         .then(r => r.json())
         .then(data => {
-          if (data.status === 'ok') {
-            if (!data.gemini_configured) {
-              updateApiStatusBadge('offline');
-            } else if (!data.gemini_available) {
-              updateApiStatusBadge('busy');
-            } else {
-              updateApiStatusBadge('online');
-            }
-            const adminInfo = document.getElementById('admin-model-info');
-            if (adminInfo) {
-              const keyInfo = data.gemini_configured ? `${data.keys_count || 1} keys` : 'Chưa cấu hình key';
-              adminInfo.textContent = `${data.model} (${keyInfo})`;
-            }
-            renderAdminGeminiErrors(data.recent_errors || []);
-          }
+          updateApiStatusBadge(data.status === 'ok' ? 'online' : 'offline');
         })
         .catch(() => {
           updateApiStatusBadge('offline');
-          const adminInfo = document.getElementById('admin-model-info');
-          if (adminInfo) adminInfo.textContent = 'Offline';
         });
     }
 
@@ -1951,6 +1978,9 @@
     }
 
       let lastRetryAction = null;
+      let lastErrorBubbleEl = null;
+      let lastSentText = '';
+      let lastSentAt = 0;
 
       function renderAiBusyMessageDOM(customMsg, retryFn) {
         if (retryFn) lastRetryAction = retryFn;
@@ -1969,10 +1999,15 @@
           </div>
           <div class="flex-1 bg-orange-50 border border-orange-300 rounded-2xl rounded-tl-sm p-3.5 text-xs sm:text-sm text-orange-950 space-y-2">
             <div class="font-medium">${escapeHtml(customMsg || fallbackMsg)}</div>
-            <button type="button" onclick="if (lastRetryAction) lastRetryAction();" class="btn-bounce px-3 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold transition">${retryLabel}</button>
+            <button type="button" onclick="this.disabled=true; if (lastRetryAction) lastRetryAction();" class="btn-bounce px-3 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 disabled:bg-slate-300 text-white text-xs font-semibold transition">${retryLabel}</button>
           </div>
         `;
-        stream.appendChild(div);
+        if (lastErrorBubbleEl && lastErrorBubbleEl.parentNode === stream) {
+          stream.replaceChild(div, lastErrorBubbleEl);
+        } else {
+          stream.appendChild(div);
+        }
+        lastErrorBubbleEl = div;
         scrollToBottom();
       }
 
@@ -2010,6 +2045,7 @@
               return;
             }
             updateApiStatusBadge('online');
+            lastErrorBubbleEl = null;
             lastGradingResult = data;
             chatConversationHistory.push({ role: 'user', content: `[Gửi ảnh] ${userDisplay}` });
             chatConversationHistory.push({ role: 'model', content: `Đề: ${data.ocr_summary}\nLỗi: ${data.first_error_step} - ${data.error_reason}` });
@@ -2022,7 +2058,7 @@
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 message: userDisplay,
-                history: chatConversationHistory.slice(-20),
+                history: chatConversationHistory.slice(-12),
                 context: lastGradingResult || {},
                 grade: `Toán ${selectedGrade}`,
                 lang: currentLang,
@@ -2042,6 +2078,7 @@
               return;
             }
             updateApiStatusBadge('online');
+            lastErrorBubbleEl = null;
             const reply = data.reply || '';
             if (/not quite|incorrect|try again|wrong|chưa đúng|sai rồi|check again/i.test(reply)) {
               consecutiveWrongAttempts += 1;
@@ -2070,7 +2107,13 @@
         const text = composerInput.value.trim();
         const hasImage = !!currentImageSrc;
         if (!text && !hasImage) return;
+        const now = Date.now();
+        if (!hasImage && text === lastSentText && now - lastSentAt < 3000) {
+          return; // Chặn gửi trùng câu hỏi trong 3 giây
+        }
         if (!requireStudentRegistered(() => handleComposerSubmit())) return;
+        lastSentText = text;
+        lastSentAt = now;
 
         const sentImage = currentImageSrc;
         const sentMime = currentMimeType;
