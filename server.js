@@ -282,8 +282,43 @@ export const SAMPLE_MOCKS_EN = {
   },
 };
 
+// Helper xây dựng chỉ dẫn sư phạm tiếng Anh A2-B1 và cơ chế chuyển gợi ý tiếng Việt
+function buildEnglishPedagogyRules({ grade = 'Toán 9', pronoun = 'Cô', wrongAttempts = 0, forceVietnameseHint = false, studentMessage = '' } = {}) {
+  const isLowerGrade = /6|7/.test(String(grade));
+  const msgLower = String(studentMessage || '').toLowerCase();
+  const hasVietnameseCue =
+    /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(msgLower) ||
+    msgLower.includes('em không hiểu') ||
+    msgLower.includes('khó quá') ||
+    msgLower.includes("i don't understand") ||
+    msgLower.includes('dont understand') ||
+    /\bhelp\b/.test(msgLower);
+  const needVietnameseHint = Boolean(forceVietnameseHint || wrongAttempts >= 2 || hasVietnameseCue);
+
+  let rules = `
+ENGLISH / BILINGUAL TEACHING MODE (CRITICAL):
+- Teach in simple ${isLowerGrade ? 'A1–A2 (very simple)' : 'A2–B1'} English: use short sentences, common words, and one idea per sentence.
+- Keep the teacher persona (${pronoun} AI) warm and encouraging.
+- The FIRST time you use a math term, write it in bold with its Vietnamese meaning in parentheses, e.g., **discriminant** (biệt thức).
+- Always write all math formulas in LaTeX ($...$ or $$...$$).
+- Keep the 3-level hint method: guide step-by-step with questions/hints; do NOT give the full solution immediately unless the student explicitly asks for it.
+- End your solution or explanation with a section titled "New words / Từ mới:" listing 2–4 key math terms you just used, one per line: "- **term** — nghĩa tiếng Việt".`.trim();
+
+  if (needVietnameseHint) {
+    rules += `
+
+VIETNAMESE HINT TRIGGERED (ACTIVE NOW):
+- The student asked for help, wrote in Vietnamese, clicked "Gợi ý tiếng Việt", or made 2 consecutive mistakes on this step.
+- Write the current hint clearly in VIETNAMESE (xưng "${pronoun}", gọi học sinh là "em") so the student understands right away.
+- At the end of the Vietnamese hint, gently encourage the student to continue in English (e.g., "Bây giờ em thử làm tiếp bằng tiếng Anh nhé!").
+- Still include "New words / Từ mới:" (2–4 terms) at the end.`;
+  }
+
+  return rules;
+}
+
 // 5. HÀM GỌI GEMINI MULTIMODAL API (HỖ TRỢ KEY ROTATION VÀ FAILOVER)
-export async function callGeminiApi({ imageBase64, mimeType = 'image/png', studentNote, mode = 'tutor', grade = 'Toán 9', teacherGender = 'co', apiKey }) {
+export async function callGeminiApi({ imageBase64, mimeType = 'image/png', studentNote, mode = 'tutor', grade = 'Toán 9', lang = 'vi', teacherGender = 'co', apiKey }) {
   const keys = apiKey ? [apiKey] : getApiKeys();
   if (keys.length === 0) {
     throw new Error('MISSING_API_KEY');
@@ -292,6 +327,7 @@ export async function callGeminiApi({ imageBase64, mimeType = 'image/png', stude
   const cleanBase64 = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
   const sysInstruction = buildSystemInstruction();
   const pronoun = teacherGender === 'thay' ? 'Thầy' : 'Cô';
+  const useEnglish = lang === 'en' || lang === 'bilingual';
 
   const isTutor = mode === 'tutor' || mode === 'Gia sư';
   const userPrompt = `
@@ -300,6 +336,7 @@ QUAN TRỌNG: Chỉ sử dụng kiến thức và phương pháp của ${grade},
 Xưng hô bắt buộc: Giáo viên AI xưng "${pronoun}" và gọi học sinh là "em".
 Chế độ phản hồi: ${isTutor ? 'Gia sư (Ưu tiên câu hỏi gợi mở, không tiết lộ đáp số trong gợi ý)' : 'Chấm nhanh (Trình bày đầy đủ lỗi và đáp số)'}.
 Ghi chú thêm của học sinh: ${studentNote || 'Không có'}.
+${useEnglish ? '\n' + buildEnglishPedagogyRules({ grade, pronoun, studentMessage: studentNote }) + '\n- Write ocr_summary, good_points, first_error_step, error_reason, hint_level_1, hint_level_2, full_solution (end with New words / Từ mới:), and similar_exercise in simple English following the rules above.' : ''}
 
 Bắt buộc trả về JSON chính xác theo đúng 9 trường quy định trong Schema:
 status, ocr_summary, good_points, first_error_step, error_reason, hint_level_1, hint_level_2, full_solution, similar_exercise.
@@ -374,16 +411,21 @@ status, ocr_summary, good_points, first_error_step, error_reason, hint_level_1, 
 }
 
 // 6. HÀM GỌI GEMINI CHAT TIẾP THEO NGỮ CẢNH (HỖ TRỢ KEY ROTATION VÀ FAILOVER)
-export async function callGeminiChat({ message, history = [], context = {}, grade = 'Toán 9', teacherGender = 'co', apiKey }) {
+export async function callGeminiChat({ message, history = [], context = {}, grade = 'Toán 9', lang = 'vi', wrongAttempts = 0, forceVietnameseHint = false, teacherGender = 'co', apiKey }) {
   const keys = apiKey ? [apiKey] : getApiKeys();
   if (keys.length === 0) {
     throw new Error('MISSING_API_KEY');
   }
 
   const pronoun = teacherGender === 'thay' ? 'Thầy' : 'Cô';
+  const useEnglish = lang === 'en' || lang === 'bilingual';
+  const englishRules = useEnglish
+    ? '\n\n' + buildEnglishPedagogyRules({ grade, pronoun, wrongAttempts, forceVietnameseHint, studentMessage: message })
+    : '';
   const sysInstruction =
     buildSystemInstruction() +
-    `\n\nBỐI CẢNH LỚP HỌC HIỆN TẠI: Học sinh đang học chương trình ${grade} (SGK Kết nối tri thức với cuộc sống). Hãy giảng đúng kiến thức và mức độ của ${grade}, tuyệt đối không dùng kiến thức lớp trên.\nXưng hô bắt buộc trong cuộc trò chuyện này: Giáo viên AI xưng "${pronoun}" và gọi học sinh là "em".`;
+    `\n\nBỐI CẢNH LỚP HỌC HIỆN TẠI: Học sinh đang học chương trình ${grade} (SGK Kết nối tri thức với cuộc sống). Hãy giảng đúng kiến thức và mức độ của ${grade}, tuyệt đối không dùng kiến thức lớp trên.\nXưng hô bắt buộc trong cuộc trò chuyện này: Giáo viên AI xưng "${pronoun}" và gọi học sinh là "em".` +
+    englishRules;
   const contextText = `
 NGỮ CẢNH BÀI TOÁN VỪA CHẤM CỦA HỌC SINH:
 - Đề bài & Bài làm: ${context.ocr_summary || 'Chưa có'}
@@ -790,13 +832,15 @@ export async function handleRequest(req, res) {
             studentNote: body.student_note || body.note,
             mode: body.mode || 'tutor',
             grade: body.grade || 'Toán 9',
+            lang: body.lang || 'vi',
             teacherGender: body.teacher_gender || 'co',
             apiKey: body.api_key, // nếu body không có apiKey thì callGeminiApi tự xoay vòng keys
           });
           return sendJson(res, 200, { ...result, source: 'gemini_api' });
         } catch (geminiError) {
           console.warn('[Gemini API Warning]', geminiError.message);
-          const fallback = SAMPLE_MOCKS.sample1;
+          const useEn = body.lang === 'en' || body.lang === 'bilingual';
+          const fallback = (useEn ? SAMPLE_MOCKS_EN[body.sample_id || 'sample1'] : SAMPLE_MOCKS[body.sample_id || 'sample1']) || SAMPLE_MOCKS.sample1;
           return sendJson(res, 200, {
             ...fallback,
             source: 'fallback_mock',
@@ -806,9 +850,9 @@ export async function handleRequest(req, res) {
       }
 
       // Không có API key hoặc ảnh: trả về mẫu mô phỏng chuẩn 9 trường
-      const fallbackResult = body.sample_id
-        ? SAMPLE_MOCKS[body.sample_id]
-        : SAMPLE_MOCKS.sample1;
+      const useEn = body.lang === 'en' || body.lang === 'bilingual';
+      const mockPool = useEn ? SAMPLE_MOCKS_EN : SAMPLE_MOCKS;
+      const fallbackResult = (body.sample_id && mockPool[body.sample_id]) || mockPool.sample1 || SAMPLE_MOCKS.sample1;
       return sendJson(res, 200, {
         ...fallbackResult,
         source: 'simulation',
@@ -829,6 +873,9 @@ export async function handleRequest(req, res) {
             history: body.history || [],
             context: body.context || {},
             grade: body.grade || 'Toán 9',
+            lang: body.lang || 'vi',
+            wrongAttempts: Number(body.wrong_attempts || 0),
+            forceVietnameseHint: Boolean(body.force_vi_hint),
             teacherGender: body.teacher_gender || 'co',
             apiKey: body.api_key,
           });

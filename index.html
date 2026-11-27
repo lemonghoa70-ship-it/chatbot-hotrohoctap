@@ -1617,12 +1617,18 @@
               context: lastGradingResult || {},
               grade: `Toán ${selectedGrade}`,
               lang: currentLang,
+              wrong_attempts: consecutiveWrongAttempts,
               teacher_gender: teacherGender,
               api_key: apiKeyOverride || undefined
             })
           });
           const data = await res.json();
           const reply = data.reply || `${getTeacherShort()} chưa nghe rõ, em nhắn lại giúp ${getTeacherShort()} nhé!`;
+          if (/not quite|incorrect|try again|wrong|chưa đúng|sai rồi|check again/i.test(reply)) {
+            consecutiveWrongAttempts += 1;
+          } else {
+            consecutiveWrongAttempts = 0;
+          }
           chatConversationHistory.push({ role: 'user', content: userDisplay });
           chatConversationHistory.push({ role: 'model', content: reply });
           setThinking(false);
@@ -1665,12 +1671,83 @@
       scrollToBottom();
     }
 
+    let consecutiveWrongAttempts = 0;
+
+    function extractNewWordsHtml(rawText) {
+      if (!rawText) return '';
+      const lines = String(rawText).split('\n');
+      const startIdx = lines.findIndex(l => /new words|từ mới/i.test(l));
+      if (startIdx === -1) return '';
+      const items = [];
+      for (let i = startIdx + 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        const m = line.match(/^[-*•]?\s*\*\*([^*]+)\*\*\s*(?:[—–:\-(]+)\s*(.+?)\)?$/);
+        if (m) {
+          const en = m[1].trim();
+          const vi = m[2].trim();
+          items.push({ en, vi });
+        }
+      }
+      if (items.length === 0) return '';
+      const chips = items.slice(0, 4).map(it => {
+        const safeEn = it.en.replace(/'/g, "\\'");
+        return `<button type="button" onclick="speakEnglishTerm('${safeEn}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white border border-blue-200 hover:bg-blue-50 text-xs text-slate-800 transition shadow-2xs" title="Nghe phát âm"><span>🔊</span><strong class="text-blue-800">${escapeHtml(it.en)}</strong><span class="text-slate-500">(${escapeHtml(it.vi)})</span></button>`;
+      }).join('');
+      return `<div class="mt-2.5 pt-2 border-t border-blue-100 flex flex-wrap items-center gap-1.5"><span class="text-[11px] font-bold text-blue-800">🔊 Nghe từ mới:</span>${chips}</div>`;
+    }
+
+    async function askVietnameseHint() {
+      if (isLoading) return;
+      if (!requireStudentRegistered(() => askVietnameseHint())) return;
+      const userMsg = 'Gợi ý tiếng Việt 🇻🇳 cho bước này giúp em ạ.';
+      renderUserMessageDOM(userMsg, null);
+      isLoading = true;
+      document.getElementById('send-btn').disabled = true;
+      setThinking(true, `${getTeacherName()} đang chuẩn bị gợi ý tiếng Việt...`);
+      const apiKeyOverride = localStorage.getItem(LOCAL_STORAGE_KEY_API_KEY) || '';
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: userMsg,
+            history: chatConversationHistory,
+            context: lastGradingResult || {},
+            grade: `Toán ${selectedGrade}`,
+            lang: currentLang,
+            wrong_attempts: consecutiveWrongAttempts,
+            force_vi_hint: true,
+            teacher_gender: teacherGender,
+            api_key: apiKeyOverride || undefined
+          })
+        });
+        const data = await res.json();
+        const reply = data.reply || `${getTeacherShort()} gợi ý bằng tiếng Việt cho em nhé!`;
+        chatConversationHistory.push({ role: 'user', content: userMsg });
+        chatConversationHistory.push({ role: 'model', content: reply });
+        setThinking(false);
+        renderAiTextMessageDOM(reply, data.source);
+      } catch (err) {
+        console.error(err);
+        setThinking(false);
+        renderAiTextMessageDOM('Kết nối tạm thời bị gián đoạn, em hãy thử lại nhé!', 'error');
+      } finally {
+        isLoading = false;
+        document.getElementById('send-btn').disabled = false;
+      }
+    }
+
     function renderAiTextMessageDOM(replyText, source) {
       const stream = document.getElementById('messages-stream');
       const div = document.createElement('div');
       div.className = 'flex items-start gap-3 animate-msg';
       const short = getTeacherShort();
       const tName = getTeacherName();
+      const newWordsHtml = extractNewWordsHtml(replyText);
+      const viHintBtn = currentLang !== 'vi'
+        ? `<div class="mt-2 pt-2 border-t border-blue-100/80 flex flex-wrap gap-2"><button type="button" onclick="askVietnameseHint()" class="px-2.5 py-1 rounded-xl text-[11px] font-semibold bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 transition">Gợi ý tiếng Việt 🇻🇳</button></div>`
+        : '';
       div.innerHTML = `
         <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-blue-200">${short}</div>
         <div class="flex-1 bg-blue-50/40 border border-blue-100 rounded-2xl rounded-tl-sm p-3.5 text-xs sm:text-sm text-slate-800">
@@ -1679,6 +1756,8 @@
             <span class="text-[10px] px-1.5 py-0.5 rounded bg-white border border-blue-100 text-blue-600">${source === 'gemini_api' ? 'Gemini AI' : 'Math AI'}</span>
           </div>
           <div class="ai-prose">${formatMathAndMarkdown(replyText)}</div>
+          ${newWordsHtml}
+          ${viHintBtn}
         </div>
       `;
       stream.appendChild(div);
@@ -1727,6 +1806,7 @@
             <button type="button" onclick="expandGradingSection('${uid}', 'hint2', decodeURIComponent('${encodeURIComponent(data.hint_level_2 || '')}'), decodeURIComponent('${encodeURIComponent(viData.hint_level_2 || '')}'))" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 transition">${escapeHtml(t('btnHint2') || '💡 Gợi ý thêm')}</button>
             <button type="button" onclick="expandGradingSection('${uid}', 'solution', decodeURIComponent('${encodeURIComponent(data.full_solution || '')}'), decodeURIComponent('${encodeURIComponent(viData.full_solution || '')}'))" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 transition">${escapeHtml(t('btnSolution') || '📖 Xem lời giải chuẩn')}</button>
             <button type="button" onclick="expandGradingSection('${uid}', 'similar', decodeURIComponent('${encodeURIComponent(data.similar_exercise || '')}'), decodeURIComponent('${encodeURIComponent(viData.similar_exercise || '')}'))" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 transition">${escapeHtml(t('btnSimilar') || '📝 Thử bài tương tự')}</button>
+            ${currentLang !== 'vi' ? `<button type="button" onclick="askVietnameseHint()" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 transition">Gợi ý tiếng Việt 🇻🇳</button>` : ''}
           </div>
         </div>
       `;
@@ -1748,7 +1828,8 @@
       box.id = `${uid}-${type}`;
       box.className = `rounded-xl border p-3.5 animate-msg ${meta.cls}`;
       const contentHtml = renderBilingualBlock(formatMathAndMarkdown(rawText), formatMathAndMarkdown(viText || rawText));
-      box.innerHTML = `<div class="text-xs font-bold mb-1">${meta.label}</div><div class="ai-prose text-xs sm:text-sm">${contentHtml}</div>`;
+      const newWordsHtml = type === 'solution' ? extractNewWordsHtml(rawText) : '';
+      box.innerHTML = `<div class="text-xs font-bold mb-1">${meta.label}</div><div class="ai-prose text-xs sm:text-sm">${contentHtml}</div>${newWordsHtml}`;
       container.appendChild(box);
       renderMathInContainer(box);
       scrollToBottom();
@@ -1757,6 +1838,7 @@
     function resetChat() {
       lastGradingResult = null;
       chatConversationHistory = [];
+      consecutiveWrongAttempts = 0;
       clearImage();
       document.getElementById('messages-stream').innerHTML = '';
       showToast('Đã làm mới khung hỏi đáp.');
