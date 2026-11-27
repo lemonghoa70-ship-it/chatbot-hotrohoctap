@@ -281,10 +281,36 @@
             </div>
           </div>
 
-          <button type="button" id="student-header-btn" onclick="openStudentRegisterModal()" class="btn-bounce px-2 sm:px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/25 text-white text-xs font-semibold flex items-center gap-1.5 transition min-w-0" title="Thông tin học sinh">
-            <span>👤</span>
-            <span id="student-header-label" data-i18n="btnRegisterStudent" class="truncate max-w-[100px] sm:max-w-[170px]">Đăng ký học sinh</span>
-          </button>
+          <div class="relative">
+            <button type="button" id="student-header-btn" onclick="handleHeaderAccountClick()" class="btn-bounce px-2 sm:px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/25 text-white text-xs font-semibold flex items-center gap-1.5 transition min-w-0" title="Tài khoản">
+              <span id="student-header-avatar">👤</span>
+              <span id="student-header-label" data-i18n="btnRegisterStudent" class="truncate max-w-[130px] sm:max-w-[200px]">Đăng nhập</span>
+            </button>
+
+            <!-- Menu thả xuống khi ĐÃ đăng nhập (trên điện thoại dạng bảng trượt từ dưới lên) -->
+            <div id="account-menu-backdrop" onclick="closeAccountMenu()" class="fixed inset-0 bg-slate-900/40 z-40 hidden sm:hidden"></div>
+            <div id="account-menu-dropdown" class="hidden fixed inset-x-0 bottom-0 sm:inset-auto sm:right-0 sm:top-full sm:mt-2 z-50 w-full sm:w-64 bg-white text-slate-800 rounded-t-2xl sm:rounded-2xl border border-slate-200 shadow-2xl overflow-hidden animate-msg">
+              <div class="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                <div id="am-fullname" class="text-sm font-bold text-slate-900 truncate"></div>
+                <div id="am-meta" class="text-xs text-slate-500 mt-0.5"></div>
+              </div>
+              <div class="p-1.5 space-y-0.5">
+                <button type="button" id="am-change-pw-btn" onclick="closeAccountMenu(); openChangePasswordModal();" class="w-full text-left px-3 py-2.5 sm:py-2 rounded-xl text-sm sm:text-xs font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-800 flex items-center gap-2 transition">
+                  <span>🔑</span><span id="am-change-pw-label">Đổi mật khẩu</span>
+                </button>
+                <button type="button" id="am-progress-btn" onclick="closeAccountMenu(); switchMainTab('stats');" class="w-full text-left px-3 py-2.5 sm:py-2 rounded-xl text-sm sm:text-xs font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-800 flex items-center gap-2 transition">
+                  <span>📊</span><span id="am-progress-label">Kết quả học tập của em</span>
+                </button>
+                <button type="button" id="am-admin-btn" onclick="closeAccountMenu(); switchMainTab('admin');" class="hidden w-full text-left px-3 py-2.5 sm:py-2 rounded-xl text-sm sm:text-xs font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-800 flex items-center gap-2 transition">
+                  <span>⚙️</span><span id="am-admin-label">Quản trị hệ thống</span>
+                </button>
+                <div class="my-1 border-t border-slate-200"></div>
+                <button type="button" id="am-logout-btn" onclick="closeAccountMenu(); openLogoutConfirmModal();" class="w-full text-left px-3 py-2.5 sm:py-2 rounded-xl text-sm sm:text-xs font-bold text-orange-600 hover:bg-orange-50 flex items-center gap-2 transition">
+                  <span>🚪</span><span id="am-logout-label">Đăng xuất</span>
+                </button>
+              </div>
+            </div>
+          </div>
 
           <div id="api-status-badge" class="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-200/40 text-xs font-semibold text-white">
             <span class="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
@@ -977,9 +1003,32 @@
                 <div class="text-sm font-bold text-emerald-800">✓ Đã xác thực quyền Quản trị viên (Trường THCS Hiệp Phước)</div>
                 <p class="text-xs text-slate-500 mt-0.5">Quản lý danh sách học sinh, theo dõi quá trình học tập và cấu hình AI.</p>
               </div>
-              <div class="flex items-center gap-2">
+              <div class="flex flex-wrap items-center gap-2">
+                <label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 text-xs font-semibold text-slate-700 cursor-pointer">
+                  <input type="checkbox" id="admin-allow-register-toggle" onchange="adminToggleSelfRegister(this.checked)" class="accent-blue-600" />
+                  <span>Cho phép học sinh tự đăng ký</span>
+                </label>
+                <button type="button" onclick="adminExportStudentsCsv()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition">📥 Xuất dữ liệu (CSV)</button>
                 <button type="button" onclick="openKnowledgeModal()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition">Cấu hình Tri thức & API Key</button>
-                <button type="button" onclick="handleAdminLogout()" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">Đăng xuất</button>
+                <button type="button" id="admin-logout-btn" onclick="openLogoutConfirmModal()" class="px-3.5 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition">🚪 Đăng xuất</button>
+              </div>
+            </div>
+            <!-- Tạo học sinh mới / Nhập hàng loạt CSV -->
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
+              <div class="text-xs font-bold text-slate-800">➕ Cấp tài khoản học sinh (hoặc nhập hàng loạt CSV)</div>
+              <div class="grid grid-cols-1 sm:grid-cols-5 gap-2">
+                <input type="text" id="admin-new-code" placeholder="Mã HS (vd: 84-12)" class="rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs bg-white" />
+                <input type="text" id="admin-new-name" placeholder="Họ và tên" class="rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs bg-white sm:col-span-2" />
+                <input type="text" id="admin-new-class" placeholder="Lớp (vd: 8/4)" class="rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs bg-white" />
+                <input type="text" id="admin-new-pw" placeholder="Mật khẩu (123456)" class="rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs bg-white" />
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <button type="button" onclick="adminCreateSingleStudent()" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition">Tạo tài khoản</button>
+                <label class="px-3 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold cursor-pointer transition">
+                  📄 Nhập từ file CSV
+                  <input type="file" accept=".csv" onchange="adminImportCsvStudents(event)" class="hidden" />
+                </label>
+                <span class="text-[11px] text-slate-500">Cột CSV: <code class="font-mono">ma_hoc_sinh,ho_ten,lop,mat_khau</code></span>
               </div>
             </div>
 
@@ -1032,74 +1081,134 @@
     </main>
   </div>
 
-  <!-- MODAL ĐĂNG KÝ / ĐĂNG NHẬP THÀNH VIÊN HỌC SINH -->
+  <!-- MODAL ĐĂNG NHẬP / ĐĂNG KÝ TÀI KHOẢN (HỌC SINH / GIÁO VIÊN / DÙNG THỬ) -->
   <div id="student-register-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl border border-blue-200 shadow-2xl w-full max-w-md overflow-hidden animate-msg">
-      <div class="px-5 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white flex items-center justify-between">
+      <div class="px-5 py-4 bg-gradient-to-r from-blue-600 to-violet-600 text-white flex items-center justify-between">
         <div class="flex items-center gap-2.5">
-          <span class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-base">🎓</span>
+          <div class="flex -space-x-2">
+            <img src="/avatars/avatar-co.png" alt="Cô AI" class="w-8 h-8 rounded-full border-2 border-white object-cover" onerror="this.style.display='none'" />
+            <img src="/avatars/avatar-thay.png" alt="Thầy AI" class="w-8 h-8 rounded-full border-2 border-white object-cover" onerror="this.style.display='none'" />
+          </div>
           <div>
-            <h3 id="student-modal-title" class="text-sm font-bold leading-tight">Tài khoản học sinh</h3>
+            <h3 id="student-modal-title" class="text-sm font-bold leading-tight">Giáo viên AI Toán THCS</h3>
             <p class="text-[11px] text-blue-100">Trường THCS Hiệp Phước</p>
           </div>
         </div>
         <button type="button" onclick="closeStudentRegisterModal()" class="p-1 rounded-lg text-blue-100 hover:text-white hover:bg-white/15">✕</button>
       </div>
 
-      <!-- 2 Tab: Đăng nhập / Đăng ký -->
+      <!-- 2 Tab Vai trò: Học sinh | Giáo viên -->
       <div class="grid grid-cols-2 bg-blue-50/70 p-1.5 gap-1 border-b border-blue-100">
-        <button type="button" id="student-tab-login" onclick="switchStudentAuthMode('login')" class="py-2 text-xs font-semibold rounded-xl transition">Đăng nhập</button>
-        <button type="button" id="student-tab-register" onclick="switchStudentAuthMode('register')" class="py-2 text-xs font-semibold rounded-xl transition">Đăng ký mới</button>
+        <button type="button" id="role-tab-student" onclick="switchAuthRoleTab('student')" class="py-2 text-xs font-semibold rounded-xl transition bg-white text-blue-700 shadow-2xs">🎓 Học sinh</button>
+        <button type="button" id="role-tab-admin" onclick="switchAuthRoleTab('admin')" class="py-2 text-xs font-semibold rounded-xl transition text-slate-600">👨‍🏫 Giáo viên</button>
       </div>
 
-      <form onsubmit="handleStudentAuthSubmit(event)" class="p-5 space-y-3.5" autocomplete="off">
-        <p id="student-auth-desc" class="text-xs text-slate-600 leading-relaxed">
-          Em cần <strong>Đăng ký tài khoản</strong> trước khi đăng nhập để hệ thống lưu lại quá trình học tập nhé!
-        </p>
-        <div>
-          <label for="student-fullname-input" class="block text-xs font-bold text-slate-700 mb-1">Họ và tên học sinh <span class="text-rose-500">*</span></label>
-          <input type="text" id="student-fullname-input" required placeholder="Ví dụ: Nguyễn Văn An" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <form onsubmit="handleStudentAuthSubmit(event)" class="p-5 space-y-3" autocomplete="off">
+        <!-- Form Học sinh -->
+        <div id="auth-student-fields" class="space-y-3">
+          <div id="student-code-wrap">
+            <label for="student-code-input" class="block text-xs font-bold text-slate-700 mb-1">Mã học sinh <span class="text-rose-500">*</span></label>
+            <input type="text" id="student-code-input" placeholder="Ví dụ: 84-12" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div id="student-fullname-wrap" class="hidden">
+            <label for="student-fullname-input" class="block text-xs font-bold text-slate-700 mb-1">Họ và tên <span class="text-rose-500">*</span></label>
+            <input type="text" id="student-fullname-input" placeholder="Ví dụ: Lê Dương Trường Hải" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div id="student-class-wrap" class="hidden">
+            <label for="student-class-select" class="block text-xs font-bold text-slate-700 mb-1">Lớp <span class="text-rose-500">*</span></label>
+            <select id="student-class-select" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+          </div>
         </div>
-        <div>
-          <label for="student-class-input" class="block text-xs font-bold text-slate-700 mb-1">Lớp <span class="text-rose-500">*</span></label>
-          <input type="text" id="student-class-input" required placeholder="Ví dụ: 9A1" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+
+        <!-- Form Giáo viên (Admin) -->
+        <div id="auth-admin-fields" class="hidden space-y-3">
+          <div>
+            <label for="admin-login-email-input" class="block text-xs font-bold text-slate-700 mb-1">Email giáo viên <span class="text-rose-500">*</span></label>
+            <input type="email" id="admin-login-email-input" placeholder="giaovien@hiepphuoc.edu.vn" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
         </div>
+
+        <!-- Mật khẩu -->
         <div>
           <label for="student-password-input" class="block text-xs font-bold text-slate-700 mb-1">Mật khẩu <span class="text-rose-500">*</span></label>
           <div class="relative">
             <input type="password" id="student-password-input" required autocomplete="new-password" placeholder="Nhập mật khẩu" class="w-full rounded-xl border border-slate-300 pl-3.5 pr-10 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             <button type="button" onclick="togglePasswordVisibility('student-password-input', this)" class="absolute inset-y-0 right-0 px-3 flex items-center text-slate-400 hover:text-blue-600 transition" title="Hiện / Ẩn mật khẩu">
-              <svg class="w-4 h-4 eye-open" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <svg class="w-4 h-4 eye-closed hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
-              </svg>
+              <svg class="w-4 h-4 eye-open" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+              <svg class="w-4 h-4 eye-closed hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
             </button>
           </div>
         </div>
         <div id="student-confirm-wrapper" class="hidden">
           <label for="student-confirm-password-input" class="block text-xs font-bold text-slate-700 mb-1">Nhập lại mật khẩu <span class="text-rose-500">*</span></label>
           <div class="relative">
-            <input type="password" id="student-confirm-password-input" autocomplete="new-password" placeholder="Nhập lại mật khẩu" class="w-full rounded-xl border border-slate-300 pl-3.5 pr-10 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <input type="password" id="student-confirm-password-input" autocomplete="new-password" placeholder="Nhập lại mật khẩu (tối thiểu 6 ký tự)" class="w-full rounded-xl border border-slate-300 pl-3.5 pr-10 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             <button type="button" onclick="togglePasswordVisibility('student-confirm-password-input', this)" class="absolute inset-y-0 right-0 px-3 flex items-center text-slate-400 hover:text-blue-600 transition" title="Hiện / Ẩn mật khẩu">
-              <svg class="w-4 h-4 eye-open" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <svg class="w-4 h-4 eye-closed hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
-              </svg>
+              <svg class="w-4 h-4 eye-open" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+              <svg class="w-4 h-4 eye-closed hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
             </button>
           </div>
         </div>
+
         <p id="student-register-error" class="hidden text-xs font-medium text-rose-600"></p>
-        <div class="pt-1 flex items-center justify-end gap-2">
-          <button type="button" onclick="closeStudentRegisterModal()" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">Để sau</button>
+        <p id="student-register-info" class="hidden text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg p-2"></p>
+
+        <div id="student-switch-mode-row" class="text-xs text-slate-600 text-center">
+          <button type="button" id="student-switch-mode-btn" onclick="toggleStudentLoginRegisterMode()" class="text-blue-600 hover:underline font-medium">Chưa có tài khoản? Đăng ký mới</button>
+        </div>
+
+        <div class="pt-1 flex flex-wrap items-center justify-between gap-2">
+          <button type="button" onclick="enterGuestTrialMode()" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">Dùng thử không cần tài khoản</button>
           <button type="submit" id="student-auth-submit-btn" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm transition">Đăng nhập</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL XÁC NHẬN ĐĂNG XUẤT -->
+  <div id="logout-confirm-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl border border-orange-200 shadow-2xl w-full max-w-sm p-5 space-y-4 animate-msg">
+      <div class="text-base font-bold text-slate-900" id="logout-confirm-title">Em có chắc muốn đăng xuất không?</div>
+      <p id="logout-sync-error" class="hidden text-xs font-medium text-orange-800 bg-orange-50 border border-orange-200 rounded-xl p-2.5"></p>
+      <div id="logout-confirm-actions" class="flex items-center justify-end gap-2">
+        <button type="button" onclick="closeLogoutConfirmModal()" id="logout-stay-btn" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">Ở lại</button>
+        <button type="button" onclick="executeLogout(false)" id="logout-proceed-btn" class="px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition">Đăng xuất</button>
+      </div>
+      <div id="logout-offline-actions" class="hidden flex items-center justify-end gap-2">
+        <button type="button" onclick="executeLogout(false)" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition">Thử lại</button>
+        <button type="button" onclick="executeLogout(true)" class="px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition">Vẫn đăng xuất</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ĐỔI MẬT KHẨU -->
+  <div id="change-password-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl border border-blue-200 shadow-2xl w-full max-w-sm p-5 space-y-3 animate-msg">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold text-slate-900">🔑 Đổi mật khẩu</h3>
+        <button type="button" onclick="document.getElementById('change-password-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700">✕</button>
+      </div>
+      <form onsubmit="handleChangePasswordSubmit(event)" class="space-y-3">
+        <input type="password" id="new-pw-input" required minlength="6" placeholder="Mật khẩu mới (tối thiểu 6 ký tự)" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
+        <input type="password" id="confirm-new-pw-input" required minlength="6" placeholder="Nhập lại mật khẩu mới" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm" />
+        <p id="change-pw-error" class="hidden text-xs text-rose-600 font-medium"></p>
+        <div class="flex justify-end gap-2">
+          <button type="button" onclick="document.getElementById('change-password-modal').classList.add('hidden')" class="px-3.5 py-2 rounded-xl bg-slate-100 text-xs font-semibold">Hủy</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold">Lưu mật khẩu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL CẢNH BÁO 30 PHÚT KHÔNG THAO TÁC -->
+  <div id="inactivity-warning-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl border border-amber-300 shadow-2xl w-full max-w-sm p-5 space-y-3 animate-msg">
+      <div class="text-sm font-bold text-amber-900">⏳ Phiên làm việc sắp hết hạn</div>
+      <p class="text-xs text-slate-600">Em không thao tác gần 30 phút. Hệ thống sẽ tự động lưu bài và đăng xuất sau 1 phút nữa.</p>
+      <div class="flex justify-end gap-2">
+        <button type="button" onclick="stayActiveSession()" class="px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold">Tiếp tục học</button>
+      </div>
     </div>
   </div>
 
@@ -1520,6 +1629,7 @@
       renderPracticeQuizzesByGrade(currentCurriculum);
       renderGlossaryView();
       renderStudentStatsUI();
+      if (userInitiated) syncCloudState().catch(() => {});
     }
 
     // 2. BỘ CHỌN LỚP (LỚP 6 - 9) & CHUYỂN TAB MENU BÊN TRÁI
@@ -1577,6 +1687,7 @@
         loadCurriculumForGrade(selectedGrade),
         loadGlossaryForGrade(selectedGrade)
       ]);
+      if (userInitiated) syncCloudState().catch(() => {});
     }
 
     async function loadCurriculumForGrade(gradeNum) {
@@ -1701,6 +1812,13 @@
     }
 
     function switchMainTab(tab) {
+      if (tab === 'admin') {
+        const curProfile = getAuthProfile();
+        if (curProfile && curProfile.role === 'student') {
+          showToast(currentLang === 'vi' ? 'Chỉ giáo viên (Quản trị viên) mới có quyền truy cập trang Quản trị!' : 'Admin access only!');
+          return;
+        }
+      }
       if (window.MathSounds && document.readyState === 'complete') window.MathSounds.playClick();
       ['chat', 'theory', 'practice', 'glossary', 'stats', 'admin'].forEach(t => {
         document.getElementById(`view-${t}`).classList.add('hidden');
@@ -2181,6 +2299,12 @@
             }
             chatConversationHistory.push({ role: 'user', content: userDisplay });
             chatConversationHistory.push({ role: 'model', content: fullReply });
+            syncCloudState({
+              newMessages: [
+                { role: 'user', content: userDisplay, grade: selectedGrade, lang_mode: currentLang },
+                { role: 'model', content: fullReply, grade: selectedGrade, lang_mode: currentLang }
+              ]
+            }).catch(() => {});
             recordStudentActivity('chat_question', `Hỏi ${getTeacherName()}: ${userDisplay.slice(0, 60)}`);
           }
         } catch (err) {
@@ -2821,75 +2945,172 @@
       } catch { return null; }
     }
 
-    function getLocalStudentsList() {
+    const LOCAL_KEY_AUTH_TOKEN = 'trogiang_auth_token_v1';
+    const LOCAL_KEY_AUTH_PROFILE = 'trogiang_auth_profile_v1';
+    const LOCAL_KEY_GUEST_MODE = 'trogiang_guest_trial_v1';
+
+    let authRoleTab = 'student';
+    let studentAuthMode = 'login';
+    let pendingStudentAction = null;
+    let isGuestTrialMode = false;
+    try { isGuestTrialMode = sessionStorage.getItem(LOCAL_KEY_GUEST_MODE) === '1'; } catch {}
+
+    function getAuthToken() {
+      try { return localStorage.getItem(LOCAL_KEY_AUTH_TOKEN) || ''; } catch { return ''; }
+    }
+    function getAuthProfile() {
       try {
-        return JSON.parse(localStorage.getItem(LOCAL_KEY_ALL_STUDENTS) || '[]');
-      } catch { return []; }
+        const raw = localStorage.getItem(LOCAL_KEY_AUTH_PROFILE);
+        return raw ? JSON.parse(raw) : null;
+      } catch { return null; }
+    }
+    function getCurrentStudent() {
+      const p = getAuthProfile();
+      if (!p) return null;
+      return { id: p.id, studentCode: p.student_code, fullName: p.full_name, className: p.class_name || '', role: p.role };
     }
 
-    function saveLocalStudentRecord(student) {
-      localStorage.setItem(LOCAL_KEY_STUDENT, JSON.stringify(student));
-      const all = getLocalStudentsList();
-      const idx = all.findIndex(s => s.fullName.toLowerCase() === student.fullName.toLowerCase() && s.className.toLowerCase() === student.className.toLowerCase());
-      if (idx >= 0) all[idx] = student;
-      else all.unshift(student);
-      localStorage.setItem(LOCAL_KEY_ALL_STUDENTS, JSON.stringify(all));
+    function populateStudentClassSelect() {
+      const sel = document.getElementById('student-class-select');
+      if (!sel || sel.options.length > 0) return;
+      const opts = [];
+      for (let g = 6; g <= 9; g++) {
+        for (let c = 1; c <= 15; c++) {
+          opts.push(`<option value="${g}/${c}">${g}/${c}</option>`);
+        }
+      }
+      sel.innerHTML = opts.join('');
     }
 
-    function togglePasswordVisibility(inputId, btn) {
-      const input = document.getElementById(inputId);
-      if (!input) return;
-      const isHidden = input.type === 'password';
-      input.type = isHidden ? 'text' : 'password';
-      const openIcon = btn.querySelector('.eye-open');
-      const closedIcon = btn.querySelector('.eye-closed');
-      if (openIcon && closedIcon) {
-        openIcon.classList.toggle('hidden', isHidden);
-        closedIcon.classList.toggle('hidden', !isHidden);
+    function handleHeaderAccountClick() {
+      const profile = getAuthProfile();
+      if (!profile && !isGuestTrialMode) {
+        openStudentRegisterModal();
+        return;
+      }
+      const dd = document.getElementById('account-menu-dropdown');
+      const bd = document.getElementById('account-menu-backdrop');
+      if (!dd) return;
+      const isOpen = !dd.classList.contains('hidden');
+      if (isOpen) {
+        closeAccountMenu();
+      } else {
+        updateAccountMenuLabels();
+        dd.classList.remove('hidden');
+        if (bd) bd.classList.remove('hidden');
       }
     }
 
-    let studentAuthMode = 'login';
+    function closeAccountMenu() {
+      const dd = document.getElementById('account-menu-dropdown');
+      const bd = document.getElementById('account-menu-backdrop');
+      if (dd) dd.classList.add('hidden');
+      if (bd) bd.classList.add('hidden');
+    }
+
+    function updateAccountMenuLabels() {
+      const profile = getAuthProfile();
+      const fnEl = document.getElementById('am-fullname');
+      const metaEl = document.getElementById('am-meta');
+      const progBtn = document.getElementById('am-progress-btn');
+      const adminBtn = document.getElementById('am-admin-btn');
+      const chgBtn = document.getElementById('am-change-pw-btn');
+      const logoutLbl = document.getElementById('am-logout-label');
+
+      if (isGuestTrialMode && !profile) {
+        if (fnEl) fnEl.textContent = currentLang === 'vi' ? 'Chế độ dùng thử' : 'Guest Trial Mode';
+        if (metaEl) metaEl.textContent = currentLang === 'vi' ? 'Không lưu dữ liệu lên đám mây' : 'Data is not saved to cloud';
+        if (progBtn) progBtn.classList.add('hidden');
+        if (adminBtn) adminBtn.classList.add('hidden');
+        if (chgBtn) chgBtn.classList.add('hidden');
+        if (logoutLbl) logoutLbl.textContent = currentLang === 'vi' ? 'Đăng nhập tài khoản' : 'Log in';
+        return;
+      }
+
+      if (!profile) return;
+      const isAdmin = profile.role === 'admin';
+      if (fnEl) fnEl.textContent = profile.full_name || '';
+      if (metaEl) {
+        const roleLabel = isAdmin ? (currentLang === 'vi' ? 'Quản trị viên' : 'Administrator') : (currentLang === 'vi' ? 'Học sinh' : 'Student');
+        metaEl.textContent = profile.class_name ? `${profile.class_name} · ${roleLabel}` : roleLabel;
+      }
+      if (progBtn) progBtn.classList.toggle('hidden', isAdmin);
+      if (adminBtn) adminBtn.classList.toggle('hidden', !isAdmin);
+      if (chgBtn) chgBtn.classList.remove('hidden');
+      if (document.getElementById('am-change-pw-label')) document.getElementById('am-change-pw-label').textContent = currentLang === 'vi' ? 'Đổi mật khẩu' : 'Change password';
+      if (document.getElementById('am-progress-label')) document.getElementById('am-progress-label').textContent = currentLang === 'vi' ? 'Kết quả học tập của em' : 'My progress';
+      if (document.getElementById('am-admin-label')) document.getElementById('am-admin-label').textContent = currentLang === 'vi' ? 'Quản trị hệ thống' : 'System admin';
+      if (logoutLbl) logoutLbl.textContent = currentLang === 'vi' ? 'Đăng xuất' : 'Log out';
+    }
+
+    document.addEventListener('click', (e) => {
+      const dd = document.getElementById('account-menu-dropdown');
+      const btn = document.getElementById('student-header-btn');
+      if (dd && !dd.classList.contains('hidden') && !dd.contains(e.target) && (!btn || !btn.contains(e.target))) {
+        closeAccountMenu();
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeAccountMenu();
+    });
+
+    function switchAuthRoleTab(role) {
+      authRoleTab = role === 'admin' ? 'admin' : 'student';
+      const rStu = document.getElementById('role-tab-student');
+      const rAdm = document.getElementById('role-tab-admin');
+      const stuFields = document.getElementById('auth-student-fields');
+      const admFields = document.getElementById('auth-admin-fields');
+      const switchRow = document.getElementById('student-switch-mode-row');
+      const errEl = document.getElementById('student-register-error');
+      const infoEl = document.getElementById('student-register-info');
+      if (errEl) errEl.classList.add('hidden');
+      if (infoEl) infoEl.classList.add('hidden');
+
+      if (authRoleTab === 'admin') {
+        rAdm.className = 'py-2 text-xs font-semibold rounded-xl bg-white text-blue-700 shadow-2xs transition';
+        rStu.className = 'py-2 text-xs font-medium rounded-xl text-slate-600 transition';
+        stuFields.classList.add('hidden');
+        admFields.classList.remove('hidden');
+        if (switchRow) switchRow.classList.add('hidden');
+        switchStudentAuthMode('login');
+      } else {
+        rStu.className = 'py-2 text-xs font-semibold rounded-xl bg-white text-blue-700 shadow-2xs transition';
+        rAdm.className = 'py-2 text-xs font-medium rounded-xl text-slate-600 transition';
+        stuFields.classList.remove('hidden');
+        admFields.classList.add('hidden');
+        if (switchRow) switchRow.classList.remove('hidden');
+      }
+    }
+
+    function toggleStudentLoginRegisterMode() {
+      switchStudentAuthMode(studentAuthMode === 'login' ? 'register' : 'login');
+    }
 
     function switchStudentAuthMode(mode) {
       studentAuthMode = mode === 'register' ? 'register' : 'login';
-      const tabLogin = document.getElementById('student-tab-login');
-      const tabReg = document.getElementById('student-tab-register');
-      const confirmWrap = document.getElementById('student-confirm-wrapper');
+      const isReg = studentAuthMode === 'register' && authRoleTab === 'student';
+      document.getElementById('student-fullname-wrap')?.classList.toggle('hidden', !isReg);
+      document.getElementById('student-class-wrap')?.classList.toggle('hidden', !isReg);
+      document.getElementById('student-confirm-wrapper')?.classList.toggle('hidden', !isReg);
       const confirmInput = document.getElementById('student-confirm-password-input');
+      if (confirmInput) confirmInput.required = isReg;
       const submitBtn = document.getElementById('student-auth-submit-btn');
-      const desc = document.getElementById('student-auth-desc');
-      const errEl = document.getElementById('student-register-error');
-      errEl.classList.add('hidden');
-
-      if (studentAuthMode === 'register') {
-        tabReg.className = 'py-2 text-xs font-semibold rounded-xl bg-white text-blue-700 shadow-2xs transition';
-        tabLogin.className = 'py-2 text-xs font-medium rounded-xl text-slate-600 hover:text-blue-700 transition';
-        confirmWrap.classList.remove('hidden');
-        confirmInput.required = true;
-        submitBtn.textContent = 'Đăng ký tài khoản';
-        desc.innerHTML = 'Tạo tài khoản mới bằng <strong>Họ tên</strong>, <strong>Lớp</strong> và <strong>Mật khẩu</strong> để lưu quá trình học tập.';
-      } else {
-        tabLogin.className = 'py-2 text-xs font-semibold rounded-xl bg-white text-blue-700 shadow-2xs transition';
-        tabReg.className = 'py-2 text-xs font-medium rounded-xl text-slate-600 hover:text-blue-700 transition';
-        confirmWrap.classList.add('hidden');
-        confirmInput.required = false;
-        submitBtn.textContent = 'Đăng nhập';
-        desc.innerHTML = 'Em cần <strong>Đăng ký tài khoản</strong> trước khi đăng nhập để hệ thống lưu lại quá trình học tập nhé!';
-      }
+      if (submitBtn) submitBtn.textContent = isReg ? (currentLang === 'vi' ? 'Đăng ký' : 'Register') : (currentLang === 'vi' ? 'Đăng nhập' : 'Log in');
+      const switchBtn = document.getElementById('student-switch-mode-btn');
+      if (switchBtn) switchBtn.textContent = isReg ? 'Đã có tài khoản? Quay lại Đăng nhập' : 'Chưa có tài khoản? Đăng ký mới';
+      document.getElementById('student-register-error')?.classList.add('hidden');
     }
 
     function openStudentRegisterModal() {
-      const cur = getCurrentStudent();
-      const all = getLocalStudentsList();
-      document.getElementById('student-fullname-input').value = cur ? cur.fullName : '';
-      document.getElementById('student-class-input').value = cur ? cur.className : '';
+      populateStudentClassSelect();
       document.getElementById('student-password-input').value = '';
       document.getElementById('student-confirm-password-input').value = '';
-      document.getElementById('student-register-error').classList.add('hidden');
-      switchStudentAuthMode(all.length === 0 ? 'register' : 'login');
+      document.getElementById('student-register-error')?.classList.add('hidden');
+      document.getElementById('student-register-info')?.classList.add('hidden');
+      switchAuthRoleTab('student');
+      switchStudentAuthMode('login');
       document.getElementById('student-register-modal').classList.remove('hidden');
-      setTimeout(() => document.getElementById('student-fullname-input').focus(), 50);
+      setTimeout(() => document.getElementById('student-code-input')?.focus(), 50);
     }
 
     function closeStudentRegisterModal() {
@@ -2897,234 +3118,490 @@
       pendingStudentAction = null;
     }
 
-    function requireStudentRegistered(callback) {
-      const cur = getCurrentStudent();
-      if (cur && cur.fullName && cur.className) return true;
-      pendingStudentAction = callback;
-      openStudentRegisterModal();
-      showToast('Em hãy đăng ký hoặc đăng nhập tài khoản học sinh trước nhé!');
-      return false;
-    }
-
-    async function handleStudentAuthSubmit(e) {
-      e.preventDefault();
-      const fullName = document.getElementById('student-fullname-input').value.trim();
-      const className = document.getElementById('student-class-input').value.trim();
-      const password = document.getElementById('student-password-input').value;
-      const confirmPassword = document.getElementById('student-confirm-password-input').value;
-      const errEl = document.getElementById('student-register-error');
-      errEl.classList.add('hidden');
-      if (!fullName || !className || !password) return;
-
-      const all = getLocalStudentsList();
-      let localStudent = all.find(s => s.fullName.toLowerCase() === fullName.toLowerCase() && s.className.toLowerCase() === className.toLowerCase());
-
-      if (studentAuthMode === 'register') {
-        if (password !== confirmPassword) {
-          errEl.textContent = 'Mật khẩu nhập lại chưa khớp!';
-          errEl.classList.remove('hidden');
-          return;
-        }
-        if (localStudent) {
-          errEl.textContent = 'Tài khoản này đã được đăng ký. Em hãy chuyển sang tab Đăng nhập nhé!';
-          errEl.classList.remove('hidden');
-          return;
-        }
-
-        let newStudent = {
-          id: 'hs_' + Date.now(),
-          fullName,
-          className,
-          password,
-          createdAt: new Date().toISOString(),
-          lastActiveAt: new Date().toISOString(),
-          stats: { questions: 0, gradedImages: 0, quizzesDone: 0, quizzesCorrect: 0 },
-          activities: []
-        };
-
-        try {
-          const res = await fetch('/api/students/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fullName, className, password })
-          });
-          const data = await res.json();
-          if (res.status === 409) {
-            errEl.textContent = data.message || 'Tài khoản này đã được đăng ký.';
-            errEl.classList.remove('hidden');
-            return;
-          }
-          if (res.ok && data.student) {
-            newStudent = { ...data.student, password };
-          }
-        } catch {}
-
-        saveLocalStudentRecord(newStudent);
-        renderStudentStatsUI();
-        document.getElementById('student-register-modal').classList.add('hidden');
-        showToast(`Đăng ký thành công! Chào mừng ${fullName} (Lớp ${className})!`);
-      } else {
-        // ĐĂNG NHẬP: Bắt buộc tài khoản phải được đăng ký trước
-        let loggedStudent = null;
-        if (localStudent) {
-          if (localStudent.password && localStudent.password !== password) {
-            errEl.textContent = 'Mật khẩu chưa đúng!';
-            errEl.classList.remove('hidden');
-            return;
-          }
-          loggedStudent = localStudent;
-          loggedStudent.lastActiveAt = new Date().toISOString();
-        }
-
-        try {
-          const res = await fetch('/api/students/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fullName, className, password })
-          });
-          const data = await res.json();
-          if (res.ok && data.student) {
-            loggedStudent = loggedStudent || { ...data.student, password };
-          } else if (!loggedStudent) {
-            errEl.textContent = data.message || 'Tài khoản chưa được đăng ký. Em vui lòng chuyển sang tab Đăng ký mới trước nhé!';
-            errEl.classList.remove('hidden');
-            return;
-          }
-        } catch {
-          if (!loggedStudent) {
-            errEl.textContent = 'Tài khoản chưa được đăng ký. Em vui lòng chuyển sang tab Đăng ký mới trước nhé!';
-            errEl.classList.remove('hidden');
-            return;
-          }
-        }
-
-        saveLocalStudentRecord(loggedStudent);
-        renderStudentStatsUI();
-        document.getElementById('student-register-modal').classList.add('hidden');
-        showToast(`Đăng nhập thành công! Chào ${fullName} (Lớp ${className})!`);
-      }
-
+    function enterGuestTrialMode() {
+      isGuestTrialMode = true;
+      try { sessionStorage.setItem(LOCAL_KEY_GUEST_MODE, '1'); } catch {}
+      document.getElementById('student-register-modal').classList.add('hidden');
+      renderStudentStatsUI();
+      showToast(currentLang === 'vi' ? 'Đang ở Chế độ dùng thử (không lưu dữ liệu).' : 'Guest trial mode active (not saved).');
       const cb = pendingStudentAction;
       pendingStudentAction = null;
       if (typeof cb === 'function') cb();
     }
 
-    async function recordStudentActivity(type, summary, isCorrect = null) {
-      const student = getCurrentStudent();
-      if (!student) return;
-      student.stats = student.stats || { questions: 0, gradedImages: 0, quizzesDone: 0, quizzesCorrect: 0 };
-      student.activities = student.activities || [];
-      student.lastActiveAt = new Date().toISOString();
-
-      if (type === 'chat_question') student.stats.questions += 1;
-      if (type === 'grade_image') student.stats.gradedImages += 1;
-      if (type === 'quiz_attempt') {
-        student.stats.quizzesDone += 1;
-        if (isCorrect) student.stats.quizzesCorrect += 1;
-      }
-      student.activities.unshift({ type, summary, isCorrect, timestamp: new Date().toISOString() });
-      student.activities = student.activities.slice(0, 50);
-      saveLocalStudentRecord(student);
-      renderStudentStatsUI();
-
-      try {
-        await fetch('/api/students/activity', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            studentId: student.id,
-            fullName: student.fullName,
-            className: student.className,
-            type,
-            summary,
-            isCorrect
-          })
-        });
-      } catch {}
+    function requireStudentRegistered(callback) {
+      if (getAuthProfile() || isGuestTrialMode) return true;
+      pendingStudentAction = callback;
+      openStudentRegisterModal();
+      showToast('Em hãy đăng nhập hoặc chọn Dùng thử trước nhé!');
+      return false;
     }
 
-    function renderStudentStatsUI() {
-      const student = getCurrentStudent();
+    async function handleStudentAuthSubmit(e) {
+      e.preventDefault();
+      const errEl = document.getElementById('student-register-error');
+      const infoEl = document.getElementById('student-register-info');
+      errEl.classList.add('hidden');
+      infoEl.classList.add('hidden');
+
+      const password = document.getElementById('student-password-input').value;
+
+      if (authRoleTab === 'admin') {
+        const email = document.getElementById('admin-login-email-input').value.trim();
+        if (!email || !password) return;
+        try {
+          const res = await fetch('/api/auth/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+          const data = await res.json();
+          if (!res.ok || !data.ok) {
+            errEl.textContent = data.message || 'Sai email hoặc mật khẩu giáo viên';
+            errEl.classList.remove('hidden');
+            return;
+          }
+          applyAuthenticatedSession(data);
+          document.getElementById('student-register-modal').classList.add('hidden');
+          showToast(`Xin chào ${data.profile.full_name}!`);
+        } catch {
+          errEl.textContent = 'Không thể kết nối máy chủ.';
+          errEl.classList.remove('hidden');
+        }
+        return;
+      }
+
+      const studentCode = document.getElementById('student-code-input').value.trim();
+      if (!studentCode || !password) return;
+
+      if (studentAuthMode === 'register') {
+        const fullName = document.getElementById('student-fullname-input').value.trim();
+        const className = document.getElementById('student-class-select').value;
+        const confirmPw = document.getElementById('student-confirm-password-input').value;
+        if (password.length < 6) {
+          errEl.textContent = 'Mật khẩu tối thiểu 6 ký tự!';
+          errEl.classList.remove('hidden');
+          return;
+        }
+        if (password !== confirmPw) {
+          errEl.textContent = 'Mật khẩu nhập lại chưa khớp!';
+          errEl.classList.remove('hidden');
+          return;
+        }
+        try {
+          const res = await fetch('/api/auth/student/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ student_code: studentCode, full_name: fullName, class_name: className, password })
+          });
+          const data = await res.json();
+          if (!res.ok || !data.ok) {
+            errEl.textContent = data.message || 'Không đăng ký được.';
+            errEl.classList.remove('hidden');
+            return;
+          }
+          infoEl.textContent = data.message || 'Đăng ký thành công! Tài khoản đang chờ giáo viên duyệt.';
+          infoEl.classList.remove('hidden');
+          switchStudentAuthMode('login');
+        } catch {
+          errEl.textContent = 'Không thể kết nối máy chủ.';
+          errEl.classList.remove('hidden');
+        }
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/auth/student/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ student_code: studentCode, password })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          errEl.textContent = data.message || 'Sai mã học sinh hoặc mật khẩu';
+          errEl.classList.remove('hidden');
+          return;
+        }
+        applyAuthenticatedSession(data);
+        document.getElementById('student-register-modal').classList.add('hidden');
+        showToast(`Chào mừng ${data.profile.full_name} (${data.profile.class_name})!`);
+        const cb = pendingStudentAction;
+        pendingStudentAction = null;
+        if (typeof cb === 'function') cb();
+      } catch {
+        errEl.textContent = 'Không thể kết nối máy chủ.';
+        errEl.classList.remove('hidden');
+      }
+    }
+
+    function applyAuthenticatedSession(data) {
+      isGuestTrialMode = false;
+      try {
+        sessionStorage.removeItem(LOCAL_KEY_GUEST_MODE);
+        localStorage.setItem(LOCAL_KEY_AUTH_TOKEN, data.token);
+        localStorage.setItem(LOCAL_KEY_AUTH_PROFILE, JSON.stringify(data.profile));
+      } catch {}
+
+      if (data.settings) {
+        if (data.settings.lang_mode) setLanguageMode(data.settings.lang_mode, false);
+        if (data.settings.selected_grade) setSelectedGrade(data.settings.selected_grade, false);
+        if (data.settings.teacher_gender) setTeacherGender(data.settings.teacher_gender);
+        if (window.MathSounds) {
+          window.MathSounds.setSoundEnabled(data.settings.sound_enabled !== false);
+          if (data.settings.sound_volume != null) window.MathSounds.setSoundVolume(Number(data.settings.sound_volume));
+          syncSoundUI();
+        }
+      }
+
+      if (Array.isArray(data.messages) && data.messages.length > 0) {
+        document.getElementById('messages-stream').innerHTML = '';
+        chatConversationHistory = [];
+        data.messages.forEach(m => {
+          chatConversationHistory.push({ role: m.role, content: m.content });
+          if (m.role === 'user') renderUserMessageDOM(m.content, null);
+          else renderAiTextMessageDOM(m.content, 'gemini_api');
+        });
+      }
+
+      const isAdmin = data.profile?.role === 'admin';
+      isAdminAuthenticated = isAdmin;
+      updateAdminAuthUI();
+      if (isAdmin) loadCloudAdminStudents();
+      renderStudentStatsUI(data);
+      resetInactivityTimer();
+    }
+
+    async function syncCloudState(extraPayload = {}) {
+      const token = getAuthToken();
+      if (!token || isGuestTrialMode) return true;
+      const st = window.MathSounds ? window.MathSounds.getSoundState() : { enabled: true, volume: 0.4 };
+      const res = await fetch('/api/account/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          settings: {
+            lang_mode: currentLang,
+            selected_grade: selectedGrade,
+            teacher_gender: teacherGender,
+            sound_enabled: st.enabled,
+            sound_volume: st.volume
+          },
+          ...extraPayload
+        })
+      });
+      return res.ok;
+    }
+
+    function openLogoutConfirmModal() {
+      if (isGuestTrialMode && !getAuthProfile()) {
+        isGuestTrialMode = false;
+        try { sessionStorage.removeItem(LOCAL_KEY_GUEST_MODE); } catch {}
+        openStudentRegisterModal();
+        renderStudentStatsUI();
+        return;
+      }
+      document.getElementById('logout-confirm-title').textContent = currentLang === 'vi' ? 'Em có chắc muốn đăng xuất không?' : 'Are you sure you want to log out?';
+      document.getElementById('logout-stay-btn').textContent = currentLang === 'vi' ? 'Ở lại' : 'Stay';
+      document.getElementById('logout-proceed-btn').textContent = currentLang === 'vi' ? 'Đăng xuất' : 'Log out';
+      document.getElementById('logout-sync-error').classList.add('hidden');
+      document.getElementById('logout-confirm-actions').classList.remove('hidden');
+      document.getElementById('logout-offline-actions').classList.add('hidden');
+      document.getElementById('logout-confirm-modal').classList.remove('hidden');
+    }
+
+    function closeLogoutConfirmModal() {
+      document.getElementById('logout-confirm-modal').classList.add('hidden');
+    }
+
+    async function executeLogout(forceOffline = false) {
+      const token = getAuthToken();
+      if (token && !forceOffline) {
+        try {
+          const st = window.MathSounds ? window.MathSounds.getSoundState() : { enabled: true, volume: 0.4 };
+          const res = await fetch('/api/auth/logout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({
+              settings: {
+                lang_mode: currentLang,
+                selected_grade: selectedGrade,
+                teacher_gender: teacherGender,
+                sound_enabled: st.enabled,
+                sound_volume: st.volume
+              }
+            })
+          });
+          if (!res.ok) throw new Error('SYNC_FAILED');
+        } catch {
+          const errEl = document.getElementById('logout-sync-error');
+          errEl.textContent = currentLang === 'vi' ? 'Chưa lưu được dữ liệu, kiểm tra kết nối mạng.' : 'Could not save data, please check your connection.';
+          errEl.classList.remove('hidden');
+          document.getElementById('logout-confirm-actions').classList.add('hidden');
+          document.getElementById('logout-offline-actions').classList.remove('hidden');
+          return;
+        }
+      }
+
+      // Xóa sạch phiên và dữ liệu cá nhân trên trình duyệt (chỉ giữ ngôn ngữ & âm lượng)
+      try {
+        localStorage.removeItem(LOCAL_KEY_AUTH_TOKEN);
+        localStorage.removeItem(LOCAL_KEY_AUTH_PROFILE);
+        localStorage.removeItem(LOCAL_KEY_STUDENT);
+        localStorage.removeItem(LOCAL_KEY_ALL_STUDENTS);
+        sessionStorage.removeItem(LOCAL_KEY_GUEST_MODE);
+      } catch {}
+
+      isGuestTrialMode = false;
+      isAdminAuthenticated = false;
+      lastGradingResult = null;
+      chatConversationHistory = [];
+      document.getElementById('messages-stream').innerHTML = '';
+      clearImage();
+      closeLogoutConfirmModal();
+      updateAdminAuthUI();
+      renderStudentStatsUI();
+      switchMainTab('chat');
+      showToast(currentLang === 'vi' ? 'Đã đăng xuất. Hẹn gặp lại em!' : 'Logged out. See you again!');
+      openStudentRegisterModal();
+    }
+
+    function openChangePasswordModal() {
+      document.getElementById('new-pw-input').value = '';
+      document.getElementById('confirm-new-pw-input').value = '';
+      document.getElementById('change-pw-error').classList.add('hidden');
+      document.getElementById('change-password-modal').classList.remove('hidden');
+    }
+
+    async function handleChangePasswordSubmit(e) {
+      e.preventDefault();
+      const pw = document.getElementById('new-pw-input').value;
+      const cpw = document.getElementById('confirm-new-pw-input').value;
+      const errEl = document.getElementById('change-pw-error');
+      errEl.classList.add('hidden');
+      if (pw !== cpw) {
+        errEl.textContent = 'Mật khẩu nhập lại chưa khớp!';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      const res = await fetch('/api/account/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthToken()}` },
+        body: JSON.stringify({ new_password: pw })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        errEl.textContent = data.message || 'Không đổi được mật khẩu.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      document.getElementById('change-password-modal').classList.add('hidden');
+      showToast('Đổi mật khẩu thành công!');
+    }
+
+    // Tự động đăng xuất sau 30 phút không thao tác (báo trước 1 phút)
+    let inactivityWarnTimer = null;
+    let inactivityLogoutTimer = null;
+    function resetInactivityTimer() {
+      clearTimeout(inactivityWarnTimer);
+      clearTimeout(inactivityLogoutTimer);
+      if (!getAuthProfile()) return;
+      inactivityWarnTimer = setTimeout(() => {
+        document.getElementById('inactivity-warning-modal')?.classList.remove('hidden');
+      }, 29 * 60 * 1000);
+      inactivityLogoutTimer = setTimeout(() => {
+        document.getElementById('inactivity-warning-modal')?.classList.add('hidden');
+        executeLogout(true);
+      }, 30 * 60 * 1000);
+    }
+    function stayActiveSession() {
+      document.getElementById('inactivity-warning-modal')?.classList.add('hidden');
+      resetInactivityTimer();
+    }
+    ['click', 'keydown', 'touchstart'].forEach(ev => document.addEventListener(ev, resetInactivityTimer, { passive: true }));
+
+    async function recordStudentActivity(type, summary, isCorrect = null) {
+      if (isGuestTrialMode || !getAuthToken()) return;
+      await syncCloudState({ newActivity: { event_type: type, summary } }).catch(() => {});
+    }
+
+    function renderStudentStatsUI(cloudBundle = null) {
+      const profile = getAuthProfile();
       const headerLabel = document.getElementById('student-header-label');
+      const headerAvatar = document.getElementById('student-header-avatar');
       const subtitle = document.getElementById('stats-student-subtitle');
       const logBox = document.getElementById('student-activity-log');
 
-      if (!student) {
-        headerLabel.textContent = 'Đăng ký học sinh';
-        subtitle.textContent = 'Chưa đăng ký thông tin học sinh';
-        document.getElementById('my-stat-questions').textContent = '0';
-        document.getElementById('my-stat-images').textContent = '0';
-        document.getElementById('my-stat-quizzes').textContent = '0';
-        document.getElementById('my-stat-correct').textContent = '0%';
-        logBox.innerHTML = '<p class="text-slate-400 italic">Chưa có hoạt động nào được ghi nhận.</p>';
+      if (!profile) {
+        if (headerAvatar) headerAvatar.textContent = '👤';
+        if (headerLabel) headerLabel.textContent = isGuestTrialMode
+          ? (currentLang === 'vi' ? 'Chế độ dùng thử' : 'Guest mode')
+          : (currentLang === 'vi' ? 'Đăng nhập' : 'Log in');
+        if (subtitle) subtitle.textContent = isGuestTrialMode ? 'Chế độ dùng thử (không lưu dữ liệu)' : 'Chưa đăng nhập';
         return;
       }
 
-      headerLabel.textContent = `${student.fullName} · ${student.className}`;
-      subtitle.textContent = `Học sinh: ${student.fullName} — Lớp ${student.className}`;
-      const st = student.stats || {};
-      const q = st.questions || 0;
-      const im = st.gradedImages || 0;
-      const qz = st.quizzesDone || 0;
-      const qc = st.quizzesCorrect || 0;
+      const initial = (profile.full_name || 'U').trim().split(/\s+/).pop().charAt(0).toUpperCase();
+      if (headerAvatar) headerAvatar.innerHTML = `<span class="inline-flex w-5 h-5 rounded-full bg-white text-blue-700 font-bold text-[11px] items-center justify-center">${escapeHtml(initial)}</span>`;
+      if (headerLabel) headerLabel.textContent = profile.class_name ? `${profile.full_name} · ${profile.class_name}` : profile.full_name;
+      if (subtitle) subtitle.textContent = profile.role === 'admin' ? `Giáo viên: ${profile.full_name}` : `Học sinh: ${profile.full_name} — Lớp ${profile.class_name || ''}`;
 
-      document.getElementById('my-stat-questions').textContent = q;
-      document.getElementById('my-stat-images').textContent = im;
-      document.getElementById('my-stat-quizzes').textContent = qz;
-      document.getElementById('my-stat-correct').textContent = qz > 0 ? `${Math.round((qc / qz) * 100)}%` : '0%';
-
-      const acts = student.activities || [];
-      if (!acts.length) {
-        logBox.innerHTML = '<p class="text-slate-400 italic">Em chưa thực hiện câu hỏi hay bài tập nào.</p>';
-      } else {
-        const badgeMap = {
-          chat_question: '<span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-semibold">Hỏi AI</span>',
-          grade_image: '<span class="px-1.5 py-0.5 rounded bg-sky-50 text-sky-700 font-semibold">Chấm ảnh</span>',
-          quiz_attempt: '<span class="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 font-semibold">Tự luyện</span>'
-        };
-        logBox.innerHTML = acts.map(a => {
-          const timeStr = new Date(a.timestamp).toLocaleString('vi-VN');
-          const resBadge = a.isCorrect === true ? ' · ✅ Đúng' : (a.isCorrect === false ? ' · ❌ Sai' : '');
-          return `<div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start justify-between gap-2">
-            <div>${badgeMap[a.type] || ''} <span class="text-slate-700 ml-1">${escapeHtml(a.summary)}${resBadge}</span></div>
-            <span class="text-[10px] text-slate-400 shrink-0">${timeStr}</span>
-          </div>`;
-        }).join('');
+      if (cloudBundle && Array.isArray(cloudBundle.activity_log)) {
+        const acts = cloudBundle.activity_log;
+        const qCount = acts.filter(a => a.event_type === 'chat_question').length;
+        const imgCount = acts.filter(a => a.event_type === 'grade_image').length;
+        const qzCount = acts.filter(a => a.event_type === 'quiz_attempt').length;
+        document.getElementById('my-stat-questions').textContent = qCount;
+        document.getElementById('my-stat-images').textContent = imgCount;
+        document.getElementById('my-stat-quizzes').textContent = qzCount;
+        if (logBox) {
+          logBox.innerHTML = acts.length
+            ? acts.slice(0, 15).map(a => `<div class="p-2 rounded-lg bg-slate-50 border border-slate-100 text-xs">${escapeHtml(a.summary || a.event_type)}</div>`).join('')
+            : '<p class="text-slate-400 italic">Em chưa thực hiện câu hỏi hay bài tập nào.</p>';
+        }
       }
     }
 
-    async function loadAdminStudentsList() {
+    let cachedCloudStudents = [];
+
+    async function loadCloudAdminStudents() {
+      const tbody = document.getElementById('admin-students-table-body');
+      const token = getAuthToken();
+      if (!tbody || !token) return;
+      try {
+        const res = await fetch('/api/admin/cloud-students', { headers: { Authorization: `Bearer ${token}` } });
+        const data = await res.json();
+        if (!res.ok || !data.ok) return;
+        cachedCloudStudents = data.students || [];
+        const allowToggle = document.getElementById('admin-allow-register-toggle');
+        if (allowToggle) allowToggle.checked = data.allow_self_register !== false;
+        renderCloudAdminStudentsTable();
+      } catch {}
+    }
+
+    function renderCloudAdminStudentsTable() {
       const tbody = document.getElementById('admin-students-table-body');
       if (!tbody) return;
-      let combined = [...getLocalStudentsList()];
-      try {
-        const res = await fetch('/api/students');
-        const data = await res.json();
-        if (res.ok && Array.isArray(data.students)) {
-          data.students.forEach(srv => {
-            const exists = combined.find(l => l.fullName.toLowerCase() === srv.fullName.toLowerCase() && l.className.toLowerCase() === srv.className.toLowerCase());
-            if (!exists) combined.push(srv);
-          });
-        }
-      } catch {}
-
-      if (!combined.length) {
-        tbody.innerHTML = '<tr><td colspan="6" class="px-3 py-4 text-center text-slate-400">Chưa có học sinh nào đăng ký trên hệ thống.</td></tr>';
+      if (!cachedCloudStudents.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="px-3 py-4 text-center text-slate-400">Chưa có học sinh nào trên hệ thống.</td></tr>';
         return;
       }
-
-      tbody.innerHTML = combined.map(s => {
-        const st = s.stats || {};
-        const lastTime = s.lastActiveAt ? new Date(s.lastActiveAt).toLocaleString('vi-VN') : '—';
+      tbody.innerHTML = cachedCloudStudents.map(s => {
+        const lastTime = s.last_login_at ? new Date(s.last_login_at).toLocaleString('vi-VN') : '—';
+        const statusBadge = s.locked
+          ? '<span class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 text-[10px] font-bold">Đã khóa</span>'
+          : (!s.approved ? '<span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold">Chờ duyệt</span>' : '<span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">Hoạt động</span>');
+        const approveBtn = !s.approved ? `<button type="button" onclick="adminStudentAction('approve','${s.id}')" class="px-2 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-semibold">Duyệt</button>` : '';
+        const lockBtn = s.locked
+          ? `<button type="button" onclick="adminStudentAction('unlock','${s.id}')" class="px-2 py-0.5 rounded bg-blue-600 text-white text-[10px] font-semibold">Mở khóa</button>`
+          : `<button type="button" onclick="adminStudentAction('lock','${s.id}')" class="px-2 py-0.5 rounded bg-amber-500 text-white text-[10px] font-semibold">Khóa</button>`;
         return `<tr class="hover:bg-blue-50/30">
-          <td class="px-3 py-2.5 font-semibold text-slate-900">${escapeHtml(s.fullName)}</td>
-          <td class="px-3 py-2.5 text-blue-700 font-medium">${escapeHtml(s.className)}</td>
-          <td class="px-3 py-2.5 text-center">${st.questions || 0}</td>
-          <td class="px-3 py-2.5 text-center">${st.gradedImages || 0}</td>
-          <td class="px-3 py-2.5 text-center">${st.quizzesDone || 0}</td>
-          <td class="px-3 py-2.5 text-slate-500">${lastTime}</td>
+          <td class="px-3 py-2 font-semibold text-slate-900">${escapeHtml(s.full_name)} <div class="text-[10px] text-slate-500">Mã: ${escapeHtml(s.student_code || '')} ${statusBadge}</div></td>
+          <td class="px-3 py-2 text-blue-700 font-medium">${escapeHtml(s.class_name || '')}</td>
+          <td class="px-3 py-2 text-center">${s.questions_count || 0}</td>
+          <td class="px-3 py-2 text-center" colspan="2">
+            <div class="flex flex-wrap items-center justify-center gap-1">
+              ${approveBtn}${lockBtn}
+              <button type="button" onclick="adminResetStudentPw('${s.id}','${escapeHtml(s.student_code || '')}')" class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-[10px] font-semibold">Đặt lại MK</button>
+              <button type="button" onclick="adminDeleteStudentAccount('${s.id}','${escapeHtml(s.full_name)}')" class="px-2 py-0.5 rounded bg-rose-100 text-rose-700 text-[10px] font-semibold">Xóa</button>
+            </div>
+          </td>
+          <td class="px-3 py-2 text-slate-500 text-[11px]">${lastTime}</td>
         </tr>`;
       }).join('');
+    }
+
+    async function adminCreateSingleStudent() {
+      const student_code = document.getElementById('admin-new-code')?.value.trim();
+      const full_name = document.getElementById('admin-new-name')?.value.trim();
+      const class_name = document.getElementById('admin-new-class')?.value.trim();
+      const password = document.getElementById('admin-new-pw')?.value || '123456';
+      if (!student_code || !full_name || !class_name) {
+        showToast('Nhập đủ Mã HS, Họ tên và Lớp nhé!');
+        return;
+      }
+      const res = await fetch('/api/admin/cloud-students/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthToken()}` },
+        body: JSON.stringify({ student_code, full_name, class_name, password })
+      });
+      const data = await res.json();
+      if (data.results?.[0]?.ok) {
+        showToast(`Đã tạo tài khoản ${student_code} (${full_name})`);
+        document.getElementById('admin-new-code').value = '';
+        document.getElementById('admin-new-name').value = '';
+        loadCloudAdminStudents();
+      } else {
+        showToast(data.results?.[0]?.message || 'Không tạo được tài khoản.');
+      }
+    }
+
+    async function adminImportCsvStudents(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const text = await file.text();
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const students = [];
+      lines.forEach((line, idx) => {
+        const cols = line.split(',').map(c => c.trim());
+        if (idx === 0 && /ma_hoc_sinh|student_code/i.test(cols[0])) return;
+        if (cols[0] && cols[1] && cols[2]) {
+          students.push({ student_code: cols[0], full_name: cols[1], class_name: cols[2], password: cols[3] || '123456' });
+        }
+      });
+      if (!students.length) { showToast('File CSV không có dữ liệu hợp lệ.'); return; }
+      const res = await fetch('/api/admin/cloud-students/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthToken()}` },
+        body: JSON.stringify({ students })
+      });
+      const data = await res.json();
+      const okCount = (data.results || []).filter(r => r.ok).length;
+      showToast(`Đã nhập ${okCount}/${students.length} học sinh!`);
+      loadCloudAdminStudents();
+    }
+
+    async function adminStudentAction(action, userId, extra = {}) {
+      await fetch('/api/admin/cloud-students/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthToken()}` },
+        body: JSON.stringify({ action, user_id: userId, ...extra })
+      });
+      loadCloudAdminStudents();
+    }
+
+    async function adminResetStudentPw(userId, code) {
+      const newPw = window.prompt(`Nhập mật khẩu mới cho học sinh ${code} (tối thiểu 6 ký tự):`, '123456');
+      if (!newPw || newPw.length < 6) return;
+      await adminStudentAction('reset_password', userId, { new_password: newPw });
+      showToast(`Đã đặt lại mật khẩu cho ${code}`);
+    }
+
+    async function adminDeleteStudentAccount(userId, name) {
+      if (!confirm(`Xóa vĩnh viễn tài khoản và toàn bộ dữ liệu của ${name}?`)) return;
+      await adminStudentAction('delete', userId);
+      showToast(`Đã xóa tài khoản ${name}`);
+    }
+
+    async function adminToggleSelfRegister(allow) {
+      await fetch('/api/admin/cloud-students/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthToken()}` },
+        body: JSON.stringify({ action: 'set_self_register', allow_self_register: allow })
+      });
+      showToast(allow ? 'Đã bật cho phép học sinh tự đăng ký.' : 'Đã tắt tự đăng ký.');
+    }
+
+    function adminExportStudentsCsv() {
+      const rows = [['ma_hoc_sinh', 'ho_ten', 'lop', 'trang_thai', 'so_cau_hoi', 'lan_dang_nhap_cuoi']];
+      cachedCloudStudents.forEach(s => {
+        rows.push([s.student_code || '', s.full_name || '', s.class_name || '', s.locked ? 'Locked' : (s.approved ? 'Active' : 'Pending'), s.questions_count || 0, s.last_login_at || '']);
+      });
+      const csv = '\uFEFF' + rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'danh_sach_hoc_sinh.csv';
+      a.click();
     }
 
     // 8. QUẢN LÝ & HIỂN THỊ ĐỀ TỰ LUYỆN HTML (MỤC 3)
@@ -3716,11 +4193,26 @@
       setLanguageMode(currentLang);
       setSelectedGrade(selectedGrade);
       setTeacherGender(teacherGender);
+      const token = getAuthToken();
+      if (token) {
+        try {
+          const res = await fetch('/api/account/me', { headers: { Authorization: `Bearer ${token}` } });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.ok && data.profile) {
+              applyAuthenticatedSession({ token, ...data });
+            }
+          } else {
+            localStorage.removeItem(LOCAL_KEY_AUTH_TOKEN);
+            localStorage.removeItem(LOCAL_KEY_AUTH_PROFILE);
+          }
+        } catch {}
+      }
       updateAdminAuthUI();
       renderStudentStatsUI();
       animateStatsCountUp();
       loadPracticesList();
-      if (isAdminAuthenticated) loadAdminStudentsList();
+      if (isAdminAuthenticated) loadCloudAdminStudents();
       renderMathInContainer(document.body);
     });
     window.addEventListener('load', () => {

@@ -9,6 +9,23 @@ import fs from 'fs';
 import path from 'path';
 import url, { fileURLToPath } from 'url';
 import crypto from 'crypto';
+import {
+  authenticateRequest,
+  checkLoginLockout,
+  recordFailedAttempt,
+  clearFailedAttempts,
+  getPublicAuthConfig,
+  setAllowSelfRegister,
+  loginStudent,
+  loginAdmin,
+  registerStudent,
+  loadUserCloudData,
+  syncUserCloudData,
+  changeUserPassword,
+  adminListStudents,
+  adminUpdateStudent,
+  adminDeleteStudent,
+} from './authStore.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -941,6 +958,147 @@ export async function handleRequest(req, res) {
         recent_errors: geminiErrorLogs.slice(0, 20),
         test_call: testCall,
       });
+    }
+
+    // ==========================================
+    // API TÀI KHOẢN & ĐỒNG BỘ ĐÁM MÂY (SUPABASE / FALLBACK)
+    // ==========================================
+    if (req.method === 'GET' && pathname === '/api/auth/config') {
+      const cfg = await getPublicAuthConfig();
+      return sendJson(res, 200, cfg);
+    }
+
+    if (req.method === 'POST' && pathname === '/api/auth/student/login') {
+      const body = await readRequestBody(req);
+      const clientIp = req.socket?.remoteAddress || 'unknown';
+      const lockKey = `${clientIp}|student|${String(body.student_code || '').toLowerCase()}`;
+      const lock = checkLoginLockout(lockKey);
+      if (lock.locked) {
+        return sendJson(res, 429, { ok: false, message: `Em đã nhập sai quá 5 lần. Vui lòng thử lại sau ${lock.mins} phút.` });
+      }
+      const result = await loginStudent({ studentCode: body.student_code, password: body.password });
+      if (!result.ok) {
+        if (result.status === 401) recordFailedAttempt(lockKey);
+        return sendJson(res, result.status || 401, { ok: false, message: result.message });
+      }
+      clearFailedAttempts(lockKey);
+      return sendJson(res, 200, result);
+    }
+
+    if (req.method === 'POST' && pathname === '/api/auth/student/register') {
+      const cfg = await getPublicAuthConfig();
+      if (!cfg.allow_self_register) {
+        return sendJson(res, 403, { ok: false, message: 'Giáo viên đã tạm tắt chức năng tự đăng ký. Em liên hệ giáo viên để được cấp tài khoản nhé!' });
+      }
+      const body = await readRequestBody(req);
+      const result = await registerStudent({
+        studentCode: body.student_code,
+        fullName: body.full_name,
+        className: body.class_name,
+        password: body.password,
+        approved: false, // Chờ giáo viên duyệt
+      });
+      if (!result.ok) return sendJson(res, result.status || 400, { ok: false, message: result.message });
+      return sendJson(res, 200, { ok: true, pending_approval: true, message: 'Đăng ký thành công! Tài khoản đang chờ giáo viên duyệt.', profile: result.profile });
+    }
+
+    if (req.method === 'POST' && pathname === '/api/auth/admin/login') {
+      const body = await readRequestBody(req);
+      const clientIp = req.socket?.remoteAddress || 'unknown';
+      const lockKey = `${clientIp}|admin|${String(body.email || '').toLowerCase()}`;
+      const lock = checkLoginLockout(lockKey);
+      if (lock.locked) {
+        return sendJson(res, 429, { ok: false, message: `Đã nhập sai quá 5 lần. Vui lòng thử lại sau ${lock.mins} phút.` });
+      }
+      const result = await loginAdmin({ email: body.email, password: body.password });
+      if (!result.ok) {
+        if (result.status === 401) recordFailedAttempt(lockKey);
+        return sendJson(res, result.status || 401, { ok: false, message: result.message });
+      }
+      clearFailedAttempts(lockKey);
+      return sendJson(res, 200, result);
+    }
+
+    if (req.method === 'POST' && pathname === '/api/auth/logout') {
+      const auth = await authenticateRequest(req);
+      if (auth) {
+        const body = await readRequestBody(req).catch(() => ({}));
+        await syncUserCloudData(auth.userId, {
+          ...body,
+          newActivity: { event_type: 'logout', summary: 'Đăng xuất tài khoản' },
+        });
+      }
+      return sendJson(res, 200, { ok: true });
+    }
+
+    if (req.method === 'GET' && pathname === '/api/account/me') {
+      const auth = await authenticateRequest(req);
+      if (!auth) return sendJson(res, 401, { ok: false, message: 'Chưa đăng nhập' });
+      const bundle = await loadUserCloudData(auth.userId);
+      return sendJson(res, 200, { ok: true, profile: auth.profile, ...bundle });
+    }
+
+    if (req.method === 'POST' && pathname === '/api/account/sync') {
+      const auth = await authenticateRequest(req);
+      if (!auth) return sendJson(res, 401, { ok: false, message: 'Chưa đăng nhập' });
+      const body = await readRequestBody(req);
+      await syncUserCloudData(auth.userId, body);
+      return sendJson(res, 200, { ok: true });
+    }
+
+    if (req.method === 'POST' && pathname === '/api/account/change-password') {
+      const auth = await authenticateRequest(req);
+      if (!auth) return sendJson(res, 401, { ok: false, message: 'Chưa đăng nhập' });
+      const body = await readRequestBody(req);
+      const r = await changeUserPassword(auth.userId, body.new_password);
+      if (!r.ok) return sendJson(res, r.status || 400, { ok: false, message: r.message });
+      return sendJson(res, 200, { ok: true, message: 'Đổi mật khẩu thành công!' });
+    }
+
+    // API QUẢN TRỊ (BẮT BUỘC VAI TRÒ ADMIN PHÍA SERVER)
+    if (pathname.startsWith('/api/admin/cloud-')) {
+      const auth = await authenticateRequest(req);
+      if (!auth || auth.profile?.role !== 'admin') {
+        return sendJson(res, 403, { ok: false, message: 'Chỉ Quản trị viên (giáo viên) mới có quyền truy cập.' });
+      }
+      if (req.method === 'GET' && pathname === '/api/admin/cloud-students') {
+        const [students, cfg] = await Promise.all([adminListStudents(), getPublicAuthConfig()]);
+        return sendJson(res, 200, { ok: true, students, allow_self_register: cfg.allow_self_register });
+      }
+      if (req.method === 'POST' && pathname === '/api/admin/cloud-students/create') {
+        const body = await readRequestBody(req);
+        const list = Array.isArray(body.students) ? body.students : [body];
+        const results = [];
+        for (const item of list) {
+          const r = await registerStudent({
+            studentCode: item.student_code,
+            fullName: item.full_name,
+            className: item.class_name,
+            password: item.password || '123456',
+            approved: true,
+          });
+          results.push({ student_code: item.student_code, ok: r.ok, message: r.message || 'OK', profile: r.profile });
+        }
+        return sendJson(res, 200, { ok: true, results });
+      }
+      if (req.method === 'POST' && pathname === '/api/admin/cloud-students/action') {
+        const body = await readRequestBody(req);
+        const { action, user_id, new_password, allow_self_register } = body;
+        if (action === 'set_self_register') {
+          const updated = await setAllowSelfRegister(allow_self_register);
+          return sendJson(res, 200, { ok: true, ...updated });
+        }
+        if (action === 'approve') await adminUpdateStudent(user_id, { approved: true });
+        else if (action === 'lock') await adminUpdateStudent(user_id, { locked: true });
+        else if (action === 'unlock') await adminUpdateStudent(user_id, { locked: false });
+        else if (action === 'reset_password') {
+          const r = await changeUserPassword(user_id, new_password || '123456');
+          if (!r.ok) return sendJson(res, 400, r);
+        } else if (action === 'delete') {
+          await adminDeleteStudent(user_id);
+        }
+        return sendJson(res, 200, { ok: true });
+      }
     }
 
     // API: GET /api/config
