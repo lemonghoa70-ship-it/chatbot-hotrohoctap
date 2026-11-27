@@ -205,6 +205,7 @@ async function executeGeminiSingleCall({ endpointName, model, keyToUse, keyIndex
         'Content-Type': 'application/json',
         'x-goog-api-key': keyToUse,
       },
+      signal: AbortSignal.timeout(25000),
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: systemInstructionText }] },
         contents,
@@ -340,6 +341,7 @@ async function streamGeminiSseCall({ model, keyToUse, systemInstructionText, con
         'Content-Type': 'application/json',
         'x-goog-api-key': keyToUse,
       },
+      signal: AbortSignal.timeout(25000),
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: systemInstructionText }] },
         contents,
@@ -1171,6 +1173,7 @@ export async function handleRequest(req, res) {
             Connection: 'keep-alive',
             'Access-Control-Allow-Origin': '*',
           });
+          res.write(': connected\n\n');
           try {
             const meta = await callGeminiChatStream(chatOpts, (delta) => {
               res.write(`data: ${JSON.stringify({ delta })}\n\n`);
