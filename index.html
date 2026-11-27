@@ -1506,8 +1506,14 @@
     const LOCAL_KEY_TEACHER_GENDER = 'trogiang_teacher_gender_v1';
     let teacherGender = localStorage.getItem(LOCAL_KEY_TEACHER_GENDER) || 'co';
 
-    function getTeacherShort() { return teacherGender === 'thay' ? 'Thầy' : 'Cô'; }
-    function getTeacherName() { return teacherGender === 'thay' ? 'Thầy AI' : 'Cô AI'; }
+    function getTeacherShort() {
+      if (currentLang === 'vi') return teacherGender === 'thay' ? 'Thầy' : 'Cô';
+      return teacherGender === 'thay' ? 'Mr.' : 'Ms.';
+    }
+    function getTeacherName() {
+      if (currentLang === 'vi') return teacherGender === 'thay' ? 'Thầy AI' : 'Cô AI';
+      return teacherGender === 'thay' ? 'Mr. AI' : 'Ms. AI';
+    }
 
     function setTeacherGender(gender) {
       teacherGender = gender === 'thay' ? 'thay' : 'co';
@@ -1516,6 +1522,8 @@
       const btnCo = document.getElementById('teacher-btn-co');
       const btnThay = document.getElementById('teacher-btn-thay');
       if (btnCo && btnThay) {
+        btnCo.textContent = currentLang === 'vi' ? '👩‍🏫 Cô AI' : '👩‍🏫 Ms. AI';
+        btnThay.textContent = currentLang === 'vi' ? '👨‍🏫 Thầy AI' : '👨‍🏫 Mr. AI';
         if (teacherGender === 'co') {
           btnCo.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition flex items-center gap-1';
           btnThay.className = 'px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition flex items-center gap-1';
@@ -1549,7 +1557,7 @@
               <circle cx="36.2" cy="27.5" r="1.1" fill="#0f172a"/>
               <path d="M29 33.5c1.8 1.4 4.2 1.4 6 0" stroke="#b45309" stroke-width="1.5" fill="none" stroke-linecap="round"/>
             </svg>
-            <span class="absolute -top-1 -right-1 px-1.5 h-5 rounded-full bg-blue-700 text-white text-[10px] font-bold flex items-center justify-center shadow-xs">Thầy AI</span>
+            <span class="absolute -top-1 -right-1 px-1.5 h-5 rounded-full bg-blue-700 text-white text-[10px] font-bold flex items-center justify-center shadow-xs">${getTeacherName()}</span>
           `;
         } else {
           avatarBox.innerHTML = `
@@ -1562,18 +1570,19 @@
               <circle cx="35.5" cy="28" r="1.3" fill="#0f172a"/>
               <path d="M29 33c1.8 1.5 4.2 1.5 6 0" stroke="#dc2626" stroke-width="1.6" fill="none" stroke-linecap="round"/>
             </svg>
-            <span class="absolute -top-1 -right-1 px-1.5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center shadow-xs">Cô AI</span>
+            <span class="absolute -top-1 -right-1 px-1.5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center shadow-xs">${getTeacherName()}</span>
           `;
         }
       }
 
       const qaBox = document.getElementById('welcome-teacher-qa');
       if (qaBox) {
-        const short = getTeacherShort();
+        const viShort = teacherGender === 'thay' ? 'Thầy' : 'Cô';
+        const viName = teacherGender === 'thay' ? 'Thầy AI' : 'Cô AI';
         const name = getTeacherName();
         const viQa = `
-          <p><strong>Học sinh:</strong> ${short} ơi, làm sao rút gọn $\\sqrt{a^2}$ và giải phương trình $ax^2 + bx + c = 0$ ạ?</p>
-          <p><strong>${name}:</strong> Rất đơn giản! Em áp dụng hằng đẳng thức $\\sqrt{a^2} = |a|$. Với phương trình bậc hai $ax^2 + bx + c = 0 \\ (a \\neq 0)$, ta tính $\\Delta = b^2 - 4ac$ rồi xét dấu của $\\Delta$ nhé! Em có thể gõ câu hỏi hoặc tải ảnh bài làm lên để ${short} kiểm tra cùng em.</p>
+          <p><strong>Học sinh:</strong> ${viShort} ơi, làm sao rút gọn $\\sqrt{a^2}$ và giải phương trình $ax^2 + bx + c = 0$ ạ?</p>
+          <p><strong>${viName}:</strong> Rất đơn giản! Em áp dụng hằng đẳng thức $\\sqrt{a^2} = |a|$. Với phương trình bậc hai $ax^2 + bx + c = 0 \\ (a \\neq 0)$, ta tính $\\Delta = b^2 - 4ac$ rồi xét dấu của $\\Delta$ nhé! Em có thể gõ câu hỏi hoặc tải ảnh bài làm lên để ${viShort} kiểm tra cùng em.</p>
         `;
         const enQa = `
           <p><strong>Student:</strong> Teacher, how do I simplify $\\sqrt{a^2}$ and solve $ax^2 + bx + c = 0$?</p>
