@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="overflow-x-hidden">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -114,9 +114,9 @@
     <div class="bg-slate-50/90 border-t border-blue-100/80">
       <div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between gap-2">
         <!-- Bộ chọn Ngôn ngữ: Tiếng Việt | English | Song ngữ -->
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2 max-w-full">
           <span data-i18n="labelLanguage" class="text-[11px] font-semibold text-slate-500 hidden sm:inline">Ngôn ngữ:</span>
-          <div class="inline-flex items-center bg-sky-100/70 p-0.5 rounded-xl border border-sky-200" role="group" aria-label="Language mode">
+          <div class="inline-flex flex-wrap items-center bg-sky-100/70 p-0.5 rounded-xl border border-sky-200 max-w-full" role="group" aria-label="Language mode">
             <button type="button" onclick="setLanguageMode('vi')" id="lang-btn-vi" class="lang-pill-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition">Tiếng Việt</button>
             <button type="button" onclick="setLanguageMode('en')" id="lang-btn-en" class="lang-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">English</button>
             <button type="button" onclick="setLanguageMode('bilingual')" id="lang-btn-bilingual" data-i18n="langBilingualLabel" class="lang-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Song ngữ</button>
@@ -124,9 +124,9 @@
         </div>
 
         <!-- Bộ chọn lớp THCS -->
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2 max-w-full">
           <span data-i18n="labelGrade" class="text-[11px] font-semibold text-slate-500 hidden sm:inline">Chọn lớp:</span>
-          <div class="inline-flex items-center bg-blue-100/60 p-0.5 rounded-xl border border-blue-200/80 shrink-0 whitespace-nowrap" role="group" aria-label="Chọn lớp">
+          <div class="inline-flex flex-wrap items-center bg-blue-100/60 p-0.5 rounded-xl border border-blue-200/80 max-w-full" role="group" aria-label="Chọn lớp">
             <button type="button" onclick="setSelectedGrade(6)" id="grade-btn-6" data-i18n="grade6" class="grade-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Lớp 6</button>
             <button type="button" onclick="setSelectedGrade(7)" id="grade-btn-7" data-i18n="grade7" class="grade-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Lớp 7</button>
             <button type="button" onclick="setSelectedGrade(8)" id="grade-btn-8" data-i18n="grade8" class="grade-pill-btn px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:text-blue-700 transition">Lớp 8</button>
@@ -140,7 +140,7 @@
   <!-- ========================================== -->
   <!-- BỐ CỤC CHÍNH: SIDEBAR TRÁI + DASHBOARD     -->
   <!-- ========================================== -->
-  <div class="flex-1 max-w-[1440px] w-full mx-auto flex relative">
+  <div class="flex-1 max-w-[1440px] w-full min-w-0 mx-auto flex relative">
 
     <!-- THANH MENU BÊN TRÁI (5 MỤC CHÍNH) -->
     <aside id="app-sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-72 bg-white/95 lg:bg-white/80 backdrop-blur-sm border-r border-blue-100 flex flex-col justify-between transition-transform duration-200 -translate-x-full lg:translate-x-0 shrink-0">
@@ -236,48 +236,48 @@
       <!-- 1. HÀNG THẺ THỐNG KÊ PHÍA TRÊN + BIỂU ĐỒ HIỆN ĐẠI -->
       <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <!-- Thẻ 1: Tổng thành viên -->
-        <div class="bg-white rounded-2xl border border-blue-100 p-4 shadow-xs flex items-center gap-3.5">
+        <div class="bg-white rounded-2xl border border-blue-100 p-4 shadow-xs flex items-center gap-3.5 min-w-0">
           <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
             </svg>
           </div>
-          <div>
+          <div class="min-w-0">
             <div data-i18n="statMembers" class="text-xs font-medium text-slate-500">Tổng thành viên</div>
             <div id="stat-members" class="text-2xl font-extrabold text-slate-900 tracking-tight">486</div>
           </div>
         </div>
 
         <!-- Thẻ 2: Tổng lượt làm bài -->
-        <div class="bg-white rounded-2xl border border-blue-100 p-4 shadow-xs flex items-center gap-3.5">
+        <div class="bg-white rounded-2xl border border-blue-100 p-4 shadow-xs flex items-center gap-3.5 min-w-0">
           <div class="w-11 h-11 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
             </svg>
           </div>
-          <div>
+          <div class="min-w-0">
             <div data-i18n="statExercises" class="text-xs font-medium text-slate-500">Tổng lượt làm bài</div>
             <div id="stat-exercises" class="text-2xl font-extrabold text-slate-900 tracking-tight">3.240</div>
           </div>
         </div>
 
         <!-- Thẻ 3: Tổng lượt truy cập -->
-        <div class="bg-white rounded-2xl border border-blue-100 p-4 shadow-xs flex items-center gap-3.5">
+        <div class="bg-white rounded-2xl border border-blue-100 p-4 shadow-xs flex items-center gap-3.5 min-w-0">
           <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           </div>
-          <div>
+          <div class="min-w-0">
             <div data-i18n="statVisits" class="text-xs font-medium text-slate-500">Tổng lượt truy cập</div>
             <div id="stat-visits" class="text-2xl font-extrabold text-slate-900 tracking-tight">12.850</div>
           </div>
         </div>
 
         <!-- Thẻ 4: Biểu đồ thống kê học tập hiện đại -->
-        <div class="bg-white rounded-2xl border border-blue-100 p-4 shadow-xs flex flex-col justify-between">
-          <div class="flex items-center justify-between mb-1">
+        <div class="bg-white rounded-2xl border border-blue-100 p-4 shadow-xs flex flex-col justify-between min-w-0">
+          <div class="flex flex-wrap items-center justify-between gap-1 mb-1">
             <span data-i18n="statChartTitle" class="text-xs font-bold text-slate-700">Thống kê học tập</span>
             <span data-i18n="statThisWeek" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">Tuần này</span>
           </div>
@@ -302,12 +302,12 @@
       <div id="view-chat" class="space-y-5">
         <section id="chatbot-drop-zone" class="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6 space-y-4 relative overflow-hidden">
           <!-- Lời chào trung tâm + Chọn Thầy AI / Cô AI -->
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-blue-50">
-            <div class="text-center sm:text-left">
+          <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-2.5 pb-3 border-b border-blue-50">
+            <div class="text-center xl:text-left min-w-0">
               <h2 data-i18n="heroWelcome" class="text-lg sm:text-xl font-extrabold text-slate-900">Chào mừng em đến với lớp học AI!</h2>
               <p id="hero-teacher-subtitle" class="text-xs text-slate-500 mt-0.5">Cô AI sẵn sàng giải đáp Toán 9 & chấm từng bước bài làm viết tay qua ảnh.</p>
             </div>
-            <div class="flex flex-wrap items-center justify-center sm:justify-end gap-2">
+            <div class="flex flex-wrap items-center justify-center xl:justify-end gap-2 max-w-full">
               <!-- Chọn Giáo viên AI (Cô / Thầy) -->
               <div class="inline-flex bg-sky-50 p-0.5 rounded-xl border border-sky-200" title="Chọn hình ảnh Giáo viên AI">
                 <button type="button" id="teacher-btn-co" onclick="setTeacherGender('co')" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-blue-700 shadow-2xs transition flex items-center gap-1.5"><img src="/avatars/avatar-co.png" alt="Cô AI" class="w-4 h-4 rounded-full object-cover shrink-0" onerror="this.outerHTML='👩‍🏫'" /><span>Cô AI</span></button>
@@ -374,15 +374,15 @@
           </div>
 
           <!-- Thanh nhập câu hỏi + Tải ảnh bài tập + Gửi câu hỏi -->
-          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 pt-1">
+          <div class="flex flex-col md:flex-row items-stretch md:items-center gap-2.5 pt-1">
             <input type="file" id="file-input" accept="image/*" class="hidden" />
             <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden" />
 
-            <div class="flex-1 flex items-center bg-slate-50 border border-blue-200 rounded-xl px-3.5 py-2 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-500/25 focus-within:border-blue-500 transition">
+            <div class="flex-1 min-w-0 w-full flex items-center bg-slate-50 border border-blue-200 rounded-xl px-3.5 py-2 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-500/25 focus-within:border-blue-500 transition">
               <textarea id="composer-input" rows="1" placeholder="Nhập câu hỏi Toán THCS (hoặc dán ảnh bằng Ctrl+V)..." class="w-full resize-none bg-transparent text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none max-h-32"></textarea>
             </div>
 
-            <div class="flex items-center gap-2 shrink-0">
+            <div class="flex flex-wrap items-center gap-2 shrink-0">
               <button type="button" onclick="document.getElementById('file-input').click()" class="flex-1 sm:flex-none px-3.5 py-2.5 rounded-xl bg-white hover:bg-blue-50 border border-blue-200 text-slate-700 hover:text-blue-800 text-xs font-semibold flex items-center justify-center gap-1.5 transition">
                 <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
